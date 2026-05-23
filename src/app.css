@@ -1,0 +1,148 @@
+/* ============================================================
+   VASBYT V2 — Design tokens + base reset
+   Component styles live in each .svelte file.
+   ============================================================ */
+
+:root {
+  /* Shell */
+  --bg:           #111417;
+  --bg-grad-top:  #1c2229;
+  --panel:        #1a1f26;
+  --card:         #1e2227;
+  /* Text */
+  --text:         #e8edf2;
+  --muted:        #8a9bb0;
+  /* Accent */
+  --accent:       #0e9ab8;
+  --accent-light: #0a7a9a;
+  --accent-text:  #001a20;
+  /* Semantic */
+  --green:        #2fb36d;
+  --amber:        #f5a623;
+  --red:          #e95353;
+  /* Borders */
+  --line:         rgba(10, 122, 154, .20);
+  --border-strong:rgba(10, 122, 154, .42);
+  /* Surfaces */
+  --tabs-bg:      rgba(17, 20, 23, .92);
+  --chip-bg:      rgba(10, 122, 154, .14);
+  --chip-border:  rgba(14, 154, 184, .30);
+  --chip-text:    #b0e4f0;
+  /* Touch targets */
+  --touch:        44px;
+  --touch-lg:     56px;
+}
+
+[data-theme="bloom"] {
+  --bg:           #1e0d18;
+  --bg-grad-top:  #320f28;
+  --panel:        #2e1525;
+  --card:         #371a2c;
+  --text:         #faf0f5;
+  --muted:        #d4a8c7;
+  --accent:       #e8728a;
+  --accent-light: #ffb3c6;
+  --accent-text:  #2a0a12;
+  --line:         rgba(255, 200, 220, .18);
+  --border-strong:rgba(232, 114, 138, .40);
+  --tabs-bg:      rgba(30, 13, 24, .88);
+  --chip-bg:      rgba(232, 114, 138, .18);
+  --chip-border:  rgba(232, 114, 138, .42);
+  --chip-text:    #ffe0e8;
+}
+
+/* ── Reset ────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: linear-gradient(180deg, var(--bg-grad-top), var(--bg) 45%, var(--bg));
+  color: var(--text);
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  padding-top: max(10px, env(safe-area-inset-top));
+  padding-bottom: max(90px, env(safe-area-inset-bottom));
+  padding-left: 12px;
+  padding-right: 12px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+button, input, select, textarea { font: inherit; }
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  min-height: var(--touch);
+  border-radius: 10px;
+  padding: 0 16px;
+}
+
+input {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 10px 14px;
+  width: 100%;
+  min-height: var(--touch);
+}
+
+input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(14,154,184,.25); }
+
+/* ── Utility buttons ──────────────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: var(--accent-text);
+  font-weight: 800;
+  width: 100%;
+  min-height: var(--touch-lg);
+  border-radius: 14px;
+  font-size: 16px;
+  letter-spacing: .01em;
+}
+
+.btn-secondary {
+  background: rgba(255,255,255,.07);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-weight: 700;
+  min-height: var(--touch);
+  border-radius: 10px;
+  padding: 0 16px;
+}
+
+.btn-ghost {
+  background: none;
+  color: var(--muted);
+  font-weight: 700;
+  min-height: var(--touch);
+}
+
+/* ── Cards ────────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* ── Progress bar ─────────────────────────────────────────── */
+.progress-bar {
+  background: var(--line);
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar__fill {
+  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease-out;
+}
