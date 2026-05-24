@@ -137,9 +137,13 @@
 	{/if}
 
 	<!-- Start workout CTA -->
-	<button class="btn-primary" disabled>
-		Start Gym Mode — coming next
-	</button>
+	{#if routineMode && routineDay && routineDay.exercises.length > 0}
+		<a href="/gym" class="btn-primary btn-link">Start Gym Mode →</a>
+	{:else}
+		<button class="btn-primary" disabled>
+			{routineMode ? 'No exercises today' : 'Set up a routine to start'}
+		</button>
+	{/if}
 
 </div>
 
@@ -284,5 +288,9 @@
 	.btn-primary:disabled {
 		opacity: 0.35;
 		cursor: not-allowed;
+	}
+	.btn-link {
+		display: flex; align-items: center; justify-content: center;
+		text-decoration: none;
 	}
 </style>

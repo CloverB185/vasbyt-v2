@@ -3,7 +3,7 @@
 // from localStorage and exposes typed structures for the UI.
 // ============================================================
 
-import { J, KEYS, today } from './storage';
+import { J, S, KEYS, today } from './storage';
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -110,4 +110,68 @@ export function getTotalSetsScheduled(exercises: Exercise[]): number {
 export function getProfileName(): string {
 	const prof = J<{ name?: string }>(KEYS.profile(), {});
 	return prof.name || 'Me';
+}
+
+// ── Gym actions ──────────────────────────────────────────────
+
+/** Save a log entry and return it */
+export function saveLog(
+	exerciseId: number | string,
+	exerciseName: string,
+	weight: string,
+	reps: string
+): LogEntry {
+	const logs = getLogs();
+	const entry: LogEntry = {
+		id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+		date: today(),
+		exerciseId,
+		exerciseName,
+		weight,
+		reps,
+		week: getWeek(),
+		day: getDay()
+	};
+	logs.push(entry);
+	S(KEYS.logs(), logs);
+	return entry;
+}
+
+/** Most recent weight logged for an exercise (any date) */
+export function getLastWeightForExercise(exerciseId: number | string): string {
+	const all = getLogs().filter((l) => String(l.exerciseId) === String(exerciseId) && l.weight);
+	return all.at(-1)?.weight ?? '';
+}
+
+/** Most recent reps logged for an exercise (any date) */
+export function getLastRepsForExercise(exerciseId: number | string): string {
+	const all = getLogs().filter((l) => String(l.exerciseId) === String(exerciseId) && l.reps);
+	return all.at(-1)?.reps ?? '';
+}
+
+/** Remove the most recent set logged today for an exercise */
+export function undoLastSetToday(exerciseId: number | string): boolean {
+	const logs = getLogs();
+	const t = today();
+	let lastIdx = -1;
+	logs.forEach((l, i) => {
+		if (l.date === t && String(l.exerciseId) === String(exerciseId)) lastIdx = i;
+	});
+	if (lastIdx === -1) return false;
+	logs.splice(lastIdx, 1);
+	S(KEYS.logs(), logs);
+	return true;
+}
+
+/** Save a finish record and advance the day/week counters */
+export function finishWorkout(): void {
+	const w = getWeek();
+	const d = getDay();
+	const finishes = J<{ date: string; week: number; day: number }[]>(KEYS.finishes(), []);
+	finishes.push({ date: today(), week: w, day: d });
+	S(KEYS.finishes(), finishes);
+	const nextDay = d >= 7 ? 1 : d + 1;
+	const nextWeek = d >= 7 ? w + 1 : w;
+	S(KEYS.day(), nextDay);
+	S(KEYS.week(), nextWeek);
 }
