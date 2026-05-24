@@ -121,3 +121,13 @@
 **Fix:** Rewrote `+layout.svelte`: replaced bottom `.tab-bar` nav with V1-style sticky top `.tabs` grid (4 tabs: Today / My Progress / My Body / Log). Added `<header class="hero">` containing the "Vasbyt · You Can!" h1 (with accent glow text-shadow via `--accent-glow` CSS var), time-based greeting, settings gear `<a>`, and W·D·sets pill. Header + tabs hidden on `/gym` route via `isGym = $derived($page.url.pathname === '/gym')` to match V1's full-screen gym shell. Updated `app.css`: added `--accent-glow` var, reduced `padding-bottom` from `max(90px,...)` to `max(20px,...)`, changed side padding 12px → 10px. W·D·sets pill computed in `onMount` via `getWeek()`, `getDay()`, log count for today, and `getRoutineDay(day).exercises.reduce(...)` for total sets.
 **Files changed:** `src/routes/+layout.svelte`, `src/app.css`
 **Cross-project:** NO (Vasbyt-specific shell structure)
+
+---
+
+## [2026-05-24] — Body Check-In Form Updated to 1-10 Scale (Phase 10B)
+
+**Symptom:** V2 body check-in used energy 1-5 button grid and sleep in hours. V1 uses energy 1-10, sleep quality 1-10, and soreness 0-10 — all text inputs.
+**Root cause:** V2 body page was built with a simplified form that didn't match V1's fields or scale.
+**Fix:** Updated `CheckIn` interface in `program.ts` to add `soreness?: number`. Changed deload threshold in `getDeloadSignal()` from `< 2.5` to `< 5` (now on 1-10 scale). Updated `body/+page.svelte`: changed `let energy = $state(3)` → `$state('')`, added `let soreness = $state('')`, replaced energy button grid with three number inputs (Energy 1-10 / Sleep quality 1-10 / Soreness 0-10), added `.field-hint` text under each, updated `energyColor()` thresholds to `>= 8` / `>= 5`, updated `energyLabel()` for 1-10 scale, updated logged-today display to show `/10`, updated history pills to show `/10`, updated `submitCheckin()` to pass `soreness`.
+**Files changed:** `src/lib/data/program.ts`, `src/routes/body/+page.svelte`
+**Cross-project:** NO (Vasbyt-specific check-in schema)
