@@ -101,3 +101,13 @@
 **Fix:** Added `phaseSeen` key to `KEYS` in `storage.ts`. Added 8 new exported functions to `program.ts`: `getWeekBounds()`, `getTonnageForWeek()`, `getStalledExercises()`, `isOverreaching()`, `getPeriodizationInsight()`, `getPhaseTransitionInfo()` / `markPhaseTransitionSeen()`, `getDeloadSignal()`, `getSessionBriefing()`. Updated `+page.svelte` to render 4 cards: phase transition (week 2/6, one-time per profile via `KEYS.phaseSeen`), deload banner (avg energy < 2.5 over 5 check-ins, per-week sessionStorage dismiss), training load card (tonnage trend, stalled exercises, overreaching, per-day sessionStorage dismiss), inline weight suggestions per exercise row. All cards are data-gated — none show on a fresh profile (< 8 weighted sets, no check-ins, not week 2/6).
 **Files changed:** `src/lib/data/storage.ts`, `src/lib/data/program.ts`, `src/routes/+page.svelte`
 **Cross-project:** NO (Vasbyt-specific logic)
+
+---
+
+## [2026-05-24] — Voice Gym Mode Port (Phase 9)
+
+**Symptom:** V2 gym had no hands-free set logging. V1 `app-voice.js` used DOM selectors (`.set-w-input`, `.set-r-input`, `.set-row-card.pending`) and global `window.__commitRow` / `window.move` bridges that don't exist in a Svelte component.
+**Root cause:** V1 voice was tightly coupled to DOM. V2 Svelte uses `$state` bindings — no DOM manipulation needed.
+**Fix:** Ported `_voiceProcess()` command parser directly into gym `+page.svelte`. Replaced all DOM manipulation with direct `$state` writes: `weight = wVal`, `reps = rVal`, call `logSet()`, `nextEx()`, `prevEx()`, `stopTimer()`, `finishAll()` directly. Voice button added to the gym-target row (between sets label and set-count). Toast feedback via `voiceToast = $state('')` with 1800ms auto-clear. Cleanup in `onMount` return fn calls `stopVoice()`. `SpeechRecognition` typed as `any` to avoid lib conflicts. Lang: `en-ZA`.
+**Files changed:** `src/routes/gym/+page.svelte`
+**Cross-project:** YES — same pattern works for any Svelte 5 app needing Web Speech API. Key insight: in Svelte 5, voice commands just set `$state` directly — no DOM bridges needed.
