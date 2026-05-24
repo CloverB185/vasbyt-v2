@@ -299,7 +299,7 @@
 {#if expanded}
 	<div class="photo-overlay" onclick={() => (expanded = null)} role="button" tabindex="0" onkeydown={e => e.key === 'Escape' && (expanded = null)}>
 		<img src={expanded} alt="Progress photo" />
-		<button class="overlay-close" onclick|stopPropagation={() => (expanded = null)}>×</button>
+		<button class="overlay-close" onclick={(e) => { e.stopPropagation(); expanded = null; }}>×</button>
 	</div>
 {/if}
 
