@@ -16,9 +16,18 @@
 		getCachedCoachNote,
 		saveCoachNote,
 		getTodayCheckin,
+		getPeriodizationInsight,
+		getPhaseTransitionInfo,
+		markPhaseTransitionSeen,
+		getDeloadSignal,
+		getSessionBriefing,
 		type Exercise,
-		type RoutineDay
+		type RoutineDay,
+		type PeriodizationInsight,
+		type PhaseTransitionInfo,
+		type SessionBriefingEntry
 	} from '$lib/data/program';
+	import { today } from '$lib/data/storage';
 
 	// ── State ──────────────────────────────────────────────────
 	let profileName  = $state('Me');
@@ -31,6 +40,14 @@
 	let routineDay   = $state<RoutineDay>({ title: '', exercises: [] });
 	let setsDone     = $state(0);
 	let setsTotal    = $state(0);
+
+	// ── Periodization ─────────────────────────────────────────
+	let phaseTransition  = $state<PhaseTransitionInfo | null>(null);
+	let deloadSignal     = $state(false);
+	let deloadDismissed  = $state(false);
+	let periInsight      = $state<PeriodizationInsight | null>(null);
+	let periDismissed    = $state(false);
+	let briefingMap      = $state<Record<string, SessionBriefingEntry>>({});
 
 	// ── Coach note ─────────────────────────────────────────────
 	let coachNote    = $state('');
@@ -58,6 +75,7 @@
 	onMount(() => {
 		load();
 		loadCoachNote();
+		loadPeriodization();
 	});
 
 	async function loadCoachNote() {
@@ -92,6 +110,42 @@
 		}
 	}
 
+	function loadPeriodization() {
+		phaseTransition = getPhaseTransitionInfo();
+		deloadSignal    = getDeloadSignal();
+		periInsight     = getPeriodizationInsight();
+		const briefing  = getSessionBriefing(routineDay.exercises);
+		briefingMap     = Object.fromEntries(briefing.map((b) => [String(b.exerciseId), b]));
+		const periKey   = 'perio-' + today();
+		const deloadKey = _deloadWeekKey();
+		if (sessionStorage.getItem(periKey))   periDismissed  = true;
+		if (sessionStorage.getItem(deloadKey)) deloadDismissed = true;
+	}
+
+	function _deloadWeekKey(): string {
+		const now = new Date();
+		const dow = now.getDay() === 0 ? 6 : now.getDay() - 1;
+		const mon = new Date(now);
+		mon.setDate(now.getDate() - dow);
+		return 'deload-' + mon.toISOString().slice(0, 10);
+	}
+
+	function dismissPeriCard() {
+		periDismissed = true;
+		sessionStorage.setItem('perio-' + today(), '1');
+	}
+
+	function dismissDeload() {
+		deloadDismissed = true;
+		sessionStorage.setItem(_deloadWeekKey(), '1');
+	}
+
+	function dismissPhaseCard() {
+		if (!phaseTransition) return;
+		markPhaseTransitionSeen(phaseTransition.phaseKey);
+		phaseTransition = null;
+	}
+
 	// ── Helpers ────────────────────────────────────────────────
 	function setsLoggedFor(ex: Exercise): number {
 		return getTodaySetsForExercise(ex.id).length;
@@ -123,6 +177,28 @@
 		</div>
 	</div>
 
+	<!-- Phase transition card -->
+	{#if phaseTransition}
+		<div class="intel-card">
+			<div class="intel-body">
+				{#if phaseTransition.phaseKey === 'p2'}
+					Next week your program shifts to <strong>{phaseTransition.message}</strong> — an extra set per exercise and slightly heavier weights. Your body has been building the base for this.
+				{:else}
+					Next week you move into <strong>{phaseTransition.message}</strong> — the focus shifts to form, full range of motion, and consistency over load. You've done the hard part.
+				{/if}
+			</div>
+			<button class="btn-dismiss" onclick={dismissPhaseCard}>✕</button>
+		</div>
+	{/if}
+
+	<!-- Deload banner -->
+	{#if deloadSignal && !deloadDismissed}
+		<div class="intel-card">
+			<div class="intel-body">Your body's been signalling all week. Consider a deload — same exercises, 60% weight, focus on recovery.</div>
+			<button class="btn-dismiss" onclick={dismissDeload}>✕</button>
+		</div>
+	{/if}
+
 	<!-- Progress bar -->
 	{#if setsTotal > 0}
 		<div class="progress-section">
@@ -151,6 +227,9 @@
 						<div class="exercise-info">
 							<span class="exercise-name">{ex.name}</span>
 							<span class="exercise-detail">{ex.sets} sets · {ex.reps}</span>
+							{#if briefingMap[String(ex.id)]}
+								<span class="exercise-hint {briefingMap[String(ex.id)].readyToProgress ? 'hint-up' : 'hint-same'}">{briefingMap[String(ex.id)].suggestion}</span>
+							{/if}
 						</div>
 						<div class="exercise-progress">
 							{#if done > 0}
@@ -168,6 +247,31 @@
 	{:else}
 		<div class="card">
 			<p class="placeholder-note">Rest day — good work. See you next session.</p>
+		</div>
+	{/if}
+
+	<!-- Training load card -->
+	{#if periInsight && !periDismissed}
+		<div class="training-load-card">
+			<div class="tl-head">
+				<span class="tl-label">Training Load</span>
+				<button class="btn-dismiss" onclick={dismissPeriCard}>✕</button>
+			</div>
+			{#if periInsight.firstWeek}
+				<div class="tl-line"><span class="tl-accent">First recorded week</span> — keep it going</div>
+			{:else if periInsight.volumePct !== null}
+				<div class="tl-line">
+					<span class={periInsight.volumePct >= 0 ? 'tl-green' : 'tl-amber'}>
+						{periInsight.volumePct >= 0 ? '↑' : '↓'} {Math.abs(periInsight.volumePct)}%
+					</span> volume vs last week
+				</div>
+			{/if}
+			{#each periInsight.stalled as s}
+				<div class="tl-line"><span class="tl-amber">{s.name}</span> — stuck at {s.weight} kg for {s.sessions} sessions</div>
+			{/each}
+			{#if periInsight.overreaching}
+				<div class="tl-line"><span class="tl-amber">High load 3 weeks running</span> — consider a deload next week</div>
+			{/if}
 		</div>
 	{/if}
 
@@ -330,6 +434,74 @@
 		letter-spacing: 3px;
 		text-align: center;
 	}
+
+	/* Exercise briefing hints */
+	.exercise-hint {
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: .02em;
+		margin-top: 1px;
+	}
+	.hint-up   { color: var(--green); }
+	.hint-same { color: var(--muted); }
+
+	/* Intel cards (phase transition, deload) */
+	.intel-card {
+		background: rgba(255,255,255,0.05);
+		border-left: 3px solid var(--accent);
+		border-radius: 8px;
+		padding: 12px 14px;
+		display: flex;
+		align-items: flex-start;
+		gap: 10px;
+	}
+	.intel-body {
+		flex: 1;
+		font-size: 14px;
+		line-height: 1.55;
+		color: rgba(255,255,255,0.85);
+	}
+	.btn-dismiss {
+		flex-shrink: 0;
+		font-size: 12px;
+		padding: 2px 6px;
+		opacity: 0.45;
+		background: none;
+		border: none;
+		color: var(--text);
+		cursor: pointer;
+		line-height: 1;
+	}
+
+	/* Training load card */
+	.training-load-card {
+		background: rgba(255,255,255,0.05);
+		border-left: 3px solid var(--accent);
+		border-radius: 8px;
+		padding: 11px 14px;
+	}
+	.tl-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 7px;
+	}
+	.tl-label {
+		font-size: 11px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: .05em;
+		color: var(--muted);
+	}
+	.tl-line {
+		font-size: 13px;
+		color: rgba(255,255,255,0.82);
+		line-height: 1.55;
+		margin-bottom: 2px;
+	}
+	.tl-green  { color: var(--green); font-weight: 700; }
+	.tl-amber  { color: var(--amber); font-weight: 700; }
+	.tl-accent { color: var(--accent); font-weight: 700; }
 
 	.placeholder-note {
 		font-size: 13px;

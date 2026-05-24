@@ -71,3 +71,33 @@
 **Fix:** Set build output directory to `.svelte-kit/cloudflare` in Cloudflare Pages → Settings → Builds & deployments.
 **Files changed:** Cloudflare Pages dashboard config
 **Cross-project:** NO (specific to @sveltejs/adapter-cloudflare)
+
+---
+
+## [2026-05-24] — 12-week Program as Default (Phase 7 Section 1)
+
+**Symptom:** Today tab showed "12-week program exercise list coming in the next build" placeholder. Gym tab showed "No routine active" and was inaccessible without a custom routine.
+**Root cause:** `getRoutineDay()` returned `null` when no custom routine was active. Today tab CTA was gated on `routineMode && routineDay`. Gym tab checked `inRoutineMode()` to decide whether to load exercises.
+**Fix:** Added `PROGRAM` constant (3 phases × 5 days, 25 exercises with `EX_META` metadata map) to `program.ts`. Modified `getRoutineDay()` to fall back to `getProgramDay(getPhase(getWeek()), day)` when no routine is active — it now always returns a `RoutineDay` (never null). Updated Today tab: removed null guard on `routineDay`, changed CTA from `routineMode && routineDay.exercises.length > 0` to `routineDay.exercises.length > 0`, day title shows program day title. Updated Gym tab: replaced `inRoutineMode()` check with `getRoutineDay(getDay()).exercises.length > 0`.
+**Files changed:** `src/lib/data/program.ts`, `src/routes/+page.svelte`, `src/routes/gym/+page.svelte`
+**Cross-project:** NO (Vasbyt-specific program data)
+
+---
+
+## [2026-05-24] — Preset Routines in Settings (Phase 7 Section 2)
+
+**Symptom:** Settings tab showed "No custom routine active. Set one up in the live app to sync it here." — users had no way to select a routine in V2.
+**Root cause:** No preset routine data existed in V2. The active routine section only handled clearing, not selecting.
+**Fix:** Added `PRESET_ROUTINES` constant (4 presets, full `StoredRoutine`-shaped days Records) and 6 compound exercise entries to `EX_META` (`squat`, `bench-press`, `deadlift`, `romanian-deadlift`, `lat-pulldown`, `shoulder-press`). Exported `getPresetRoutines()` and `activatePreset(id)` which writes directly to `KEYS.activeRoutine()`. Settings UI: replaced placeholder with a list of preset cards (name + description + Use button); clicking Use calls `activatePreset()`, flips `hasRoutine` / `routineName` reactively, and shows green ✓ confirmation for 2 seconds. Today tab immediately reflects the preset on next navigation.
+**Files changed:** `src/lib/data/program.ts`, `src/routes/settings/+page.svelte`
+**Cross-project:** NO (Vasbyt-specific preset data)
+
+---
+
+## [2026-05-24] — Periodization Engine Port (Phase 8)
+
+**Symptom:** V2 had no training intelligence — no volume trend, no stalled exercise detection, no phase transition warnings, no deload signal, no session weight suggestions.
+**Root cause:** V1 periodization logic was split across `app-periodization.js` and `app-today.js` using imperative DOM rendering. V2 needed the same logic ported to typed TypeScript functions with Svelte 5 reactive state.
+**Fix:** Added `phaseSeen` key to `KEYS` in `storage.ts`. Added 8 new exported functions to `program.ts`: `getWeekBounds()`, `getTonnageForWeek()`, `getStalledExercises()`, `isOverreaching()`, `getPeriodizationInsight()`, `getPhaseTransitionInfo()` / `markPhaseTransitionSeen()`, `getDeloadSignal()`, `getSessionBriefing()`. Updated `+page.svelte` to render 4 cards: phase transition (week 2/6, one-time per profile via `KEYS.phaseSeen`), deload banner (avg energy < 2.5 over 5 check-ins, per-week sessionStorage dismiss), training load card (tonnage trend, stalled exercises, overreaching, per-day sessionStorage dismiss), inline weight suggestions per exercise row. All cards are data-gated — none show on a fresh profile (< 8 weighted sets, no check-ins, not week 2/6).
+**Files changed:** `src/lib/data/storage.ts`, `src/lib/data/program.ts`, `src/routes/+page.svelte`
+**Cross-project:** NO (Vasbyt-specific logic)

@@ -625,6 +625,158 @@ export function saveCoachNote(text: string): void {
 	S(KEYS.coachNote(), { date: today(), text });
 }
 
+// ── Periodization engine ─────────────────────────────────────
+
+function _isoDate(d: Date): string {
+	return (
+		d.getFullYear() +
+		'-' +
+		String(d.getMonth() + 1).padStart(2, '0') +
+		'-' +
+		String(d.getDate()).padStart(2, '0')
+	);
+}
+
+export function getWeekBounds(weeksBack: number): { mon: string; sun: string } {
+	const now = new Date();
+	const dow = now.getDay();
+	const diffToMon = dow === 0 ? -6 : 1 - dow;
+	const thisMon = new Date(now);
+	thisMon.setDate(now.getDate() + diffToMon);
+	thisMon.setHours(0, 0, 0, 0);
+	const mon = new Date(thisMon);
+	mon.setDate(thisMon.getDate() - weeksBack * 7);
+	const sun = new Date(mon);
+	sun.setDate(mon.getDate() + 6);
+	return { mon: _isoDate(mon), sun: _isoDate(sun) };
+}
+
+export function getTonnageForWeek(mon: string, sun: string): number {
+	return getLogs()
+		.filter((l) => l.date >= mon && l.date <= sun && parseFloat(l.weight) > 0)
+		.reduce((s, l) => s + (parseFloat(l.weight) || 0) * (parseInt(l.reps) || 0), 0);
+}
+
+export function getStalledExercises(): { name: string; weight: number; sessions: number }[] {
+	const weighted = getLogs().filter((l) => parseFloat(l.weight) > 0);
+	const byEx: Record<string, { name: string; byDate: Record<string, number> }> = {};
+	weighted.forEach((l) => {
+		const key = String(l.exerciseId);
+		if (!byEx[key]) byEx[key] = { name: l.exerciseName || key, byDate: {} };
+		const w = parseFloat(l.weight) || 0;
+		if (!byEx[key].byDate[l.date] || w > byEx[key].byDate[l.date]) byEx[key].byDate[l.date] = w;
+	});
+	const stalled: { name: string; weight: number; sessions: number }[] = [];
+	Object.values(byEx).forEach(({ name, byDate }) => {
+		const dates = Object.keys(byDate).sort().reverse();
+		if (dates.length < 3) return;
+		const [d0, d1, d2, d3] = dates;
+		const w0 = byDate[d0], w1 = byDate[d1], w2 = byDate[d2];
+		if (w0 !== w1 || w1 !== w2) return;
+		const count = d3 && byDate[d3] === w0 ? 4 : 3;
+		stalled.push({ name, weight: w0, sessions: count });
+	});
+	return stalled.sort((a, b) => b.sessions - a.sessions).slice(0, 3);
+}
+
+export function isOverreaching(): boolean {
+	const t = [1, 2, 3, 4].map((w) => {
+		const b = getWeekBounds(w);
+		return getTonnageForWeek(b.mon, b.sun);
+	});
+	if (t[0] === 0 && t[1] === 0 && t[2] === 0) return false;
+	const avg4 = (t[0] + t[1] + t[2] + t[3]) / 4;
+	if (avg4 === 0) return false;
+	return t[0] >= avg4 * 1.1 && t[1] >= avg4 * 1.1 && t[2] >= avg4 * 1.1;
+}
+
+export interface PeriodizationInsight {
+	volumePct: number | null;
+	firstWeek: boolean;
+	stalled: { name: string; weight: number; sessions: number }[];
+	overreaching: boolean;
+}
+
+export function getPeriodizationInsight(): PeriodizationInsight | null {
+	const weighted = getLogs().filter((l) => parseFloat(l.weight) > 0);
+	if (weighted.length < 8) return null;
+	const thisB = getWeekBounds(0);
+	const lastB = getWeekBounds(1);
+	const thisTon = getTonnageForWeek(thisB.mon, thisB.sun);
+	const lastTon = getTonnageForWeek(lastB.mon, lastB.sun);
+	let volumePct: number | null = null;
+	let firstWeek = false;
+	if (thisTon > 0 && lastTon > 0) {
+		volumePct = Math.round(((thisTon - lastTon) / lastTon) * 100);
+	} else if (thisTon > 0 && lastTon === 0) {
+		firstWeek = true;
+	}
+	const stalled = getStalledExercises();
+	const overreaching = isOverreaching();
+	if (volumePct === null && !firstWeek && !stalled.length && !overreaching) return null;
+	return { volumePct, firstWeek, stalled, overreaching };
+}
+
+export interface PhaseTransitionInfo {
+	phaseKey: string;
+	message: string;
+}
+
+export function getPhaseTransitionInfo(): PhaseTransitionInfo | null {
+	if (inRoutineMode()) return null;
+	const wk = getWeek();
+	if (wk !== 2 && wk !== 6) return null;
+	const phaseKey = wk === 2 ? 'p2' : 'p3';
+	if (J<Record<string, boolean>>(KEYS.phaseSeen(), {})[phaseKey]) return null;
+	const message =
+		wk === 2
+			? 'Build Strength + Toning'
+			: 'Recomposition + Shape';
+	return { phaseKey, message };
+}
+
+export function markPhaseTransitionSeen(phaseKey: string): void {
+	const seen = J<Record<string, boolean>>(KEYS.phaseSeen(), {});
+	seen[phaseKey] = true;
+	S(KEYS.phaseSeen(), seen);
+}
+
+export function getDeloadSignal(): boolean {
+	const pts = getCheckins().filter((c) => (c.energy ?? 0) > 0);
+	if (!pts.length) return false;
+	const recent = pts.slice(-5);
+	return recent.reduce((s, c) => s + (c.energy ?? 0), 0) / recent.length < 2.5;
+}
+
+export interface SessionBriefingEntry {
+	exerciseId: number | string;
+	name: string;
+	lastWeight: string;
+	suggestion: string;
+	readyToProgress: boolean;
+}
+
+export function getSessionBriefing(exercises: Exercise[]): SessionBriefingEntry[] {
+	const allLogs = getLogs();
+	const t = today();
+	return exercises.slice(0, 6).flatMap((ex) => {
+		const prevLogs = allLogs.filter(
+			(l) => String(l.exerciseId) === String(ex.id) && l.date < t && parseFloat(l.weight) > 0
+		);
+		if (!prevLogs.length) return [];
+		const lastDate = prevLogs[prevLogs.length - 1].date;
+		const lastSets = prevLogs.filter((l) => l.date === lastDate);
+		const maxW = Math.max(...lastSets.map((l) => parseFloat(l.weight) || 0));
+		if (!maxW) return [];
+		const targetSets = Number(ex.sets) || 3;
+		const minReps = parseInt(String(ex.reps)) || 10;
+		const goodSets = lastSets.filter((l) => (parseInt(l.reps) || 0) >= minReps);
+		const ready = goodSets.length >= targetSets;
+		const suggestion = ready ? `↑ try ${(maxW + 2.5).toFixed(1)} kg` : `→ ${maxW} kg`;
+		return [{ exerciseId: ex.id, name: ex.name, lastWeight: `${maxW} kg`, suggestion, readyToProgress: ready }];
+	});
+}
+
 /** Save a finish record and advance the day/week counters */
 export function finishWorkout(): void {
 	const w = getWeek();
