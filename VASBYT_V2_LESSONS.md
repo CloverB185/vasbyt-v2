@@ -44,6 +44,26 @@
 
 ---
 
+## [2026-05-24] — Svelte 5 Event Modifier Syntax Is Invalid (Use Inline Handler)
+
+**Symptom:** `npm run build` fails with `RolldownError: 'onclick|stopPropagation' is not a valid attribute name`. The error only appears at build time — `tsc --noEmit` passes cleanly, giving a false sense of safety.
+**Root cause:** Svelte 4 event modifiers (`onclick|stopPropagation`, `onclick|preventDefault`) are not valid in Svelte 5 runes mode. Cloudflare Pages build silently fails (no new deploy), serving the previous version — so the app appears to work but is actually stale.
+**Fix:** Replace `onclick|stopPropagation={handler}` with `onclick={(e) => { e.stopPropagation(); handler(); }}`. Always run `npm run build` locally before pushing — never rely on `tsc --noEmit` alone to catch Svelte template errors.
+**Files changed:** `src/routes/body/+page.svelte`
+**Cross-project:** YES — any Svelte 5 runes-mode project. Affects all modifier forms: `|stopPropagation`, `|preventDefault`, `|once`, `|capture`, etc.
+
+---
+
+## [2026-05-24] — Stale SW Cache After Wrangler Direct Deploy
+
+**Symptom:** After deploying via `npx wrangler pages deploy`, one console error: `Failed to fetch dynamically imported module: .../<old-hash>.js`. Page still renders correctly.
+**Root cause:** The PWA service worker caches JS chunk filenames by hash. A direct wrangler deploy changes chunk hashes but the old SW still serves the old names for prefetch requests. The SW auto-updates on the next page load cycle but the first navigation may attempt to fetch a now-gone chunk.
+**Fix:** Inject SW clear via browser console or MCP JS tool: `navigator.serviceWorker.getRegistrations().then(regs => Promise.all(regs.map(r => r.unregister()))).then(() => caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => location.reload(true)))`. This is cosmetic — it does not block functionality.
+**Files changed:** none
+**Cross-project:** YES — any Vite PWA project deployed with direct CLI (bypassing the normal CI that would evict the old SW).
+
+---
+
 ## [2026-05-24] — adapter-cloudflare Build Output Directory
 
 **Symptom:** Cloudflare Pages build succeeds but site is blank or 404.
