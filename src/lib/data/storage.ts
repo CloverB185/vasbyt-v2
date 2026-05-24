@@ -75,6 +75,7 @@ export const KEYS = {
 	theme:         () => 'vasbytTheme.v1', // shared across profiles
 	bodyInsights:  () => pKey('vasbytBodyInsights.v1', 'bodyInsights'),
 	phaseSeen:     () => pKey('vasbytPhaseSeen.v1',    'phaseSeen'),
+	cardio:        () => pKey('vasbytCardio.v1',       'cardio'),
 };
 
 // Init profiles on first load (browser only)

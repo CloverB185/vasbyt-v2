@@ -13,8 +13,9 @@
 	let editing     = $state(false);
 	let history     = $state<CheckIn[]>([]);
 	let weight      = $state('');
-	let energy      = $state(3);
+	let energy      = $state('');
 	let sleep       = $state('');
+	let soreness    = $state('');
 	let notes       = $state('');
 	let ciSaved     = $state(false);
 
@@ -54,21 +55,23 @@
 		todayEntry = getTodayCheckin();
 		history    = getRecentCheckins(7);
 		if (todayEntry) {
-			weight = todayEntry.weight != null ? String(todayEntry.weight) : '';
-			energy = todayEntry.energy ?? 3;
-			sleep  = todayEntry.sleep  != null ? String(todayEntry.sleep) : '';
-			notes  = todayEntry.notes  ?? '';
+			weight   = todayEntry.weight   != null ? String(todayEntry.weight)   : '';
+			energy   = todayEntry.energy   != null ? String(todayEntry.energy)   : '';
+			sleep    = todayEntry.sleep    != null ? String(todayEntry.sleep)    : '';
+			soreness = todayEntry.soreness != null ? String(todayEntry.soreness) : '';
+			notes    = todayEntry.notes    ?? '';
 		} else {
-			weight = ''; energy = 3; sleep = ''; notes = '';
+			weight = ''; energy = ''; sleep = ''; soreness = ''; notes = '';
 		}
 	}
 
 	function submitCheckin() {
 		saveCheckin({
-			weight: weight ? Number(weight) : undefined,
-			energy,
-			sleep:  sleep  ? Number(sleep)  : undefined,
-			notes:  notes.trim() || undefined
+			weight:   weight   ? Number(weight)   : undefined,
+			energy:   energy   ? Number(energy)   : undefined,
+			sleep:    sleep    ? Number(sleep)    : undefined,
+			soreness: soreness ? Number(soreness) : undefined,
+			notes:    notes.trim() || undefined
 		});
 		ciSaved = true; editing = false;
 		refreshCheckin();
@@ -281,13 +284,17 @@
 
 	function energyColor(e: number | undefined): string {
 		if (!e) return 'var(--muted)';
-		if (e >= 4) return 'var(--green)';
-		if (e === 3) return 'var(--amber)';
+		if (e >= 8) return 'var(--green)';
+		if (e >= 5) return 'var(--amber)';
 		return 'var(--red)';
 	}
 
 	function energyLabel(e: number): string {
-		return ['', 'Drained', 'Low', 'Okay', 'Good', 'Excellent'][e] ?? '';
+		if (e >= 9) return 'Excellent';
+		if (e >= 7) return 'Good';
+		if (e >= 5) return 'Okay';
+		if (e >= 3) return 'Low';
+		return 'Drained';
 	}
 </script>
 
@@ -325,16 +332,24 @@
 						<span class="pill-val">{todayEntry.weight} kg</span>
 					</div>
 				{/if}
-				<div class="stat-pill">
-					<span class="pill-label">Energy</span>
-					<span class="pill-val" style="color: {energyColor(todayEntry.energy)}">
-						{todayEntry.energy}/5 · {energyLabel(todayEntry.energy ?? 3)}
-					</span>
-				</div>
+				{#if todayEntry.energy}
+					<div class="stat-pill">
+						<span class="pill-label">Energy</span>
+						<span class="pill-val" style="color: {energyColor(todayEntry.energy)}">
+							{todayEntry.energy}/10 · {energyLabel(todayEntry.energy)}
+						</span>
+					</div>
+				{/if}
 				{#if todayEntry.sleep}
 					<div class="stat-pill">
-						<span class="pill-label">Sleep</span>
-						<span class="pill-val">{todayEntry.sleep} h</span>
+						<span class="pill-label">Sleep quality</span>
+						<span class="pill-val">{todayEntry.sleep}/10</span>
+					</div>
+				{/if}
+				{#if todayEntry.soreness != null}
+					<div class="stat-pill">
+						<span class="pill-label">Soreness</span>
+						<span class="pill-val">{todayEntry.soreness}/10</span>
 					</div>
 				{/if}
 			</div>
@@ -350,20 +365,19 @@
 				<input id="ci-weight" type="number" min="30" max="250" step="0.1" placeholder="e.g. 68.5" bind:value={weight} />
 			</div>
 			<div class="field">
-				<label class="field-label" for="ci-energy">
-					Energy — <span style="color: {energyColor(energy)}">{energy}/5 · {energyLabel(energy)}</span>
-				</label>
-				<div class="energy-row">
-					{#each [1,2,3,4,5] as n}
-						<button class="energy-btn" class:active={energy === n}
-							style={energy === n ? `background: ${energyColor(n)}22; border-color: ${energyColor(n)};` : ''}
-							onclick={() => (energy = n)}>{n}</button>
-					{/each}
-				</div>
+				<label class="field-label" for="ci-energy">Energy 1–10 — optional</label>
+				<div class="field-hint">1 = exhausted · 10 = full energy</div>
+				<input id="ci-energy" type="number" min="1" max="10" placeholder="e.g. 7" bind:value={energy} />
 			</div>
 			<div class="field">
-				<label class="field-label" for="ci-sleep">Sleep (hours) — optional</label>
-				<input id="ci-sleep" type="number" min="2" max="12" step="0.5" placeholder="e.g. 7.5" bind:value={sleep} />
+				<label class="field-label" for="ci-sleep">Sleep quality 1–10 — optional</label>
+				<div class="field-hint">1 = terrible · 10 = excellent</div>
+				<input id="ci-sleep" type="number" min="1" max="10" placeholder="e.g. 8" bind:value={sleep} />
+			</div>
+			<div class="field">
+				<label class="field-label" for="ci-soreness">Soreness 0–10 — optional</label>
+				<div class="field-hint">0 = none · 10 = can barely move</div>
+				<input id="ci-soreness" type="number" min="0" max="10" placeholder="e.g. 3" bind:value={soreness} />
 			</div>
 			<div class="field">
 				<label class="field-label" for="ci-notes">Notes — optional</label>
@@ -400,8 +414,9 @@
 					<span class="history-date">{formatDate(entry.date)}</span>
 					<div class="history-pills">
 						{#if entry.weight}<span class="h-pill">{entry.weight}kg</span>{/if}
-						{#if entry.energy}<span class="h-pill" style="color: {energyColor(entry.energy)}">E{entry.energy}</span>{/if}
-						{#if entry.sleep}<span class="h-pill">{entry.sleep}h</span>{/if}
+						{#if entry.energy}<span class="h-pill" style="color: {energyColor(entry.energy)}">E{entry.energy}/10</span>{/if}
+						{#if entry.sleep}<span class="h-pill">S{entry.sleep}/10</span>{/if}
+						{#if entry.soreness != null}<span class="h-pill">Sor{entry.soreness}/10</span>{/if}
 					</div>
 				</div>
 			{/each}
@@ -530,14 +545,7 @@ textarea {
 	color: var(--text); padding: 10px 14px; width: 100%; resize: none; font: inherit;
 }
 textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(14,154,184,.25); }
-.energy-row { display: flex; gap: 8px; }
-.energy-btn {
-	flex: 1; min-height: 44px; border-radius: 10px;
-	background: var(--panel); border: 1px solid var(--line);
-	font-size: 16px; font-weight: 900; color: var(--muted);
-	transition: background 0.15s, border-color 0.15s;
-}
-.energy-btn.active { color: var(--text); }
+.field-hint { font-size: 11px; color: var(--muted); margin-top: -2px; }
 .form-actions { display: flex; gap: 10px; }
 .btn-cancel {
 	min-height: var(--touch); border-radius: 10px;

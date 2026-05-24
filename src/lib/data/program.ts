@@ -582,9 +582,10 @@ export function getTopExercises(n = 5): { name: string; sets: number }[] {
 
 export interface CheckIn {
 	date: string;
-	weight?: number;   // kg
-	energy?: number;   // 1–5
-	sleep?: number;    // hours
+	weight?: number;    // kg
+	energy?: number;    // 1–10
+	sleep?: number;     // 1–10 quality
+	soreness?: number;  // 0–10
 	notes?: string;
 }
 
@@ -745,7 +746,7 @@ export function getDeloadSignal(): boolean {
 	const pts = getCheckins().filter((c) => (c.energy ?? 0) > 0);
 	if (!pts.length) return false;
 	const recent = pts.slice(-5);
-	return recent.reduce((s, c) => s + (c.energy ?? 0), 0) / recent.length < 2.5;
+	return recent.reduce((s, c) => s + (c.energy ?? 0), 0) / recent.length < 5;
 }
 
 export interface SessionBriefingEntry {

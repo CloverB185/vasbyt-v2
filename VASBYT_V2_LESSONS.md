@@ -111,3 +111,13 @@
 **Fix:** Ported `_voiceProcess()` command parser directly into gym `+page.svelte`. Replaced all DOM manipulation with direct `$state` writes: `weight = wVal`, `reps = rVal`, call `logSet()`, `nextEx()`, `prevEx()`, `stopTimer()`, `finishAll()` directly. Voice button added to the gym-target row (between sets label and set-count). Toast feedback via `voiceToast = $state('')` with 1800ms auto-clear. Cleanup in `onMount` return fn calls `stopVoice()`. `SpeechRecognition` typed as `any` to avoid lib conflicts. Lang: `en-ZA`.
 **Files changed:** `src/routes/gym/+page.svelte`
 **Cross-project:** YES — same pattern works for any Svelte 5 app needing Web Speech API. Key insight: in Svelte 5, voice commands just set `$state` directly — no DOM bridges needed.
+
+---
+
+## [2026-05-24] — V1 → V2 Shell Visual Alignment (Phase 10)
+
+**Symptom:** V2 launched with a redesigned bottom nav and no branding header. V1 has horizontal pill tabs at top, "Vasbyt · You Can!" header with greeting + W·D·sets counter. User expected exact visual parity.
+**Root cause:** V2 shell was written as a fresh SvelteKit design (bottom nav is a common SPA pattern) rather than matching V1's exact layout.
+**Fix:** Rewrote `+layout.svelte`: replaced bottom `.tab-bar` nav with V1-style sticky top `.tabs` grid (4 tabs: Today / My Progress / My Body / Log). Added `<header class="hero">` containing the "Vasbyt · You Can!" h1 (with accent glow text-shadow via `--accent-glow` CSS var), time-based greeting, settings gear `<a>`, and W·D·sets pill. Header + tabs hidden on `/gym` route via `isGym = $derived($page.url.pathname === '/gym')` to match V1's full-screen gym shell. Updated `app.css`: added `--accent-glow` var, reduced `padding-bottom` from `max(90px,...)` to `max(20px,...)`, changed side padding 12px → 10px. W·D·sets pill computed in `onMount` via `getWeek()`, `getDay()`, log count for today, and `getRoutineDay(day).exercises.reduce(...)` for total sets.
+**Files changed:** `src/routes/+layout.svelte`, `src/app.css`
+**Cross-project:** NO (Vasbyt-specific shell structure)

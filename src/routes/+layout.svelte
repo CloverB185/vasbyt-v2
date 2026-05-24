@@ -18,7 +18,7 @@
 		{ href: '/',      label: 'Today'       },
 		{ href: '/stats', label: 'My Progress' },
 		{ href: '/body',  label: 'My Body'     },
-		{ href: '/log',   label: 'Log'         },
+		{ href: '/cardio', label: 'Cardio'       },
 	];
 
 	const isGym = $derived($page.url.pathname === '/gym');
