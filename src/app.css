@@ -24,6 +24,7 @@
   --line:         rgba(10, 122, 154, .20);
   --border-strong:rgba(10, 122, 154, .42);
   /* Surfaces */
+  --accent-glow:  rgba(14, 154, 184, 0.38);
   --tabs-bg:      rgba(17, 20, 23, .92);
   --chip-bg:      rgba(10, 122, 154, .14);
   --chip-border:  rgba(14, 154, 184, .30);
@@ -45,6 +46,7 @@
   --accent-text:  #2a0a12;
   --line:         rgba(255, 200, 220, .18);
   --border-strong:rgba(232, 114, 138, .40);
+  --accent-glow:  rgba(232, 114, 138, 0.38);
   --tabs-bg:      rgba(30, 13, 24, .88);
   --chip-bg:      rgba(232, 114, 138, .18);
   --chip-border:  rgba(232, 114, 138, .42);
@@ -64,9 +66,9 @@ html, body {
 
 body {
   padding-top: max(10px, env(safe-area-inset-top));
-  padding-bottom: max(90px, env(safe-area-inset-bottom));
-  padding-left: 12px;
-  padding-right: 12px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  padding-left: 10px;
+  padding-right: 10px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
