@@ -2,7 +2,9 @@
 	import { onMount } from 'svelte';
 	import {
 		getProfileName, getWeek, getDay,
-		getRoutineName, inRoutineMode
+		getRoutineName, inRoutineMode,
+		getPresetRoutines, activatePreset,
+		type PresetRoutine
 	} from '$lib/data/program';
 	import { J, S, KEYS } from '$lib/data/storage';
 
@@ -13,7 +15,9 @@
 	let hasRoutine   = $state(false);
 	let theme        = $state('');
 	let nameSaved    = $state(false);
-	let confirmClear = $state(false);
+	let confirmClear   = $state(false);
+	let presets        = $state<PresetRoutine[]>([]);
+	let presetApplied  = $state('');
 
 	onMount(() => {
 		profileInput = getProfileName();
@@ -22,6 +26,7 @@
 		routineName  = getRoutineName();
 		hasRoutine   = inRoutineMode();
 		theme        = J<string>(KEYS.theme(), '');
+		presets      = getPresetRoutines();
 	});
 
 	function saveProfileName() {
@@ -48,6 +53,14 @@
 		localStorage.removeItem(KEYS.activeRoutine());
 		hasRoutine  = false;
 		routineName = '';
+	}
+
+	function applyPreset(id: string, name: string) {
+		if (!activatePreset(id)) return;
+		hasRoutine    = true;
+		routineName   = name;
+		presetApplied = id;
+		setTimeout(() => (presetApplied = ''), 2000);
 	}
 
 	function applyTheme(t: string) {
@@ -128,19 +141,39 @@
 	<!-- Active routine -->
 	<div class="section">
 		<div class="section-label">Active routine</div>
-		<div class="card">
-			{#if hasRoutine}
+		{#if hasRoutine}
+			<div class="card">
 				<div class="routine-row">
 					<div>
 						<div class="routine-name">{routineName}</div>
-						<div class="routine-sub">Active custom routine</div>
+						<div class="routine-sub">Active routine</div>
 					</div>
 					<button class="btn-ghost-red" onclick={clearRoutine}>Clear</button>
 				</div>
-			{:else}
-				<p class="muted-note">No custom routine active. Set one up in the live app to sync it here.</p>
-			{/if}
-		</div>
+			</div>
+		{:else}
+			<p class="muted-note">No routine active — using the 12-week default program. Pick a preset to override it.</p>
+		{/if}
+	</div>
+
+	<!-- Preset routines -->
+	<div class="section">
+		<div class="section-label">Preset routines</div>
+		{#each presets as p}
+			<div class="preset-card" class:preset-active={p.id === presetApplied}>
+				<div class="preset-info">
+					<div class="preset-name">{p.name}</div>
+					<div class="preset-desc">{p.description}</div>
+				</div>
+				<button
+					class="btn-preset"
+					class:btn-preset-done={p.id === presetApplied}
+					onclick={() => applyPreset(p.id, p.name)}
+				>
+					{p.id === presetApplied ? '✓' : 'Use'}
+				</button>
+			</div>
+		{/each}
 	</div>
 
 	<!-- Appearance -->
@@ -299,7 +332,43 @@
 }
 .routine-name { font-weight: 800; font-size: 14px; }
 .routine-sub  { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.muted-note   { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.muted-note   { font-size: 13px; color: var(--muted); line-height: 1.5; padding: 2px 0; }
+
+/* Preset cards */
+.preset-card {
+	background: var(--card);
+	border: 1px solid var(--line);
+	border-radius: 14px;
+	padding: 12px 14px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	transition: border-color 0.15s;
+}
+.preset-card.preset-active {
+	border-color: var(--accent);
+}
+.preset-info { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.preset-name { font-weight: 800; font-size: 14px; }
+.preset-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.btn-preset {
+	background: rgba(255,255,255,.07);
+	border: 1px solid var(--line);
+	color: var(--text);
+	font-weight: 800;
+	font-size: 13px;
+	min-height: var(--touch);
+	min-width: 52px;
+	border-radius: 10px;
+	flex-shrink: 0;
+	transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn-preset-done {
+	background: rgba(47, 179, 109, .15);
+	border-color: var(--green);
+	color: var(--green);
+}
 
 /* Theme chips */
 .theme-grid {

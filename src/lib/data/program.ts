@@ -61,7 +61,14 @@ const EX_META: Record<string, { name: string; muscles: string[]; rest: number; i
 	'boxing-light-technique':                 { name: 'Boxing Rounds',         muscles: ['Cardio', 'Arms', 'Core'],            rest: 60, isBodyweight: true },
 	'russian-twist':                          { name: 'Russian Twist',         muscles: ['Core', 'Obliques'],                  rest: 45, isBodyweight: true },
 	'short-lever-copenhagen-plank':           { name: 'Copenhagen Plank',      muscles: ['Inner Thighs', 'Core'],              rest: 60, isBodyweight: true },
-	'neutral-grip-dumbbell-shoulder-press':   { name: 'Shoulder Press',        muscles: ['Shoulders', 'Triceps'],              rest: 60 }
+	'neutral-grip-dumbbell-shoulder-press':   { name: 'Shoulder Press',        muscles: ['Shoulders', 'Triceps'],              rest: 60 },
+	// compound / preset-only exercises
+	'squat':                                  { name: 'Squat',                 muscles: ['Quads', 'Glutes', 'Core'],           rest: 120 },
+	'bench-press':                            { name: 'Bench Press',           muscles: ['Chest', 'Shoulders', 'Triceps'],     rest: 90 },
+	'deadlift':                               { name: 'Deadlift',              muscles: ['Back', 'Hamstrings', 'Glutes'],      rest: 120 },
+	'romanian-deadlift':                      { name: 'Romanian Deadlift',     muscles: ['Hamstrings', 'Glutes', 'Back'],      rest: 90 },
+	'lat-pulldown':                           { name: 'Lat Pulldown',          muscles: ['Back', 'Biceps'],                    rest: 75 },
+	'shoulder-press':                         { name: 'Overhead Press',        muscles: ['Shoulders', 'Triceps', 'Core'],      rest: 90 }
 };
 
 function _pe(id: string, sets: number, reps: string): Exercise {
@@ -220,6 +227,190 @@ const PROGRAM: Record<1 | 2 | 3, Record<1 | 2 | 3 | 4 | 5, RoutineDay>> = {
 export function getProgramDay(phase: 1 | 2 | 3, day: number): RoutineDay {
 	if (day >= 6) return { title: 'Rest', exercises: [] };
 	return PROGRAM[phase][(day as 1 | 2 | 3 | 4 | 5)] ?? { title: 'Rest', exercises: [] };
+}
+
+// ── Preset routines ──────────────────────────────────────────
+
+export interface PresetRoutine {
+	id: string;
+	name: string;
+	description: string;
+	days: Record<string, { title: string; exercises: Exercise[] }>;
+}
+
+function _px(id: string, name: string, sets: number, reps: string, rest: number): Exercise {
+	const m = EX_META[id];
+	return { id, name, sets, reps, rest, muscles: m?.muscles ?? [], ...(m?.isBodyweight ? { isBodyweight: true } : {}) };
+}
+
+export const PRESET_ROUTINES: PresetRoutine[] = [
+	{
+		id: 'preset-3day-fullbody',
+		name: '3-Day Full Body',
+		description: 'Full body 3×/week. Great for beginners or busy schedules.',
+		days: {
+			'1': { title: 'Full Body A', exercises: [
+				_px('incline-dumbbell-chest-press',   'Incline DB Press',         3, '8-12',     75),
+				_px('one-arm-dumbbell-row',            'DB Row',                   3, '10-12',    60),
+				_px('squat',                           'Squat',                    3, '8-10',    120),
+				_px('dumbbell-hip-thrust-glute-bridge','Hip Thrust',               3, '12-15',    60),
+				_px('dead-bug',                        'Dead Bug',                 3, '8-10',     45)
+			]},
+			'2': { title: 'Rest', exercises: [] },
+			'3': { title: 'Full Body B', exercises: [
+				_px('bench-press',                     'Bench Press',              3, '8-12',     90),
+				_px('lat-pulldown',                    'Lat Pulldown / Pull-Up',   3, '8-12',     75),
+				_px('romanian-deadlift',               'Romanian Deadlift',        3, '8-10',     90),
+				_px('light-dumbbell-lateral-raise',    'Lateral Raise',            3, '12-15',    60),
+				_px('reverse-crunch',                  'Reverse Crunch',           3, '12-15',    45)
+			]},
+			'4': { title: 'Rest', exercises: [] },
+			'5': { title: 'Full Body C', exercises: [
+				_px('light-sumo-dumbbell-squat',       'Sumo Squat',               3, '12-15',    75),
+				_px('incline-bench-rear-delt-fly',     'Rear Delt Fly',            3, '12-15',    60),
+				_px('dumbbell-hip-thrust-glute-bridge','Hip Thrust',               3, '15',        60),
+				_px('standing-calf-raise',             'Calf Raise',               3, '15-20',    45),
+				_px('side-plank-knees-bent',           'Side Plank',               2, '30s each', 45)
+			]},
+			'6': { title: 'Rest', exercises: [] },
+			'7': { title: 'Rest', exercises: [] }
+		}
+	},
+	{
+		id: 'preset-ppl',
+		name: 'Push / Pull / Legs',
+		description: '6-day split. Chest & triceps / Back & biceps / Legs.',
+		days: {
+			'1': { title: 'Push', exercises: [
+				_px('bench-press',                     'Bench Press',              4, '6-10',     90),
+				_px('incline-dumbbell-chest-press',    'Incline DB Press',         3, '8-12',     75),
+				_px('shoulder-press',                  'Overhead Press',           3, '8-12',     75),
+				_px('light-dumbbell-lateral-raise',    'Lateral Raise',            3, '12-15',    60),
+				_px('lying-dumbbell-triceps-extension','Triceps Extension',        3, '10-12',    60)
+			]},
+			'2': { title: 'Pull', exercises: [
+				_px('deadlift',                        'Deadlift',                 3, '5-8',     120),
+				_px('lat-pulldown',                    'Lat Pulldown / Pull-Up',   4, '8-12',     75),
+				_px('one-arm-dumbbell-row',            'DB Row',                   3, '10-12',    60),
+				_px('incline-bench-rear-delt-fly',     'Rear Delt Fly',            3, '12-15',    60),
+				_px('dumbbell-biceps-curl',            'Biceps Curl',              3, '10-12',    60)
+			]},
+			'3': { title: 'Legs', exercises: [
+				_px('squat',                           'Squat',                    4, '6-10',    120),
+				_px('romanian-deadlift',               'Romanian Deadlift',        3, '8-12',     90),
+				_px('dumbbell-hip-thrust-glute-bridge','Hip Thrust',               3, '12-15',    75),
+				_px('light-sumo-dumbbell-squat',       'Sumo Squat',               3, '12-15',    60),
+				_px('standing-calf-raise',             'Calf Raise',               4, '15-20',    45)
+			]},
+			'4': { title: 'Push', exercises: [
+				_px('incline-dumbbell-chest-press',    'Incline DB Press',         4, '8-12',     75),
+				_px('shoulder-press',                  'Overhead Press',           3, '8-12',     75),
+				_px('light-dumbbell-lateral-raise',    'Lateral Raise',            3, '12-15',    60),
+				_px('dumbbell-triceps-kickback',       'Triceps Kickback',         3, '12-15',    60)
+			]},
+			'5': { title: 'Pull', exercises: [
+				_px('one-arm-dumbbell-row',            'DB Row',                   4, '10-12',    75),
+				_px('lat-pulldown',                    'Lat Pulldown / Pull-Up',   3, '8-12',     75),
+				_px('hammer-curl',                     'Hammer Curl',              3, '10-12',    60),
+				_px('incline-bench-rear-delt-fly',     'Rear Delt Fly',            3, '12-15',    60)
+			]},
+			'6': { title: 'Legs', exercises: [
+				_px('squat',                           'Squat',                    3, '8-12',     90),
+				_px('romanian-deadlift',               'Romanian Deadlift',        3, '10-12',    75),
+				_px('dumbbell-hip-thrust-glute-bridge','Hip Thrust',               3, '15',        60),
+				_px('standing-calf-raise',             'Calf Raise',               3, '20',        45)
+			]},
+			'7': { title: 'Rest', exercises: [] }
+		}
+	},
+	{
+		id: 'preset-upper-lower',
+		name: 'Upper / Lower',
+		description: '4-day split. Good balance of volume and recovery.',
+		days: {
+			'1': { title: 'Upper A', exercises: [
+				_px('bench-press',                     'Bench Press',              4, '6-10',     90),
+				_px('one-arm-dumbbell-row',            'DB Row',                   4, '8-12',     75),
+				_px('shoulder-press',                  'Overhead Press',           3, '8-12',     75),
+				_px('lat-pulldown',                    'Lat Pulldown',             3, '10-12',    75),
+				_px('dumbbell-biceps-curl',            'Biceps Curl',              2, '12',        60),
+				_px('lying-dumbbell-triceps-extension','Triceps Extension',        2, '12',        60)
+			]},
+			'2': { title: 'Lower A', exercises: [
+				_px('squat',                           'Squat',                    4, '6-10',    120),
+				_px('romanian-deadlift',               'Romanian Deadlift',        3, '8-12',     90),
+				_px('dumbbell-hip-thrust-glute-bridge','Hip Thrust',               3, '12-15',    75),
+				_px('standing-calf-raise',             'Calf Raise',               3, '15-20',    45),
+				_px('reverse-crunch',                  'Reverse Crunch',           3, '15',        45)
+			]},
+			'3': { title: 'Rest', exercises: [] },
+			'4': { title: 'Upper B', exercises: [
+				_px('incline-dumbbell-chest-press',    'Incline DB Press',         4, '8-12',     75),
+				_px('incline-bench-rear-delt-fly',     'Rear Delt Fly',            3, '12-15',    60),
+				_px('light-dumbbell-lateral-raise',    'Lateral Raise',            3, '12-15',    60),
+				_px('hammer-curl',                     'Hammer Curl',              3, '10-12',    60),
+				_px('dumbbell-triceps-kickback',       'Triceps Kickback',         3, '12-15',    60)
+			]},
+			'5': { title: 'Lower B', exercises: [
+				_px('deadlift',                        'Deadlift',                 4, '5-8',     120),
+				_px('light-sumo-dumbbell-squat',       'Sumo Squat',               3, '12-15',    75),
+				_px('dumbbell-hip-thrust-glute-bridge','Hip Thrust',               3, '15',        60),
+				_px('reverse-crunch',                  'Reverse Crunch',           3, '15',        45)
+			]},
+			'6': { title: 'Rest', exercises: [] },
+			'7': { title: 'Rest', exercises: [] }
+		}
+	},
+	{
+		id: 'preset-5day-recomp',
+		name: '5-Day Dumbbell Recomp',
+		description: 'Body recomposition with dumbbells. Split by muscle group.',
+		days: {
+			'1': { title: 'Chest & Triceps', exercises: [
+				_px('incline-dumbbell-chest-press',    'Incline DB Chest Press',   3, '10-12',    75),
+				_px('lying-dumbbell-triceps-extension','Triceps Extension',        3, '10-12',    60),
+				_px('dumbbell-triceps-kickback',       'Triceps Kickback',         3, '12-15',    60)
+			]},
+			'2': { title: 'Back & Biceps', exercises: [
+				_px('one-arm-dumbbell-row',            'One-Arm DB Row',           3, '10-12',    75),
+				_px('incline-bench-rear-delt-fly',     'Rear Delt Fly',            3, '12-15',    60),
+				_px('dumbbell-biceps-curl',            'Biceps Curl',              3, '10-12',    60),
+				_px('hammer-curl',                     'Hammer Curl',              3, '10-12',    60)
+			]},
+			'3': { title: 'Legs & Glutes', exercises: [
+				_px('light-sumo-dumbbell-squat',       'Sumo Squat',               3, '12-15',    75),
+				_px('dumbbell-hip-thrust-glute-bridge','Hip Thrust',               4, '12-15',    75),
+				_px('standing-calf-raise',             'Calf Raise',               3, '15-20',    45),
+				_px('bridge-pillow-ball-squeeze',      'Bridge Squeeze',           3, '12-15',    45),
+				_px('side-lying-inner-thigh-raise',    'Inner Thigh Raise',        3, '15',        45)
+			]},
+			'4': { title: 'Shoulders & Arms', exercises: [
+				_px('light-dumbbell-lateral-raise',         'Lateral Raise',       3, '12-15',    60),
+				_px('side-lying-dumbbell-external-rotation','External Rotation',   3, '12-15',    60),
+				_px('dumbbell-biceps-curl',                 'Biceps Curl',         3, '10-12',    60),
+				_px('lying-dumbbell-triceps-extension',     'Triceps Extension',   3, '10-12',    60)
+			]},
+			'5': { title: 'Core & Stability', exercises: [
+				_px('dead-bug',           'Dead Bug',       3, '8 each',   45),
+				_px('side-plank-knees-bent','Side Plank',   2, '30s each', 45),
+				_px('reverse-crunch',     'Reverse Crunch', 3, '15',        45),
+				_px('heel-taps',          'Heel Taps',      3, '20',        45)
+			]},
+			'6': { title: 'Rest', exercises: [] },
+			'7': { title: 'Rest', exercises: [] }
+		}
+	}
+];
+
+export function getPresetRoutines(): PresetRoutine[] {
+	return PRESET_ROUTINES;
+}
+
+export function activatePreset(id: string): boolean {
+	const preset = PRESET_ROUTINES.find((p) => p.id === id);
+	if (!preset) return false;
+	S(KEYS.activeRoutine(), { name: preset.name, days: preset.days });
+	return true;
 }
 
 // ── Routine mode ─────────────────────────────────────────────
