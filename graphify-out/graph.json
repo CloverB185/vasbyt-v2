@@ -1,0 +1,3736 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {
+    "hyperedges": [
+      {
+        "id": "data_layer_triad",
+        "label": "Data Layer \u00e2\u20ac\u201d localStorage + IndexedDB + AI Cache",
+        "nodes": [
+          "storage_KEYS",
+          "photos_Photo",
+          "program_getCachedCoachNote"
+        ],
+        "relation": "form",
+        "confidence": "INFERRED",
+        "confidence_score": 0.85,
+        "source_file": "src/lib/data/storage.ts"
+      },
+      {
+        "id": "gym_flow",
+        "label": "Gym Workout Flow",
+        "nodes": [
+          "route_gym",
+          "program_saveLog",
+          "program_finishWorkout",
+          "program_getRoutineDay"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 0.95,
+        "source_file": "src/routes/gym/+page.svelte"
+      },
+      {
+        "id": "profile_isolation_pattern",
+        "label": "Profile Isolation Pattern",
+        "nodes": [
+          "storage_getPID",
+          "storage_pKey",
+          "storage_KEYS",
+          "concept_profileIsolation"
+        ],
+        "relation": "implement",
+        "confidence": "INFERRED",
+        "confidence_score": 0.95,
+        "source_file": "src/lib/data/storage.ts"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "label": "svelte.config.js",
+      "file_type": "code",
+      "source_file": "svelte.config.js",
+      "source_location": "L1",
+      "id": "svelte_config_js",
+      "community": 12,
+      "norm_label": "svelte.config.js"
+    },
+    {
+      "label": "config",
+      "file_type": "code",
+      "source_file": "svelte.config.js",
+      "source_location": "L5",
+      "id": "vasbyt_v2_svelte_config_config",
+      "community": 12,
+      "norm_label": "config"
+    },
+    {
+      "label": "vite.config.ts",
+      "file_type": "code",
+      "source_file": "vite.config.ts",
+      "source_location": "L1",
+      "id": "vite_config_ts",
+      "community": 14,
+      "norm_label": "vite.config.ts"
+    },
+    {
+      "label": "app.d.ts",
+      "file_type": "code",
+      "source_file": "src/app.d.ts",
+      "source_location": "L1",
+      "id": "src_app_d_ts",
+      "community": 15,
+      "norm_label": "app.d.ts"
+    },
+    {
+      "label": "index.ts",
+      "file_type": "code",
+      "source_file": "src/lib/index.ts",
+      "source_location": "L1",
+      "id": "src_lib_index_ts",
+      "community": 16,
+      "norm_label": "index.ts"
+    },
+    {
+      "label": "photos.ts",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L1",
+      "id": "src_lib_data_photos_ts",
+      "community": 5,
+      "norm_label": "photos.ts"
+    },
+    {
+      "label": "Photo",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L10",
+      "id": "data_photos_photo",
+      "community": 5,
+      "norm_label": "photo"
+    },
+    {
+      "label": "openDB()",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L20",
+      "id": "data_photos_opendb",
+      "community": 5,
+      "norm_label": "opendb()"
+    },
+    {
+      "label": "loadPhotos()",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L39",
+      "id": "data_photos_loadphotos",
+      "community": 5,
+      "norm_label": "loadphotos()"
+    },
+    {
+      "label": "storePhoto()",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L53",
+      "id": "data_photos_storephoto",
+      "community": 5,
+      "norm_label": "storephoto()"
+    },
+    {
+      "label": "removePhoto()",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L75",
+      "id": "data_photos_removephoto",
+      "community": 5,
+      "norm_label": "removephoto()"
+    },
+    {
+      "label": "localDate()",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L87",
+      "id": "data_photos_localdate",
+      "community": 5,
+      "norm_label": "localdate()"
+    },
+    {
+      "label": "compressImage()",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L95",
+      "id": "data_photos_compressimage",
+      "community": 5,
+      "norm_label": "compressimage()"
+    },
+    {
+      "label": "program.ts",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L1",
+      "id": "src_lib_data_program_ts",
+      "community": 3,
+      "norm_label": "program.ts"
+    },
+    {
+      "label": "Exercise",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L10",
+      "id": "data_program_exercise",
+      "community": 3,
+      "norm_label": "exercise"
+    },
+    {
+      "label": "RoutineDay",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L20",
+      "id": "data_program_routineday",
+      "community": 3,
+      "norm_label": "routineday"
+    },
+    {
+      "label": "LogEntry",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L25",
+      "id": "data_program_logentry",
+      "community": 3,
+      "norm_label": "logentry"
+    },
+    {
+      "label": "StoredRoutine",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L39",
+      "id": "data_program_storedroutine",
+      "community": 3,
+      "norm_label": "storedroutine"
+    },
+    {
+      "label": "inRoutineMode()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L45",
+      "id": "data_program_inroutinemode",
+      "community": 4,
+      "norm_label": "inroutinemode()"
+    },
+    {
+      "label": "getRoutineDay()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L51",
+      "id": "data_program_getroutineday",
+      "community": 4,
+      "norm_label": "getroutineday()"
+    },
+    {
+      "label": "getRoutineName()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L60",
+      "id": "data_program_getroutinename",
+      "community": 4,
+      "norm_label": "getroutinename()"
+    },
+    {
+      "label": "getWeek()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L67",
+      "id": "data_program_getweek",
+      "community": 7,
+      "norm_label": "getweek()"
+    },
+    {
+      "label": "getDay()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L68",
+      "id": "data_program_getday",
+      "community": 7,
+      "norm_label": "getday()"
+    },
+    {
+      "label": "getPhase()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L70",
+      "id": "data_program_getphase",
+      "community": 4,
+      "norm_label": "getphase()"
+    },
+    {
+      "label": "getPhaseName()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L76",
+      "id": "data_program_getphasename",
+      "community": 4,
+      "norm_label": "getphasename()"
+    },
+    {
+      "label": "getLogs()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L87",
+      "id": "data_program_getlogs",
+      "community": 9,
+      "norm_label": "getlogs()"
+    },
+    {
+      "label": "getTodaySetsForExercise()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L92",
+      "id": "data_program_gettodaysetsforexercise",
+      "community": 8,
+      "norm_label": "gettodaysetsforexercise()"
+    },
+    {
+      "label": "getTotalSetsToday()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L100",
+      "id": "data_program_gettotalsetstoday",
+      "community": 9,
+      "norm_label": "gettotalsetstoday()"
+    },
+    {
+      "label": "getTotalSetsScheduled()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L105",
+      "id": "data_program_gettotalsetsscheduled",
+      "community": 4,
+      "norm_label": "gettotalsetsscheduled()"
+    },
+    {
+      "label": "getProfileName()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L110",
+      "id": "data_program_getprofilename",
+      "community": 4,
+      "norm_label": "getprofilename()"
+    },
+    {
+      "label": "saveLog()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L118",
+      "id": "data_program_savelog",
+      "community": 7,
+      "norm_label": "savelog()"
+    },
+    {
+      "label": "getLastWeightForExercise()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L141",
+      "id": "data_program_getlastweightforexercise",
+      "community": 8,
+      "norm_label": "getlastweightforexercise()"
+    },
+    {
+      "label": "getLastRepsForExercise()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L147",
+      "id": "data_program_getlastrepsforexercise",
+      "community": 8,
+      "norm_label": "getlastrepsforexercise()"
+    },
+    {
+      "label": "undoLastSetToday()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L153",
+      "id": "data_program_undolastsettoday",
+      "community": 6,
+      "norm_label": "undolastsettoday()"
+    },
+    {
+      "label": "getFinishes()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L167",
+      "id": "data_program_getfinishes",
+      "community": 7,
+      "norm_label": "getfinishes()"
+    },
+    {
+      "label": "getLogsThisWeek()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L172",
+      "id": "data_program_getlogsthisweek",
+      "community": 9,
+      "norm_label": "getlogsthisweek()"
+    },
+    {
+      "label": "getFinishesThisWeek()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L181",
+      "id": "data_program_getfinishesthisweek",
+      "community": 7,
+      "norm_label": "getfinishesthisweek()"
+    },
+    {
+      "label": "getTopExercises()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L190",
+      "id": "data_program_gettopexercises",
+      "community": 9,
+      "norm_label": "gettopexercises()"
+    },
+    {
+      "label": "CheckIn",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L203",
+      "id": "data_program_checkin",
+      "community": 3,
+      "norm_label": "checkin"
+    },
+    {
+      "label": "getCheckins()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L211",
+      "id": "data_program_getcheckins",
+      "community": 3,
+      "norm_label": "getcheckins()"
+    },
+    {
+      "label": "getTodayCheckin()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L215",
+      "id": "data_program_gettodaycheckin",
+      "community": 3,
+      "norm_label": "gettodaycheckin()"
+    },
+    {
+      "label": "saveCheckin()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L219",
+      "id": "data_program_savecheckin",
+      "community": 3,
+      "norm_label": "savecheckin()"
+    },
+    {
+      "label": "getRecentCheckins()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L225",
+      "id": "data_program_getrecentcheckins",
+      "community": 3,
+      "norm_label": "getrecentcheckins()"
+    },
+    {
+      "label": "CoachNote",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L233",
+      "id": "data_program_coachnote",
+      "community": 6,
+      "norm_label": "coachnote"
+    },
+    {
+      "label": "getCachedCoachNote()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L238",
+      "id": "data_program_getcachedcoachnote",
+      "community": 6,
+      "norm_label": "getcachedcoachnote()"
+    },
+    {
+      "label": "saveCoachNote()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L244",
+      "id": "data_program_savecoachnote",
+      "community": 6,
+      "norm_label": "savecoachnote()"
+    },
+    {
+      "label": "finishWorkout()",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L249",
+      "id": "data_program_finishworkout",
+      "community": 7,
+      "norm_label": "finishworkout()"
+    },
+    {
+      "label": "storage.ts",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L1",
+      "id": "src_lib_data_storage_ts",
+      "community": 10,
+      "norm_label": "storage.ts"
+    },
+    {
+      "label": "_initProfiles()",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L9",
+      "id": "data_storage_initprofiles",
+      "community": 6,
+      "norm_label": "_initprofiles()"
+    },
+    {
+      "label": "getPID()",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L22",
+      "id": "data_storage_getpid",
+      "community": 10,
+      "norm_label": "getpid()"
+    },
+    {
+      "label": "pKey()",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L28",
+      "id": "data_storage_pkey",
+      "community": 10,
+      "norm_label": "pkey()"
+    },
+    {
+      "label": "J()",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L34",
+      "id": "data_storage_j",
+      "community": 7,
+      "norm_label": "j()"
+    },
+    {
+      "label": "S()",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L45",
+      "id": "data_storage_s",
+      "community": 6,
+      "norm_label": "s()"
+    },
+    {
+      "label": "today()",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L51",
+      "id": "data_storage_today",
+      "community": 6,
+      "norm_label": "today()"
+    },
+    {
+      "label": "KEYS",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L63",
+      "id": "data_storage_keys",
+      "community": 10,
+      "norm_label": "keys"
+    },
+    {
+      "label": "+layout.svelte",
+      "file_type": "code",
+      "source_file": "src/routes/+layout.svelte",
+      "source_location": "L1",
+      "id": "src_routes_layout_svelte",
+      "community": 1,
+      "norm_label": "+layout.svelte"
+    },
+    {
+      "label": "active",
+      "file_type": "code",
+      "source_file": "src/routes/+layout.svelte",
+      "source_location": "L37",
+      "id": "routes_layout_active",
+      "community": 1,
+      "norm_label": "active"
+    },
+    {
+      "label": "../app.css",
+      "file_type": "code",
+      "source_file": "src/app.css",
+      "confidence": "EXTRACTED",
+      "id": "c_users_clove_documents_vasbyt_v2_src_app_css",
+      "community": 1,
+      "norm_label": "../app.css"
+    },
+    {
+      "label": "svelte",
+      "file_type": "code",
+      "source_file": "svelte",
+      "confidence": "EXTRACTED",
+      "id": "svelte",
+      "community": 1,
+      "norm_label": "svelte"
+    },
+    {
+      "label": "$app/stores",
+      "file_type": "code",
+      "source_file": "$app/stores",
+      "confidence": "EXTRACTED",
+      "id": "stores",
+      "community": 1,
+      "norm_label": "$app/stores"
+    },
+    {
+      "label": "$lib/data/storage",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage",
+      "confidence": "EXTRACTED",
+      "id": "c_users_clove_documents_vasbyt_v2_src_lib_data_storage",
+      "community": 1,
+      "norm_label": "$lib/data/storage"
+    },
+    {
+      "label": "+page.svelte",
+      "file_type": "code",
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L1",
+      "id": "src_routes_page_svelte",
+      "community": 8,
+      "norm_label": "+page.svelte"
+    },
+    {
+      "label": "load()",
+      "file_type": "code",
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L45",
+      "id": "routes_page_load",
+      "community": 4,
+      "norm_label": "load()"
+    },
+    {
+      "label": "loadCoachNote()",
+      "file_type": "code",
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L63",
+      "id": "routes_page_loadcoachnote",
+      "community": 4,
+      "norm_label": "loadcoachnote()"
+    },
+    {
+      "label": "setsLoggedFor()",
+      "file_type": "code",
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L96",
+      "id": "routes_page_setsloggedfor",
+      "community": 8,
+      "norm_label": "setsloggedfor()"
+    },
+    {
+      "label": "$lib/data/program",
+      "file_type": "code",
+      "source_file": "src/lib/data/program",
+      "confidence": "EXTRACTED",
+      "id": "c_users_clove_documents_vasbyt_v2_src_lib_data_program",
+      "community": 1,
+      "norm_label": "$lib/data/program"
+    },
+    {
+      "label": "+page.svelte",
+      "file_type": "code",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L1",
+      "id": "src_routes_body_page_svelte",
+      "community": 1,
+      "norm_label": "+page.svelte"
+    },
+    {
+      "label": "d",
+      "file_type": "code",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L118",
+      "id": "body_page_d",
+      "community": 1,
+      "norm_label": "d"
+    },
+    {
+      "label": "sevenDaysAgo",
+      "file_type": "code",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L132",
+      "id": "body_page_sevendaysago",
+      "community": 1,
+      "norm_label": "sevendaysago"
+    },
+    {
+      "label": "thirtyDaysAgo",
+      "file_type": "code",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L136",
+      "id": "body_page_thirtydaysago",
+      "community": 1,
+      "norm_label": "thirtydaysago"
+    },
+    {
+      "label": "checkins",
+      "file_type": "code",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L145",
+      "id": "body_page_checkins",
+      "community": 1,
+      "norm_label": "checkins"
+    },
+    {
+      "label": "payload",
+      "file_type": "code",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L157",
+      "id": "body_page_payload",
+      "community": 1,
+      "norm_label": "payload"
+    },
+    {
+      "label": "text",
+      "file_type": "code",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L180",
+      "id": "body_page_text",
+      "community": 1,
+      "norm_label": "text"
+    },
+    {
+      "label": "for()",
+      "file_type": "code",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L219",
+      "id": "body_page_for",
+      "community": 1,
+      "norm_label": "for()"
+    },
+    {
+      "label": "$lib/data/photos",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos",
+      "confidence": "EXTRACTED",
+      "id": "c_users_clove_documents_vasbyt_v2_src_lib_data_photos",
+      "community": 1,
+      "norm_label": "$lib/data/photos"
+    },
+    {
+      "label": "+page.svelte",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L1",
+      "id": "src_routes_gym_page_svelte",
+      "community": 2,
+      "norm_label": "+page.svelte"
+    },
+    {
+      "label": "isLast",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L41",
+      "id": "gym_page_islast",
+      "community": 2,
+      "norm_label": "islast"
+    },
+    {
+      "label": "totalSets",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L42",
+      "id": "gym_page_totalsets",
+      "community": 2,
+      "norm_label": "totalsets"
+    },
+    {
+      "label": "pct",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L43",
+      "id": "gym_page_pct",
+      "community": 2,
+      "norm_label": "pct"
+    },
+    {
+      "label": "restFmt",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L44",
+      "id": "gym_page_restfmt",
+      "community": 2,
+      "norm_label": "restfmt"
+    },
+    {
+      "label": "muscles",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L45",
+      "id": "gym_page_muscles",
+      "community": 2,
+      "norm_label": "muscles"
+    },
+    {
+      "label": "day",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L51",
+      "id": "gym_page_day",
+      "community": 2,
+      "norm_label": "day"
+    },
+    {
+      "label": "rd",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L52",
+      "id": "gym_page_rd",
+      "community": 2,
+      "norm_label": "rd"
+    },
+    {
+      "label": "refreshSets()",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L67",
+      "id": "gym_page_refreshsets",
+      "community": 2,
+      "norm_label": "refreshsets()"
+    },
+    {
+      "label": "prefill()",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L72",
+      "id": "gym_page_prefill",
+      "community": 8,
+      "norm_label": "prefill()"
+    },
+    {
+      "label": "startTimer()",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L85",
+      "id": "gym_page_starttimer",
+      "community": 2,
+      "norm_label": "starttimer()"
+    },
+    {
+      "label": "stopTimer()",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L95",
+      "id": "gym_page_stoptimer",
+      "community": 2,
+      "norm_label": "stoptimer()"
+    },
+    {
+      "label": "startGym()",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L102",
+      "id": "gym_page_startgym",
+      "community": 2,
+      "norm_label": "startgym()"
+    },
+    {
+      "label": "logSet()",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L104",
+      "id": "gym_page_logset",
+      "community": 2,
+      "norm_label": "logset()"
+    },
+    {
+      "label": "undo()",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L111",
+      "id": "gym_page_undo",
+      "community": 2,
+      "norm_label": "undo()"
+    },
+    {
+      "label": "nextEx()",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L118",
+      "id": "gym_page_nextex",
+      "community": 2,
+      "norm_label": "nextex()"
+    },
+    {
+      "label": "prevEx()",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L124",
+      "id": "gym_page_prevex",
+      "community": 2,
+      "norm_label": "prevex()"
+    },
+    {
+      "label": "finishAll()",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L129",
+      "id": "gym_page_finishall",
+      "community": 2,
+      "norm_label": "finishall()"
+    },
+    {
+      "label": "$app/navigation",
+      "file_type": "code",
+      "source_file": "$app/navigation",
+      "confidence": "EXTRACTED",
+      "id": "navigation",
+      "community": 2,
+      "norm_label": "$app/navigation"
+    },
+    {
+      "label": "+page.svelte",
+      "file_type": "code",
+      "source_file": "src/routes/log/+page.svelte",
+      "source_location": "L1",
+      "id": "src_routes_log_page_svelte",
+      "community": 1,
+      "norm_label": "+page.svelte"
+    },
+    {
+      "label": "+page.svelte",
+      "file_type": "code",
+      "source_file": "src/routes/settings/+page.svelte",
+      "source_location": "L1",
+      "id": "src_routes_settings_page_svelte",
+      "community": 1,
+      "norm_label": "+page.svelte"
+    },
+    {
+      "label": "saved",
+      "file_type": "code",
+      "source_file": "src/routes/settings/+page.svelte",
+      "source_location": "L96",
+      "id": "settings_page_saved",
+      "community": 1,
+      "norm_label": "saved"
+    },
+    {
+      "label": "+page.svelte",
+      "file_type": "code",
+      "source_file": "src/routes/stats/+page.svelte",
+      "source_location": "L1",
+      "id": "src_routes_stats_page_svelte",
+      "community": 1,
+      "norm_label": "+page.svelte"
+    },
+    {
+      "label": "J() \u00e2\u20ac\u201d Typed localStorage Read",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "line 34",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "storage_J",
+      "community": 0,
+      "norm_label": "j() a\u20ac\u201d typed localstorage read"
+    },
+    {
+      "label": "S() \u00e2\u20ac\u201d Typed localStorage Write",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "line 45",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "storage_S",
+      "community": 0,
+      "norm_label": "s() a\u20ac\u201d typed localstorage write"
+    },
+    {
+      "label": "KEYS \u00e2\u20ac\u201d Profile-Aware Key Map",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "line 63",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "storage_KEYS",
+      "community": 0,
+      "norm_label": "keys a\u20ac\u201d profile-aware key map"
+    },
+    {
+      "label": "pKey() \u00e2\u20ac\u201d Profile Namespace Helper",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "line 28",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "storage_pKey",
+      "community": 0,
+      "norm_label": "pkey() a\u20ac\u201d profile namespace helper"
+    },
+    {
+      "label": "getPID() \u00e2\u20ac\u201d Active Profile ID",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "line 22",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "storage_getPID",
+      "community": 0,
+      "norm_label": "getpid() a\u20ac\u201d active profile id"
+    },
+    {
+      "label": "today() \u00e2\u20ac\u201d Local Date String",
+      "file_type": "code",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "line 51",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "storage_today",
+      "community": 0,
+      "norm_label": "today() a\u20ac\u201d local date string"
+    },
+    {
+      "label": "Exercise Interface",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 10",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "program_Exercise",
+      "community": 17,
+      "norm_label": "exercise interface"
+    },
+    {
+      "label": "LogEntry Interface",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 25",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "program_LogEntry",
+      "community": 18,
+      "norm_label": "logentry interface"
+    },
+    {
+      "label": "CheckIn Interface",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 203",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "program_CheckIn",
+      "community": 19,
+      "norm_label": "checkin interface"
+    },
+    {
+      "label": "saveLog() \u00e2\u20ac\u201d Persist Set to Log",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 118",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "program_saveLog",
+      "community": 0,
+      "norm_label": "savelog() a\u20ac\u201d persist set to log"
+    },
+    {
+      "label": "finishWorkout() \u00e2\u20ac\u201d Advance Day+Week",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 249",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "program_finishWorkout",
+      "community": 0,
+      "norm_label": "finishworkout() a\u20ac\u201d advance day+week"
+    },
+    {
+      "label": "getCachedCoachNote() \u00e2\u20ac\u201d Daily Cache",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 238",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "program_getCachedCoachNote",
+      "community": 0,
+      "norm_label": "getcachedcoachnote() a\u20ac\u201d daily cache"
+    },
+    {
+      "label": "saveCoachNote() \u00e2\u20ac\u201d Cache AI Note",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 244",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "program_saveCoachNote",
+      "community": 0,
+      "norm_label": "savecoachnote() a\u20ac\u201d cache ai note"
+    },
+    {
+      "label": "getRoutineDay() \u00e2\u20ac\u201d Day Exercises",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 51",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "program_getRoutineDay",
+      "community": 0,
+      "norm_label": "getroutineday() a\u20ac\u201d day exercises"
+    },
+    {
+      "label": "getPhase() \u00e2\u20ac\u201d 12-Week Phase Calc",
+      "file_type": "code",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 70",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "program_getPhase",
+      "community": 20,
+      "norm_label": "getphase() a\u20ac\u201d 12-week phase calc"
+    },
+    {
+      "label": "Photo Interface \u00e2\u20ac\u201d IndexedDB Schema",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "line 10",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "photos_Photo",
+      "community": 0,
+      "norm_label": "photo interface a\u20ac\u201d indexeddb schema"
+    },
+    {
+      "label": "storePhoto() \u00e2\u20ac\u201d Compress + Save to IDB",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "line 53",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "photos_storePhoto",
+      "community": 11,
+      "norm_label": "storephoto() a\u20ac\u201d compress + save to idb"
+    },
+    {
+      "label": "loadPhotos() \u00e2\u20ac\u201d Read All Photos from IDB",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "line 39",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "photos_loadPhotos",
+      "community": 11,
+      "norm_label": "loadphotos() a\u20ac\u201d read all photos from idb"
+    },
+    {
+      "label": "openDB() \u00e2\u20ac\u201d IndexedDB Connection",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "line 20",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "photos_openDB",
+      "community": 11,
+      "norm_label": "opendb() a\u20ac\u201d indexeddb connection"
+    },
+    {
+      "label": "compressImage() \u00e2\u20ac\u201d Canvas JPEG Resize",
+      "file_type": "code",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "line 95",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "photos_compressImage",
+      "community": 11,
+      "norm_label": "compressimage() a\u20ac\u201d canvas jpeg resize"
+    },
+    {
+      "label": "+layout.svelte \u00e2\u20ac\u201d App Shell + Nav",
+      "file_type": "code",
+      "source_file": "src/routes/+layout.svelte",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "route_layout",
+      "community": 0,
+      "norm_label": "+layout.svelte a\u20ac\u201d app shell + nav"
+    },
+    {
+      "label": "+page.svelte \u00e2\u20ac\u201d Today Tab",
+      "file_type": "code",
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "route_today",
+      "community": 0,
+      "norm_label": "+page.svelte a\u20ac\u201d today tab"
+    },
+    {
+      "label": "gym/+page.svelte \u00e2\u20ac\u201d Gym Mode",
+      "file_type": "code",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "route_gym",
+      "community": 0,
+      "norm_label": "gym/+page.svelte a\u20ac\u201d gym mode"
+    },
+    {
+      "label": "stats/+page.svelte \u00e2\u20ac\u201d Stats Tab",
+      "file_type": "code",
+      "source_file": "src/routes/stats/+page.svelte",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "route_stats",
+      "community": 13,
+      "norm_label": "stats/+page.svelte a\u20ac\u201d stats tab"
+    },
+    {
+      "label": "log/+page.svelte \u00e2\u20ac\u201d Training History",
+      "file_type": "code",
+      "source_file": "src/routes/log/+page.svelte",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "route_log",
+      "community": 13,
+      "norm_label": "log/+page.svelte a\u20ac\u201d training history"
+    },
+    {
+      "label": "settings/+page.svelte \u00e2\u20ac\u201d Settings",
+      "file_type": "code",
+      "source_file": "src/routes/settings/+page.svelte",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "route_settings",
+      "community": 0,
+      "norm_label": "settings/+page.svelte a\u20ac\u201d settings"
+    },
+    {
+      "label": "body/+page.svelte \u00e2\u20ac\u201d Body + Photos + AI",
+      "file_type": "code",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "route_body",
+      "community": 21,
+      "norm_label": "body/+page.svelte a\u20ac\u201d body + photos + ai"
+    },
+    {
+      "label": "AI Proxy \u00e2\u20ac\u201d Gemini via Cloudflare Worker",
+      "file_type": "rationale",
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "line 39",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "concept_aiProxy",
+      "community": 0,
+      "norm_label": "ai proxy a\u20ac\u201d gemini via cloudflare worker"
+    },
+    {
+      "label": "V1 Data Compatibility \u00e2\u20ac\u201d Shared localStorage + IDB Keys",
+      "file_type": "rationale",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "concept_v1Compat",
+      "community": 0,
+      "norm_label": "v1 data compatibility a\u20ac\u201d shared localstorage + idb keys"
+    },
+    {
+      "label": "Profile Isolation \u00e2\u20ac\u201d pKey Namespace Pattern",
+      "file_type": "rationale",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "line 28",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "concept_profileIsolation",
+      "community": 0,
+      "norm_label": "profile isolation a\u20ac\u201d pkey namespace pattern"
+    },
+    {
+      "label": "Svelte 5 Runes Mode \u00e2\u20ac\u201d $state/$derived/$effect",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "concept_svelte5Runes",
+      "community": 0,
+      "norm_label": "svelte 5 runes mode a\u20ac\u201d $state/$derived/$effect"
+    },
+    {
+      "label": "Cloudflare Pages \u00e2\u20ac\u201d SvelteKit Hosting",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "concept_cloudflarePages",
+      "community": 0,
+      "norm_label": "cloudflare pages a\u20ac\u201d sveltekit hosting"
+    },
+    {
+      "label": "CLAUDE.md \u00e2\u20ac\u201d Project Rules + Stack Spec",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "doc_claudemd",
+      "community": 0,
+      "norm_label": "claude.md a\u20ac\u201d project rules + stack spec"
+    },
+    {
+      "label": "VASBYT_V2_LESSONS.md \u00e2\u20ac\u201d Bug History",
+      "file_type": "document",
+      "source_file": "VASBYT_V2_LESSONS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "doc_lessons",
+      "community": 0,
+      "norm_label": "vasbyt_v2_lessons.md a\u20ac\u201d bug history"
+    },
+    {
+      "label": "README.md \u00e2\u20ac\u201d Project Overview",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "doc_readme",
+      "community": 22,
+      "norm_label": "readme.md a\u20ac\u201d project overview"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "svelte.config.js",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "svelte_config_js",
+      "target": "vasbyt_v2_svelte_config_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "src_lib_data_photos_ts",
+      "target": "data_photos_photo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "src_lib_data_photos_ts",
+      "target": "data_photos_opendb",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "src_lib_data_photos_ts",
+      "target": "data_photos_loadphotos",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "src_lib_data_photos_ts",
+      "target": "data_photos_storephoto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "src_lib_data_photos_ts",
+      "target": "data_photos_removephoto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "src_lib_data_photos_ts",
+      "target": "data_photos_localdate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L95",
+      "weight": 1.0,
+      "source": "src_lib_data_photos_ts",
+      "target": "data_photos_compressimage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "data_photos_loadphotos",
+      "target": "data_photos_opendb",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L65",
+      "weight": 1.0,
+      "source": "data_photos_storephoto",
+      "target": "data_photos_opendb",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "data_photos_removephoto",
+      "target": "data_photos_opendb",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "data_photos_storephoto",
+      "target": "data_photos_compressimage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "data_photos_storephoto",
+      "target": "data_photos_localdate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "src_lib_data_storage_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_storage_j",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_storage_s",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_storage_keys",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_storage_today",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_exercise",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_routineday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_logentry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_storedroutine",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_inroutinemode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getroutineday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getroutinename",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getweek",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getphase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getphasename",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getlogs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L92",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_gettodaysetsforexercise",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L100",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_gettotalsetstoday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L105",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_gettotalsetsscheduled",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L110",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getprofilename",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L118",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_savelog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L141",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getlastweightforexercise",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L147",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getlastrepsforexercise",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L153",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_undolastsettoday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L167",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getfinishes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L172",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getlogsthisweek",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L181",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getfinishesthisweek",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L190",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_gettopexercises",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L203",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_checkin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L211",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getcheckins",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L215",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_gettodaycheckin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L219",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_savecheckin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L225",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getrecentcheckins",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L233",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_coachnote",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L238",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_getcachedcoachnote",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L244",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_savecoachnote",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L249",
+      "weight": 1.0,
+      "source": "src_lib_data_program_ts",
+      "target": "data_program_finishworkout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "data_program_inroutinemode",
+      "target": "data_storage_j"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "routes_page_load",
+      "target": "data_program_inroutinemode"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L52",
+      "weight": 1.0,
+      "source": "data_program_getroutineday",
+      "target": "data_storage_j"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "routes_page_load",
+      "target": "data_program_getroutineday"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "data_program_getroutinename",
+      "target": "data_storage_j"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L52",
+      "weight": 1.0,
+      "source": "routes_page_load",
+      "target": "data_program_getroutinename"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "routes_page_loadcoachnote",
+      "target": "data_program_getroutinename"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L132",
+      "weight": 1.0,
+      "source": "data_program_savelog",
+      "target": "data_program_getweek",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L250",
+      "weight": 1.0,
+      "source": "data_program_finishworkout",
+      "target": "data_program_getweek",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "data_program_getweek",
+      "target": "data_storage_j"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "routes_page_load",
+      "target": "data_program_getweek"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "routes_page_loadcoachnote",
+      "target": "data_program_getweek"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L133",
+      "weight": 1.0,
+      "source": "data_program_savelog",
+      "target": "data_program_getday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L174",
+      "weight": 1.0,
+      "source": "data_program_getlogsthisweek",
+      "target": "data_program_getday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L183",
+      "weight": 1.0,
+      "source": "data_program_getfinishesthisweek",
+      "target": "data_program_getday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L251",
+      "weight": 1.0,
+      "source": "data_program_finishworkout",
+      "target": "data_program_getday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "data_program_getday",
+      "target": "data_storage_j"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L48",
+      "weight": 1.0,
+      "source": "routes_page_load",
+      "target": "data_program_getday"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "routes_page_loadcoachnote",
+      "target": "data_program_getday"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "routes_page_load",
+      "target": "data_program_getphase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L71",
+      "weight": 1.0,
+      "source": "routes_page_loadcoachnote",
+      "target": "data_program_getphase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L50",
+      "weight": 1.0,
+      "source": "routes_page_load",
+      "target": "data_program_getphasename"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L71",
+      "weight": 1.0,
+      "source": "routes_page_loadcoachnote",
+      "target": "data_program_getphasename"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L94",
+      "weight": 1.0,
+      "source": "data_program_gettodaysetsforexercise",
+      "target": "data_program_getlogs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L101",
+      "weight": 1.0,
+      "source": "data_program_gettotalsetstoday",
+      "target": "data_program_getlogs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L124",
+      "weight": 1.0,
+      "source": "data_program_savelog",
+      "target": "data_program_getlogs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L142",
+      "weight": 1.0,
+      "source": "data_program_getlastweightforexercise",
+      "target": "data_program_getlogs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L148",
+      "weight": 1.0,
+      "source": "data_program_getlastrepsforexercise",
+      "target": "data_program_getlogs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L154",
+      "weight": 1.0,
+      "source": "data_program_undolastsettoday",
+      "target": "data_program_getlogs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L177",
+      "weight": 1.0,
+      "source": "data_program_getlogsthisweek",
+      "target": "data_program_getlogs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L192",
+      "weight": 1.0,
+      "source": "data_program_gettopexercises",
+      "target": "data_program_getlogs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L88",
+      "weight": 1.0,
+      "source": "data_program_getlogs",
+      "target": "data_storage_j"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L93",
+      "weight": 1.0,
+      "source": "data_program_gettodaysetsforexercise",
+      "target": "data_storage_today"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L97",
+      "weight": 1.0,
+      "source": "routes_page_setsloggedfor",
+      "target": "data_program_gettodaysetsforexercise"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "gym_page_refreshsets",
+      "target": "data_program_gettodaysetsforexercise"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "gym_page_prefill",
+      "target": "data_program_gettodaysetsforexercise"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "routes_page_load",
+      "target": "data_program_gettotalsetstoday"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "routes_page_loadcoachnote",
+      "target": "data_program_gettotalsetstoday"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "routes_page_load",
+      "target": "data_program_gettotalsetsscheduled"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L111",
+      "weight": 1.0,
+      "source": "data_program_getprofilename",
+      "target": "data_storage_j"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "routes_page_load",
+      "target": "data_program_getprofilename"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L127",
+      "weight": 1.0,
+      "source": "data_program_savelog",
+      "target": "data_storage_today"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L136",
+      "weight": 1.0,
+      "source": "data_program_savelog",
+      "target": "data_storage_s"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L106",
+      "weight": 1.0,
+      "source": "gym_page_logset",
+      "target": "data_program_savelog"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "gym_page_prefill",
+      "target": "data_program_getlastweightforexercise"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L80",
+      "weight": 1.0,
+      "source": "gym_page_prefill",
+      "target": "data_program_getlastrepsforexercise"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L155",
+      "weight": 1.0,
+      "source": "data_program_undolastsettoday",
+      "target": "data_storage_today"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L162",
+      "weight": 1.0,
+      "source": "data_program_undolastsettoday",
+      "target": "data_storage_s"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L113",
+      "weight": 1.0,
+      "source": "gym_page_undo",
+      "target": "data_program_undolastsettoday"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L186",
+      "weight": 1.0,
+      "source": "data_program_getfinishesthisweek",
+      "target": "data_program_getfinishes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L168",
+      "weight": 1.0,
+      "source": "data_program_getfinishes",
+      "target": "data_storage_j"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "routes_page_loadcoachnote",
+      "target": "data_program_getlogsthisweek"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L216",
+      "weight": 1.0,
+      "source": "data_program_gettodaycheckin",
+      "target": "data_program_getcheckins",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L220",
+      "weight": 1.0,
+      "source": "data_program_savecheckin",
+      "target": "data_program_getcheckins",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L226",
+      "weight": 1.0,
+      "source": "data_program_getrecentcheckins",
+      "target": "data_program_getcheckins",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L212",
+      "weight": 1.0,
+      "source": "data_program_getcheckins",
+      "target": "data_storage_j"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "routes_page_loadcoachnote",
+      "target": "data_program_gettodaycheckin"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L221",
+      "weight": 1.0,
+      "source": "data_program_savecheckin",
+      "target": "data_storage_today"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L222",
+      "weight": 1.0,
+      "source": "data_program_savecheckin",
+      "target": "data_storage_s"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L239",
+      "weight": 1.0,
+      "source": "data_program_getcachedcoachnote",
+      "target": "data_program_coachnote",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L245",
+      "weight": 1.0,
+      "source": "data_program_savecoachnote",
+      "target": "data_program_coachnote",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L239",
+      "weight": 1.0,
+      "source": "data_program_getcachedcoachnote",
+      "target": "data_storage_j"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L240",
+      "weight": 1.0,
+      "source": "data_program_getcachedcoachnote",
+      "target": "data_storage_today"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L64",
+      "weight": 1.0,
+      "source": "routes_page_loadcoachnote",
+      "target": "data_program_getcachedcoachnote"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L245",
+      "weight": 1.0,
+      "source": "data_program_savecoachnote",
+      "target": "data_storage_s"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L245",
+      "weight": 1.0,
+      "source": "data_program_savecoachnote",
+      "target": "data_storage_today"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "routes_page_loadcoachnote",
+      "target": "data_program_savecoachnote"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L252",
+      "weight": 1.0,
+      "source": "data_program_finishworkout",
+      "target": "data_storage_j"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L253",
+      "weight": 1.0,
+      "source": "data_program_finishworkout",
+      "target": "data_storage_today"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "L254",
+      "weight": 1.0,
+      "source": "data_program_finishworkout",
+      "target": "data_storage_s"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L130",
+      "weight": 1.0,
+      "source": "gym_page_finishall",
+      "target": "data_program_finishworkout"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "src_lib_data_storage_ts",
+      "target": "data_storage_initprofiles",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "src_lib_data_storage_ts",
+      "target": "data_storage_getpid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "src_lib_data_storage_ts",
+      "target": "data_storage_pkey",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "src_lib_data_storage_ts",
+      "target": "data_storage_j",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "src_lib_data_storage_ts",
+      "target": "data_storage_s",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "src_lib_data_storage_ts",
+      "target": "data_storage_today",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "src_lib_data_storage_ts",
+      "target": "data_storage_keys",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "data_storage_initprofiles",
+      "target": "data_storage_j",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "data_storage_initprofiles",
+      "target": "data_storage_s",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "data_storage_pkey",
+      "target": "data_storage_getpid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+layout.svelte",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "src_routes_layout_svelte",
+      "target": "routes_layout_active",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+layout.svelte",
+      "source": "src_routes_layout_svelte",
+      "target": "c_users_clove_documents_vasbyt_v2_src_app_css",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+layout.svelte",
+      "source": "src_routes_layout_svelte",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+layout.svelte",
+      "source": "src_routes_layout_svelte",
+      "target": "stores",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+layout.svelte",
+      "source": "src_routes_layout_svelte",
+      "target": "c_users_clove_documents_vasbyt_v2_src_lib_data_storage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+page.svelte",
+      "source": "src_routes_page_svelte",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/body/+page.svelte",
+      "source": "src_routes_body_page_svelte",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source": "src_routes_gym_page_svelte",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/log/+page.svelte",
+      "source": "src_routes_log_page_svelte",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/settings/+page.svelte",
+      "source": "src_routes_settings_page_svelte",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/stats/+page.svelte",
+      "source": "src_routes_stats_page_svelte",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/body/+page.svelte",
+      "source": "src_routes_body_page_svelte",
+      "target": "c_users_clove_documents_vasbyt_v2_src_lib_data_storage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/settings/+page.svelte",
+      "source": "src_routes_settings_page_svelte",
+      "target": "c_users_clove_documents_vasbyt_v2_src_lib_data_storage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "src_routes_page_svelte",
+      "target": "routes_page_load",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "src_routes_page_svelte",
+      "target": "routes_page_loadcoachnote",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "src_routes_page_svelte",
+      "target": "routes_page_setsloggedfor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+page.svelte",
+      "source": "src_routes_page_svelte",
+      "target": "c_users_clove_documents_vasbyt_v2_src_lib_data_program",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/body/+page.svelte",
+      "source": "src_routes_body_page_svelte",
+      "target": "c_users_clove_documents_vasbyt_v2_src_lib_data_program",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source": "src_routes_gym_page_svelte",
+      "target": "c_users_clove_documents_vasbyt_v2_src_lib_data_program",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/log/+page.svelte",
+      "source": "src_routes_log_page_svelte",
+      "target": "c_users_clove_documents_vasbyt_v2_src_lib_data_program",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/settings/+page.svelte",
+      "source": "src_routes_settings_page_svelte",
+      "target": "c_users_clove_documents_vasbyt_v2_src_lib_data_program",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/stats/+page.svelte",
+      "source": "src_routes_stats_page_svelte",
+      "target": "c_users_clove_documents_vasbyt_v2_src_lib_data_program",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L278",
+      "weight": 1.0,
+      "source": "src_routes_body_page_svelte",
+      "target": "body_page_d",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L132",
+      "weight": 1.0,
+      "source": "src_routes_body_page_svelte",
+      "target": "body_page_sevendaysago",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L136",
+      "weight": 1.0,
+      "source": "src_routes_body_page_svelte",
+      "target": "body_page_thirtydaysago",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L156",
+      "weight": 1.0,
+      "source": "src_routes_body_page_svelte",
+      "target": "body_page_checkins",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L157",
+      "weight": 1.0,
+      "source": "src_routes_body_page_svelte",
+      "target": "body_page_payload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L180",
+      "weight": 1.0,
+      "source": "src_routes_body_page_svelte",
+      "target": "body_page_text",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/body/+page.svelte",
+      "source_location": "L219",
+      "weight": 1.0,
+      "source": "src_routes_body_page_svelte",
+      "target": "body_page_for",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/body/+page.svelte",
+      "source": "src_routes_body_page_svelte",
+      "target": "c_users_clove_documents_vasbyt_v2_src_lib_data_photos",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_islast",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_totalsets",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_pct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_restfmt",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_muscles",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_day",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L52",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_rd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_refreshsets",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_prefill",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_starttimer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L95",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_stoptimer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L102",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_startgym",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L104",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_logset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L111",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_undo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L118",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_nextex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L124",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_prevex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L129",
+      "weight": 1.0,
+      "source": "src_routes_gym_page_svelte",
+      "target": "gym_page_finishall",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source": "src_routes_gym_page_svelte",
+      "target": "navigation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L107",
+      "weight": 1.0,
+      "source": "gym_page_logset",
+      "target": "gym_page_refreshsets",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L114",
+      "weight": 1.0,
+      "source": "gym_page_undo",
+      "target": "gym_page_refreshsets",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L131",
+      "weight": 1.0,
+      "source": "gym_page_finishall",
+      "target": "gym_page_refreshsets",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L108",
+      "weight": 1.0,
+      "source": "gym_page_logset",
+      "target": "gym_page_starttimer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L115",
+      "weight": 1.0,
+      "source": "gym_page_undo",
+      "target": "gym_page_stoptimer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L119",
+      "weight": 1.0,
+      "source": "gym_page_nextex",
+      "target": "gym_page_stoptimer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L125",
+      "weight": 1.0,
+      "source": "gym_page_prevex",
+      "target": "gym_page_stoptimer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "L121",
+      "weight": 1.0,
+      "source": "gym_page_nextex",
+      "target": "gym_page_finishall",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/settings/+page.svelte",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "src_routes_settings_page_svelte",
+      "target": "settings_page_saved",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 252",
+      "weight": 1.0,
+      "source": "program_finishWorkout",
+      "target": "storage_J"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 239",
+      "weight": 1.0,
+      "source": "program_getCachedCoachNote",
+      "target": "storage_J"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/+layout.svelte",
+      "source_location": "line 19",
+      "weight": 1.0,
+      "source": "route_layout",
+      "target": "storage_J"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/settings/+page.svelte",
+      "source_location": "line 24",
+      "weight": 1.0,
+      "source": "route_settings",
+      "target": "storage_J"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 136",
+      "weight": 1.0,
+      "source": "program_saveLog",
+      "target": "storage_S"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 253",
+      "weight": 1.0,
+      "source": "program_finishWorkout",
+      "target": "storage_S"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 245",
+      "weight": 1.0,
+      "source": "program_saveCoachNote",
+      "target": "storage_S"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/settings/+page.svelte",
+      "source_location": "line 39",
+      "weight": 1.0,
+      "source": "route_settings",
+      "target": "storage_S"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 136",
+      "weight": 1.0,
+      "source": "program_saveLog",
+      "target": "storage_KEYS"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "line 64",
+      "weight": 1.0,
+      "source": "storage_KEYS",
+      "target": "storage_pKey"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/+layout.svelte",
+      "source_location": "line 19",
+      "weight": 1.0,
+      "source": "route_layout",
+      "target": "storage_KEYS"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/settings/+page.svelte",
+      "source_location": "line 24",
+      "weight": 1.0,
+      "source": "route_settings",
+      "target": "storage_KEYS"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "line 1",
+      "weight": 1.0,
+      "source": "concept_v1Compat",
+      "target": "storage_KEYS"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "line 29",
+      "weight": 1.0,
+      "source": "storage_pKey",
+      "target": "storage_getPID"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "src/lib/data/storage.ts",
+      "source_location": "line 28",
+      "weight": 1.0,
+      "source": "concept_profileIsolation",
+      "target": "storage_pKey"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 132",
+      "weight": 1.0,
+      "source": "program_saveLog",
+      "target": "storage_today"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 240",
+      "weight": 1.0,
+      "source": "program_getCachedCoachNote",
+      "target": "storage_today"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "line 106",
+      "weight": 1.0,
+      "source": "route_gym",
+      "target": "program_saveLog"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "line 131",
+      "weight": 1.0,
+      "source": "route_gym",
+      "target": "program_finishWorkout"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "line 65",
+      "weight": 1.0,
+      "source": "route_today",
+      "target": "program_getCachedCoachNote"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "src/lib/data/program.ts",
+      "source_location": "line 238",
+      "weight": 1.0,
+      "source": "program_getCachedCoachNote",
+      "target": "program_saveCoachNote"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "line 89",
+      "weight": 1.0,
+      "source": "route_today",
+      "target": "program_saveCoachNote"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "line 53",
+      "weight": 1.0,
+      "source": "route_today",
+      "target": "program_getRoutineDay"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/gym/+page.svelte",
+      "source_location": "line 53",
+      "weight": 1.0,
+      "source": "route_gym",
+      "target": "program_getRoutineDay"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "line 1",
+      "weight": 1.0,
+      "source": "concept_v1Compat",
+      "target": "photos_Photo"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "line 54",
+      "weight": 1.0,
+      "source": "photos_storePhoto",
+      "target": "photos_compressImage"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "line 65",
+      "weight": 1.0,
+      "source": "photos_storePhoto",
+      "target": "photos_openDB"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/data/photos.ts",
+      "source_location": "line 41",
+      "weight": 1.0,
+      "source": "photos_loadPhotos",
+      "target": "photos_openDB"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "concept_cloudflarePages",
+      "target": "route_layout"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/+page.svelte",
+      "source_location": "line 39",
+      "weight": 1.0,
+      "source": "route_today",
+      "target": "concept_aiProxy"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "concept_svelte5Runes",
+      "target": "route_gym"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "src/routes/stats/+page.svelte",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "route_stats",
+      "target": "route_log"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "VASBYT_V2_LESSONS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "doc_lessons",
+      "target": "concept_aiProxy"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "doc_claudemd",
+      "target": "concept_svelte5Runes"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "VASBYT_V2_LESSONS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "doc_lessons",
+      "target": "concept_svelte5Runes"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "VASBYT_V2_LESSONS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "doc_lessons",
+      "target": "concept_cloudflarePages"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "data_layer_triad",
+      "label": "Data Layer \u00e2\u20ac\u201d localStorage + IndexedDB + AI Cache",
+      "nodes": [
+        "storage_KEYS",
+        "photos_Photo",
+        "program_getCachedCoachNote"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "src/lib/data/storage.ts"
+    },
+    {
+      "id": "gym_flow",
+      "label": "Gym Workout Flow",
+      "nodes": [
+        "route_gym",
+        "program_saveLog",
+        "program_finishWorkout",
+        "program_getRoutineDay"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.95,
+      "source_file": "src/routes/gym/+page.svelte"
+    },
+    {
+      "id": "profile_isolation_pattern",
+      "label": "Profile Isolation Pattern",
+      "nodes": [
+        "storage_getPID",
+        "storage_pKey",
+        "storage_KEYS",
+        "concept_profileIsolation"
+      ],
+      "relation": "implement",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "src/lib/data/storage.ts"
+    }
+  ],
+  "built_at_commit": "c73a62c97fabcf1f7452bc996fa5abb66a267e0c"
+}

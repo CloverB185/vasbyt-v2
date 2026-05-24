@@ -1,0 +1,32 @@
+{
+  "name": "vasbyt-v2",
+  "layers": {
+    "typescript": {
+      "enabled": false,
+      "_comment": "tsc --noEmit does NOT catch Svelte 5 template errors — use svelte-check + build instead"
+    },
+    "lint": {
+      "enabled": false,
+      "_comment": "No eslint configured"
+    },
+    "security": {
+      "enabled": false,
+      "_comment": "No backend, no secrets at runtime — localStorage + IndexedDB only"
+    },
+    "unit": {
+      "enabled": false,
+      "_comment": "No test suite yet"
+    },
+    "playwright": [],
+    "custom": [
+      {
+        "label": "Svelte type check",
+        "command": "npm run check"
+      },
+      {
+        "label": "Full build (catches Svelte 5 template errors)",
+        "command": "npm run build"
+      }
+    ]
+  }
+}

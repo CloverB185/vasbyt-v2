@@ -67,3 +67,13 @@ The hook auto-discovers it on session start and injects it into context.
 1. Confirm `LESSONS LOADED` line appears before any work begins.
 2. Before any fix — output `LESSONS MATCH: [entry]` or `LESSONS CHECK: No match`.
 3. After any verified non-trivial fix — append entry to `VASBYT_V2_LESSONS.md`. Task is NOT DONE without this.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- ALWAYS read graphify-out/GRAPH_REPORT.md before reading any source files, running grep/glob searches, or answering codebase questions. The graph is your primary map of the codebase.
+- IF graphify-out/wiki/index.md EXISTS, navigate it instead of reading raw files
+- For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).

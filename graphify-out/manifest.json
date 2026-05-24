@@ -1,0 +1,82 @@
+{
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\svelte.config.js": {
+    "mtime": 1779516491.750766,
+    "hash": "ec08be7ec3e3cc6540d9869620921419"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\vite.config.ts": {
+    "mtime": 1779516491.9737265,
+    "hash": "81d0cd398cdea79e439a73fc9c3396a8"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\app.d.ts": {
+    "mtime": 1779516248.815288,
+    "hash": "78b56494b3f78d7f9bacda13678f159e"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\lib\\index.ts": {
+    "mtime": 1779516248.8157852,
+    "hash": "ffcb0e97b69eb555d5739e9efe961ca0"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\lib\\data\\photos.ts": {
+    "mtime": 1779643701.3175805,
+    "hash": "fb8095c3bdc2821c5f8e28a3366f4fcf"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\lib\\data\\program.ts": {
+    "mtime": 1779619535.1862197,
+    "hash": "5246a1f0c47e8c997629fd1968d75f31"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\lib\\data\\storage.ts": {
+    "mtime": 1779643684.7321398,
+    "hash": "32866cbad7c945723a59d17ee9982787"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\routes\\+layout.svelte": {
+    "mtime": 1779620085.9912243,
+    "hash": "3346b0bdc7f0d0c41e317ffbc01fc027"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\routes\\+page.svelte": {
+    "mtime": 1779620094.5401194,
+    "hash": "45884ad317dae8398f5296dd13ebf7b5"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\routes\\body\\+page.svelte": {
+    "mtime": 1779644202.4805403,
+    "hash": "b711ee4b6f9596899f3e0cf05a796cbf"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\routes\\gym\\+page.svelte": {
+    "mtime": 1779607433.8028722,
+    "hash": "e2b747475d7e542209da55e4ba4f2c14"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\routes\\log\\+page.svelte": {
+    "mtime": 1779610223.138147,
+    "hash": "2657b7d534c8f80674733efce51dce54"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\routes\\settings\\+page.svelte": {
+    "mtime": 1779615423.7586415,
+    "hash": "fa8f3350be684a211f2381baa7719fde"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\routes\\stats\\+page.svelte": {
+    "mtime": 1779610186.5499039,
+    "hash": "5449f297121f979bd83e9652831500f5"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\CLAUDE.md": {
+    "mtime": 1779619685.0247152,
+    "hash": "6014f9d45b2eb232db2e825ebe8b5555"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\README.md": {
+    "mtime": 1779516248.8223405,
+    "hash": "dbcc9fb281d73b983ec5fb89f3b1c460"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\VASBYT_V2_LESSONS.md": {
+    "mtime": 1779644654.43358,
+    "hash": "ed01de1efa78f1f2e40799bed0abc79b"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\app.html": {
+    "mtime": 1779516492.2378342,
+    "hash": "94b2ba2563c093edf474a82c1543c917"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\static\\robots.txt": {
+    "mtime": 1779516248.3354578,
+    "hash": "d2ab914a1820906bd49451cb0a108119"
+  },
+  "C:\\Users\\clove\\Documents\\vasbyt-v2\\src\\lib\\assets\\favicon.svg": {
+    "mtime": 1779516248.3233538,
+    "hash": "a0d1b540c1b9a2a920d5f6cae983118a"
+  }
+}

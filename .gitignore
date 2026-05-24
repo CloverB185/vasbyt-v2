@@ -1,5 +1,15 @@
 node_modules
 
+# Graphify extraction cache
+graphify-out/cache/
+
+# Editor / OS
+.vscode/
+.npmrc
+
+# Test artifacts
+test-results/
+
 # Output
 .output
 .vercel
