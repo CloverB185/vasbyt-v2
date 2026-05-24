@@ -163,6 +163,41 @@ export function undoLastSetToday(exerciseId: number | string): boolean {
 	return true;
 }
 
+/** All finish records */
+export function getFinishes(): { date: string; week: number; day: number }[] {
+	return J<{ date: string; week: number; day: number }[]>(KEYS.finishes(), []);
+}
+
+/** Logs from the current ISO week (Mon–Sun) */
+export function getLogsThisWeek(): LogEntry[] {
+	const now = new Date();
+	const dow = now.getDay() === 0 ? 6 : now.getDay() - 1; // Mon=0
+	const mon = new Date(now); mon.setDate(now.getDate() - dow);
+	const monStr = mon.toISOString().slice(0, 10);
+	return getLogs().filter((l) => l.date >= monStr);
+}
+
+/** Finishes from the current ISO week */
+export function getFinishesThisWeek(): { date: string; week: number; day: number }[] {
+	const now = new Date();
+	const dow = now.getDay() === 0 ? 6 : now.getDay() - 1;
+	const mon = new Date(now); mon.setDate(now.getDate() - dow);
+	const monStr = mon.toISOString().slice(0, 10);
+	return getFinishes().filter((f) => f.date >= monStr);
+}
+
+/** Top N exercises by all-time set count */
+export function getTopExercises(n = 5): { name: string; sets: number }[] {
+	const counts: Record<string, number> = {};
+	getLogs().forEach((l) => {
+		counts[l.exerciseName] = (counts[l.exerciseName] ?? 0) + 1;
+	});
+	return Object.entries(counts)
+		.map(([name, sets]) => ({ name, sets }))
+		.sort((a, b) => b.sets - a.sets)
+		.slice(0, n);
+}
+
 /** Save a finish record and advance the day/week counters */
 export function finishWorkout(): void {
 	const w = getWeek();
