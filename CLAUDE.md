@@ -11,7 +11,7 @@
 - **Hosting:** Cloudflare Pages. Auto-deploy on push to `master`. GitHub repo: `CloverB185/vasbyt-v2`.
 - **Live URL:** `vasbyt-v2.pages.dev`
 - **Data layer:** `localStorage` only. Keys mirror V1 exactly (see `src/lib/data/storage.ts`).
-- **Current version:** Phase 4 complete (Today, Gym, Stats, Log, Settings tabs live). Phase 5 = Body/AI features (Body tab re-added).
+- **Current version:** Phase 5 complete. All 5 tabs live: Today (+ AI coach note + ⚙ gear icon), Gym, Stats, Log, Body (check-in). Settings at /settings via gear icon. Phase 6 = photo comparison + AI body analysis.
 
 ---
 
@@ -29,8 +29,8 @@ src/
     gym/           — Gym mode (Phase 2)
     stats/         — Stats tab (Phase 3)
     log/           — Log tab (Phase 3)
-    settings/      — Settings + Profile tab (Phase 4)
-    body/          — stub (Phase 5 — will replace Settings in nav)
+    settings/      — Settings + Profile (accessible via ⚙ gear icon on Today)
+    body/          — Body check-in tab (Phase 5)
 ```
 
 ---

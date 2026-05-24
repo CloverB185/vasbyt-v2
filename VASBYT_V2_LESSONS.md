@@ -34,6 +34,16 @@
 
 ---
 
+## [2026-05-24] — AI Proxy CORS Must Be Updated for Each New Vasbyt Domain
+
+**Symptom:** AI features (coach note, routine suggest) silently fail on V2. Network tab shows 403 Forbidden from `vasbyt-ai-proxy.clover887.workers.dev`.
+**Root cause:** The Cloudflare Worker proxy has a strict CORS allowlist. `vasbyt-v2.pages.dev` was not in it. Requests from any unlisted origin are rejected with 403.
+**Fix:** Add `'https://vasbyt-v2.pages.dev'` to `ALLOWED_ORIGINS` in `proxy/index.js`. Also add a preview-deployment regex for `*.vasbyt-v2.pages.dev`. Deploy with `npx wrangler deploy` from the `proxy/` directory.
+**Files changed:** `proxy/index.js` (in V1 repo `lischels-workout-app`)
+**Cross-project:** YES — any new Vasbyt domain (V3, staging, etc.) needs to be added to the proxy allowlist before AI features will work.
+
+---
+
 ## [2026-05-24] — adapter-cloudflare Build Output Directory
 
 **Symptom:** Cloudflare Pages build succeeds but site is blank or 404.
