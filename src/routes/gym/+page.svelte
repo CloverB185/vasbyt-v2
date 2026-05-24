@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import {
-		inRoutineMode,
 		getRoutineDay,
 		getDay,
 		getTodaySetsForExercise,
@@ -46,13 +45,10 @@
 
 	// ── Load ──────────────────────────────────────────────────────
 	onMount(() => {
-		hasRoutine = inRoutineMode();
-		if (hasRoutine) {
-			const day    = getDay();
-			const rd     = getRoutineDay(day);
-			exercises    = rd?.exercises ?? [];
-			routineTitle = rd?.title ?? 'Today';
-		}
+		const rd     = getRoutineDay(getDay());
+		hasRoutine   = rd.exercises.length > 0;
+		exercises    = rd.exercises;
+		routineTitle = rd.title;
 		return () => { if (_timer) clearInterval(_timer); };
 	});
 

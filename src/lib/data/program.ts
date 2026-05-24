@@ -34,6 +34,194 @@ export interface LogEntry {
 	newPR?: boolean;
 }
 
+// ── 12-week program data ──────────────────────────────────────
+
+const EX_META: Record<string, { name: string; muscles: string[]; rest: number; isBodyweight?: boolean }> = {
+	'incline-dumbbell-chest-press':           { name: 'Incline DB Press',      muscles: ['Chest', 'Shoulders', 'Triceps'],     rest: 75 },
+	'one-arm-dumbbell-row':                   { name: 'DB Row',                muscles: ['Back', 'Upper Back', 'Arms'],        rest: 60 },
+	'dumbbell-biceps-curl':                   { name: 'Biceps Curl',           muscles: ['Arms', 'Biceps'],                    rest: 45 },
+	'hammer-curl':                            { name: 'Hammer Curl',           muscles: ['Arms', 'Forearms'],                  rest: 45 },
+	'dumbbell-triceps-kickback':              { name: 'Triceps Kickback',       muscles: ['Arms', 'Triceps'],                   rest: 45 },
+	'incline-bench-rear-delt-fly':            { name: 'Rear Delt Fly',         muscles: ['Posture', 'Rear Shoulders'],         rest: 45 },
+	'dead-bug':                               { name: 'Dead Bug',              muscles: ['Core', 'Lower Abs'],                 rest: 45, isBodyweight: true },
+	'heel-taps':                              { name: 'Heel Taps',             muscles: ['Core', 'Lower Abs'],                 rest: 45, isBodyweight: true },
+	'side-lying-inner-thigh-raise':           { name: 'Inner Thigh Raise',     muscles: ['Inner Thighs', 'Hips'],              rest: 45, isBodyweight: true },
+	'bridge-pillow-ball-squeeze':             { name: 'Bridge Squeeze',        muscles: ['Glutes', 'Inner Thighs'],            rest: 60, isBodyweight: true },
+	'light-sumo-dumbbell-squat':              { name: 'Sumo Squat',            muscles: ['Inner Thighs', 'Glutes', 'Legs'],    rest: 75 },
+	'dumbbell-hip-thrust-glute-bridge':       { name: 'Hip Thrust',            muscles: ['Glutes', 'Hamstrings'],              rest: 60 },
+	'standing-calf-raise':                    { name: 'Calf Raise',            muscles: ['Calves'],                            rest: 45 },
+	'side-plank-knees-bent':                  { name: 'Side Plank',            muscles: ['Core', 'Side Waist'],                rest: 45, isBodyweight: true },
+	'reverse-crunch':                         { name: 'Reverse Crunch',        muscles: ['Core', 'Lower Abs'],                 rest: 45, isBodyweight: true },
+	'light-dumbbell-lateral-raise':           { name: 'Lateral Raise',         muscles: ['Shoulders'],                         rest: 45 },
+	'lying-dumbbell-triceps-extension':       { name: 'Triceps Extension',     muscles: ['Arms', 'Triceps'],                   rest: 45 },
+	'side-lying-dumbbell-external-rotation':  { name: 'External Rotation',     muscles: ['Shoulders', 'Rotator Cuff'],        rest: 45 },
+	'goblet-squat':                           { name: 'Goblet Squat',          muscles: ['Legs', 'Glutes', 'Core'],            rest: 75 },
+	'dumbbell-romanian-deadlift':             { name: 'Romanian Deadlift',     muscles: ['Hamstrings', 'Glutes', 'Back'],      rest: 75 },
+	'incline-push-up':                        { name: 'Incline Push-Up',       muscles: ['Chest', 'Shoulders', 'Triceps'],     rest: 60, isBodyweight: true },
+	'boxing-light-technique':                 { name: 'Boxing Rounds',         muscles: ['Cardio', 'Arms', 'Core'],            rest: 60, isBodyweight: true },
+	'russian-twist':                          { name: 'Russian Twist',         muscles: ['Core', 'Obliques'],                  rest: 45, isBodyweight: true },
+	'short-lever-copenhagen-plank':           { name: 'Copenhagen Plank',      muscles: ['Inner Thighs', 'Core'],              rest: 60, isBodyweight: true },
+	'neutral-grip-dumbbell-shoulder-press':   { name: 'Shoulder Press',        muscles: ['Shoulders', 'Triceps'],              rest: 60 }
+};
+
+function _pe(id: string, sets: number, reps: string): Exercise {
+	const m = EX_META[id];
+	if (!m) return { id, name: id, sets, reps, rest: 60, muscles: [] };
+	return { id, name: m.name, sets, reps, rest: m.rest, muscles: m.muscles, ...(m.isBodyweight ? { isBodyweight: true } : {}) };
+}
+
+const PROGRAM: Record<1 | 2 | 3, Record<1 | 2 | 3 | 4 | 5, RoutineDay>> = {
+	1: {
+		1: { title: 'Chest + Back + Arms + Deep Core', exercises: [
+			_pe('incline-dumbbell-chest-press', 2, '10-12'),
+			_pe('one-arm-dumbbell-row',         2, '10 each side'),
+			_pe('dumbbell-biceps-curl',         2, '12'),
+			_pe('dumbbell-triceps-kickback',    2, '12 each side'),
+			_pe('incline-bench-rear-delt-fly',  2, '12'),
+			_pe('dead-bug',                     2, '8 each side'),
+			_pe('heel-taps',                    2, '10 each side')
+		]},
+		2: { title: 'Inner Thighs + Glutes + Side Core', exercises: [
+			_pe('side-lying-inner-thigh-raise',    2, '12 each side'),
+			_pe('bridge-pillow-ball-squeeze',      2, '15'),
+			_pe('light-sumo-dumbbell-squat',       2, '10'),
+			_pe('dumbbell-hip-thrust-glute-bridge',2, '12'),
+			_pe('standing-calf-raise',             2, '15'),
+			_pe('side-plank-knees-bent',           2, '20 sec each side'),
+			_pe('reverse-crunch',                  2, '10')
+		]},
+		3: { title: 'Shoulders + Arms + Posture + Lower Core', exercises: [
+			_pe('light-dumbbell-lateral-raise',         2, '12'),
+			_pe('incline-bench-rear-delt-fly',          2, '12'),
+			_pe('hammer-curl',                          2, '12'),
+			_pe('lying-dumbbell-triceps-extension',     2, '10-12'),
+			_pe('side-lying-dumbbell-external-rotation',2, '12-15 each side'),
+			_pe('heel-taps',                            2, '10 each side'),
+			_pe('reverse-crunch',                       2, '8-10')
+		]},
+		4: { title: 'Full Body Strength + Inner Thighs + Core Stability', exercises: [
+			_pe('goblet-squat',                   2, '10'),
+			_pe('dumbbell-romanian-deadlift',     2, '10'),
+			_pe('incline-push-up',                2, '8-12'),
+			_pe('one-arm-dumbbell-row',           2, '10 each side'),
+			_pe('side-lying-inner-thigh-raise',   2, '12 each side'),
+			_pe('dead-bug',                       2, '8 each side')
+		]},
+		5: { title: 'Boxing + Arms Pump + Core Conditioning', exercises: [
+			_pe('boxing-light-technique',        4, '45-60 sec rounds'),
+			_pe('dumbbell-biceps-curl',          2, '12'),
+			_pe('hammer-curl',                   2, '12'),
+			_pe('dumbbell-triceps-kickback',     2, '12 each side'),
+			_pe('light-dumbbell-lateral-raise',  2, '12'),
+			_pe('incline-bench-rear-delt-fly',   2, '12'),
+			_pe('russian-twist',                 2, '8 each side'),
+			_pe('side-plank-knees-bent',         2, '20 sec each side')
+		]}
+	},
+	2: {
+		1: { title: 'Chest + Back + Arms + Deep Core', exercises: [
+			_pe('incline-dumbbell-chest-press', 3, '8-12'),
+			_pe('one-arm-dumbbell-row',         3, '10 each side'),
+			_pe('dumbbell-biceps-curl',         3, '10-12'),
+			_pe('dumbbell-triceps-kickback',    3, '12 each side'),
+			_pe('incline-bench-rear-delt-fly',  3, '12'),
+			_pe('dead-bug',                     3, '8 each side'),
+			_pe('heel-taps',                    2, '12 each side')
+		]},
+		2: { title: 'Inner Thighs + Glutes + Side Core', exercises: [
+			_pe('side-lying-inner-thigh-raise',    3, '12-15 each side'),
+			_pe('bridge-pillow-ball-squeeze',      3, '15'),
+			_pe('light-sumo-dumbbell-squat',       3, '10-12'),
+			_pe('dumbbell-hip-thrust-glute-bridge',3, '10'),
+			_pe('standing-calf-raise',             3, '15'),
+			_pe('side-plank-knees-bent',           3, '20-30 sec each side'),
+			_pe('reverse-crunch',                  2, '10-12')
+		]},
+		3: { title: 'Shoulders + Arms + Posture + Lower Core', exercises: [
+			_pe('light-dumbbell-lateral-raise',         3, '12'),
+			_pe('incline-bench-rear-delt-fly',          3, '12'),
+			_pe('hammer-curl',                          3, '10-12'),
+			_pe('lying-dumbbell-triceps-extension',     3, '10-12'),
+			_pe('side-lying-dumbbell-external-rotation',3, '12-15 each side'),
+			_pe('heel-taps',                            3, '10-12 each side'),
+			_pe('reverse-crunch',                       3, '8-10')
+		]},
+		4: { title: 'Full Body Strength + Inner Thighs + Core Stability', exercises: [
+			_pe('goblet-squat',                   3, '8-10'),
+			_pe('dumbbell-romanian-deadlift',     3, '8-10'),
+			_pe('incline-dumbbell-chest-press',   3, '10-12'),
+			_pe('one-arm-dumbbell-row',           3, '10 each side'),
+			_pe('side-lying-inner-thigh-raise',   3, '12-15 each side'),
+			_pe('dead-bug',                       3, '8-10 each side')
+		]},
+		5: { title: 'Boxing + Arms Pump + Core Conditioning', exercises: [
+			_pe('boxing-light-technique',        5, '60 sec rounds'),
+			_pe('dumbbell-biceps-curl',          3, '12'),
+			_pe('hammer-curl',                   3, '12'),
+			_pe('dumbbell-triceps-kickback',     3, '12 each side'),
+			_pe('light-dumbbell-lateral-raise',  3, '12'),
+			_pe('incline-bench-rear-delt-fly',   3, '12'),
+			_pe('russian-twist',                 2, '8-10 each side'),
+			_pe('side-plank-knees-bent',         3, '20-30 sec each side')
+		]}
+	},
+	3: {
+		1: { title: 'Chest + Back + Arms + Deep Core', exercises: [
+			_pe('incline-dumbbell-chest-press', 4, '8-10'),
+			_pe('one-arm-dumbbell-row',         4, '8-10 each side'),
+			_pe('dumbbell-biceps-curl',         3, '10-12'),
+			_pe('dumbbell-triceps-kickback',    3, '12 each side'),
+			_pe('incline-bench-rear-delt-fly',  3, '12-15'),
+			_pe('dead-bug',                     3, '8 each side'),
+			_pe('heel-taps',                    3, '12 each side')
+		]},
+		2: { title: 'Inner Thighs + Glutes + Side Core', exercises: [
+			_pe('side-lying-inner-thigh-raise',       4, '15 each side'),
+			_pe('bridge-pillow-ball-squeeze',         3, '15'),
+			_pe('dumbbell-hip-thrust-glute-bridge',   4, '8-12'),
+			_pe('light-sumo-dumbbell-squat',          3, '10'),
+			_pe('standing-calf-raise',                3, '15'),
+			_pe('side-plank-knees-bent',              3, '25-35 sec each side'),
+			_pe('reverse-crunch',                     3, '10'),
+			_pe('short-lever-copenhagen-plank',       1, '10-15 sec each side')
+		]},
+		3: { title: 'Shoulders + Arms + Posture + Lower Core', exercises: [
+			_pe('light-dumbbell-lateral-raise',           3, '10-12'),
+			_pe('incline-bench-rear-delt-fly',            3, '12-15'),
+			_pe('side-lying-dumbbell-external-rotation',  3, '12-15 each side'),
+			_pe('hammer-curl',                            3, '10-12'),
+			_pe('lying-dumbbell-triceps-extension',       3, '12'),
+			_pe('heel-taps',                              3, '12 each side'),
+			_pe('reverse-crunch',                         3, '8-10'),
+			_pe('neutral-grip-dumbbell-shoulder-press',   2, '8-10')
+		]},
+		4: { title: 'Full Body Strength + Inner Thighs + Core Stability', exercises: [
+			_pe('goblet-squat',                   3, '8-10'),
+			_pe('dumbbell-romanian-deadlift',     4, '8-10'),
+			_pe('incline-dumbbell-chest-press',   3, '10-12'),
+			_pe('one-arm-dumbbell-row',           3, '10 each side'),
+			_pe('side-lying-inner-thigh-raise',   3, '15 each side'),
+			_pe('dead-bug',                       3, '8 each side')
+		]},
+		5: { title: 'Boxing + Arms Pump + Core Conditioning', exercises: [
+			_pe('boxing-light-technique',        5, '60 sec rounds'),
+			_pe('dumbbell-biceps-curl',          3, '12'),
+			_pe('hammer-curl',                   3, '12'),
+			_pe('dumbbell-triceps-kickback',     3, '12-15 each side'),
+			_pe('light-dumbbell-lateral-raise',  3, '12'),
+			_pe('incline-bench-rear-delt-fly',   3, '12-15'),
+			_pe('russian-twist',                 3, '8-10 each side'),
+			_pe('side-plank-knees-bent',         3, '25-35 sec each side')
+		]}
+	}
+};
+
+/** Return a single day from the 12-week program (days 6–7 = rest) */
+export function getProgramDay(phase: 1 | 2 | 3, day: number): RoutineDay {
+	if (day >= 6) return { title: 'Rest', exercises: [] };
+	return PROGRAM[phase][(day as 1 | 2 | 3 | 4 | 5)] ?? { title: 'Rest', exercises: [] };
+}
+
 // ── Routine mode ─────────────────────────────────────────────
 
 interface StoredRoutine {
@@ -47,13 +235,14 @@ export function inRoutineMode(): boolean {
 	return J<StoredRoutine | null>(KEYS.activeRoutine(), null) !== null;
 }
 
-/** Today's routine day data, or null if not in routine mode */
-export function getRoutineDay(day: number): RoutineDay | null {
+/** Today's routine day (custom routine) or program day as fallback */
+export function getRoutineDay(day: number): RoutineDay {
 	const routine = J<StoredRoutine | null>(KEYS.activeRoutine(), null);
-	if (!routine) return null;
-	const d = routine.days[String(day)] || routine.days['1'];
-	if (!d) return null;
-	return { title: d.title, exercises: d.exercises || [] };
+	if (routine) {
+		const d = routine.days[String(day)] || routine.days['1'];
+		if (d) return { title: d.title, exercises: d.exercises || [] };
+	}
+	return getProgramDay(getPhase(getWeek()), day);
 }
 
 /** Active routine name */

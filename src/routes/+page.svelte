@@ -28,7 +28,7 @@
 	let phaseName    = $state('');
 	let routineMode  = $state(false);
 	let routineName  = $state('');
-	let routineDay   = $state<RoutineDay | null>(null);
+	let routineDay   = $state<RoutineDay>({ title: '', exercises: [] });
 	let setsDone     = $state(0);
 	let setsTotal    = $state(0);
 
@@ -52,7 +52,7 @@
 		routineName = getRoutineName();
 		routineDay  = getRoutineDay(day);
 		setsDone    = getTotalSetsToday();
-		setsTotal   = getTotalSetsScheduled(routineDay?.exercises ?? []);
+		setsTotal   = getTotalSetsScheduled(routineDay.exercises);
 	}
 
 	onMount(() => {
@@ -115,10 +115,10 @@
 		<div class="day-meta">
 			{#if routineMode}
 				<span class="badge">{routineName}</span>
-				<h1 class="day-title">{routineDay?.title ?? 'Rest day'}</h1>
+				<h1 class="day-title">{routineDay.title || 'Rest day'}</h1>
 			{:else}
 				<span class="badge">Week {week} · Day {day}</span>
-				<h1 class="day-title">{phaseName}</h1>
+				<h1 class="day-title">{routineDay.exercises.length > 0 ? routineDay.title : phaseName}</h1>
 			{/if}
 		</div>
 	</div>
@@ -137,7 +137,7 @@
 	{/if}
 
 	<!-- Exercise list -->
-	{#if routineDay && routineDay.exercises.length > 0}
+	{#if routineDay.exercises.length > 0}
 		<div class="card">
 			<div class="card-head">
 				<span class="card-title">{routineDay.exercises.length} exercises</span>
@@ -165,16 +165,9 @@
 				{/each}
 			</div>
 		</div>
-	{:else if !routineMode}
-		<div class="card">
-			<p class="placeholder-note">
-				12-week program exercise list coming in the next build.<br />
-				Week {week} · Day {day} · {phaseName}
-			</p>
-		</div>
 	{:else}
 		<div class="card">
-			<p class="placeholder-note">No routine set up. Set one up in the live app.</p>
+			<p class="placeholder-note">Rest day — good work. See you next session.</p>
 		</div>
 	{/if}
 
@@ -191,12 +184,10 @@
 	{/if}
 
 	<!-- Start workout CTA -->
-	{#if routineMode && routineDay && routineDay.exercises.length > 0}
+	{#if routineDay.exercises.length > 0}
 		<a href="/gym" class="btn-primary btn-link">Start Gym Mode →</a>
 	{:else}
-		<button class="btn-primary" disabled>
-			{routineMode ? 'No exercises today' : 'Set up a routine to start'}
-		</button>
+		<button class="btn-primary" disabled>Rest day — no workout today</button>
 	{/if}
 
 </div>
