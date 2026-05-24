@@ -12,6 +12,10 @@
 		getTotalSetsScheduled,
 		getProfileName,
 		getTodaySetsForExercise,
+		getLogsThisWeek,
+		getCachedCoachNote,
+		saveCoachNote,
+		getTodayCheckin,
 		type Exercise,
 		type RoutineDay
 	} from '$lib/data/program';
@@ -27,6 +31,12 @@
 	let routineDay   = $state<RoutineDay | null>(null);
 	let setsDone     = $state(0);
 	let setsTotal    = $state(0);
+
+	// ── Coach note ─────────────────────────────────────────────
+	let coachNote    = $state('');
+	let noteLoading  = $state(false);
+
+	const AI_PROXY = 'https://vasbyt-ai-proxy.clover887.workers.dev';
 
 	// ── Derived ────────────────────────────────────────────────
 	let pct = $derived(setsTotal > 0 ? Math.round((setsDone / setsTotal) * 100) : 0);
@@ -47,7 +57,40 @@
 
 	onMount(() => {
 		load();
+		loadCoachNote();
 	});
+
+	async function loadCoachNote() {
+		const cached = getCachedCoachNote();
+		if (cached) { coachNote = cached.text; return; }
+		// Only fetch if there's some training data to base it on
+		if (getTotalSetsToday() === 0 && getLogsThisWeek().length === 0) return;
+		noteLoading = true;
+		try {
+			const w = getWeek(), d = getDay();
+			const ph = getPhaseName(getPhase(w));
+			const weekSets = getLogsThisWeek().length;
+			const rn = getRoutineName() || 'Default program';
+			const ci = getTodayCheckin();
+			const energyStr = ci?.energy ? `, energy ${ci.energy}/5` : '';
+			const prompt = `You are a terse, direct fitness coach. Context: Week ${w}, Day ${d}, ${ph}. Routine: ${rn}. This week: ${weekSets} sets logged${energyStr}. Write ONE punchy sentence — a motivational insight or practical tip for today's training. No filler, no greeting.`;
+			const resp = await fetch(AI_PROXY, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					model: 'google/gemini-3-flash-preview',
+					max_tokens: 80,
+					messages: [{ role: 'user', content: prompt }]
+				})
+			});
+			if (!resp.ok) return;
+			const data = await resp.json();
+			const text = data?.choices?.[0]?.message?.content?.trim();
+			if (text) { coachNote = text; saveCoachNote(text); }
+		} catch { /* silent fail */ } finally {
+			noteLoading = false;
+		}
+	}
 
 	// ── Helpers ────────────────────────────────────────────────
 	function setsLoggedFor(ex: Exercise): number {
@@ -65,7 +108,7 @@
 	<div class="profile-strip">
 		<span class="profile-dot"></span>
 		<span class="profile-name">{profileName}</span>
-		<span class="v2-badge">v2 preview</span>
+		<a href="/settings" class="settings-link" aria-label="Settings">⚙</a>
 	</div>
 
 	<!-- Day badge + title -->
@@ -136,6 +179,18 @@
 		</div>
 	{/if}
 
+	<!-- AI coach note -->
+	{#if coachNote || noteLoading}
+		<div class="coach-card">
+			{#if noteLoading}
+				<span class="coach-loading">···</span>
+			{:else}
+				<span class="coach-label">Coach</span>
+				<p class="coach-text">{coachNote}</p>
+			{/if}
+		</div>
+	{/if}
+
 	<!-- Start workout CTA -->
 	{#if routineMode && routineDay && routineDay.exercises.length > 0}
 		<a href="/gym" class="btn-primary btn-link">Start Gym Mode →</a>
@@ -174,18 +229,18 @@
 		font-size: 14px;
 		color: var(--muted);
 	}
-	.v2-badge {
+	.settings-link {
 		margin-left: auto;
-		font-size: 10px;
-		font-weight: 800;
-		letter-spacing: .06em;
-		text-transform: uppercase;
-		background: rgba(14,154,184,.15);
-		color: var(--accent);
-		padding: 2px 8px;
-		border-radius: 999px;
-		border: 1px solid var(--line);
+		font-size: 18px;
+		color: var(--muted);
+		text-decoration: none;
+		min-height: 36px;
+		display: flex;
+		align-items: center;
+		padding: 0 4px;
+		transition: color 0.15s;
 	}
+	.settings-link:hover { color: var(--accent); }
 
 	/* Day header */
 	.day-header { margin-bottom: 2px; }
@@ -265,6 +320,37 @@
 		font-size: 13px;
 		font-weight: 700;
 		color: var(--muted);
+	}
+
+	/* Coach note */
+	.coach-card {
+		background: var(--card);
+		border: 1px solid var(--line);
+		border-left: 3px solid var(--accent);
+		border-radius: 12px;
+		padding: 12px 14px;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+	.coach-label {
+		font-size: 10px;
+		font-weight: 800;
+		letter-spacing: .06em;
+		text-transform: uppercase;
+		color: var(--accent);
+	}
+	.coach-text {
+		font-size: 14px;
+		line-height: 1.5;
+		color: var(--text);
+		font-weight: 600;
+	}
+	.coach-loading {
+		font-size: 18px;
+		color: var(--muted);
+		letter-spacing: 3px;
+		text-align: center;
 	}
 
 	.placeholder-note {

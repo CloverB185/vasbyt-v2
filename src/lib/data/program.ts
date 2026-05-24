@@ -198,6 +198,53 @@ export function getTopExercises(n = 5): { name: string; sets: number }[] {
 		.slice(0, n);
 }
 
+// ── Check-ins ─────────────────────────────────────────────────
+
+export interface CheckIn {
+	date: string;
+	weight?: number;   // kg
+	energy?: number;   // 1–5
+	sleep?: number;    // hours
+	notes?: string;
+}
+
+export function getCheckins(): CheckIn[] {
+	return J<CheckIn[]>(KEYS.checkins(), []);
+}
+
+export function getTodayCheckin(): CheckIn | null {
+	return getCheckins().find((c) => c.date === today()) ?? null;
+}
+
+export function saveCheckin(data: Omit<CheckIn, 'date'>): void {
+	const checkins = getCheckins().filter((c) => c.date !== today());
+	checkins.push({ ...data, date: today() });
+	S(KEYS.checkins(), checkins);
+}
+
+export function getRecentCheckins(n = 7): CheckIn[] {
+	return [...getCheckins()]
+		.sort((a, b) => b.date.localeCompare(a.date))
+		.slice(0, n);
+}
+
+// ── Coach note cache ──────────────────────────────────────────
+
+export interface CoachNote {
+	date: string;
+	text: string;
+}
+
+export function getCachedCoachNote(): CoachNote | null {
+	const note = J<CoachNote | null>(KEYS.coachNote(), null);
+	if (!note || note.date !== today()) return null;
+	return note;
+}
+
+export function saveCoachNote(text: string): void {
+	S(KEYS.coachNote(), { date: today(), text });
+}
+
 /** Save a finish record and advance the day/week counters */
 export function finishWorkout(): void {
 	const w = getWeek();

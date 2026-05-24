@@ -7,11 +7,11 @@
 	let { children } = $props();
 
 	const tabs = [
-		{ href: '/',          label: 'Today',    icon: '◈' },
-		{ href: '/gym',       label: 'Gym',      icon: '⊕' },
-		{ href: '/stats',     label: 'Stats',    icon: '▲' },
-		{ href: '/log',       label: 'Log',      icon: '≡' },
-		{ href: '/settings',  label: 'Settings', icon: '⚙' }
+		{ href: '/',      label: 'Today',  icon: '◈' },
+		{ href: '/gym',   label: 'Gym',    icon: '⊕' },
+		{ href: '/stats', label: 'Stats',  icon: '▲' },
+		{ href: '/log',   label: 'Log',    icon: '≡' },
+		{ href: '/body',  label: 'Body',   icon: '◎' }
 	];
 
 	onMount(() => {
