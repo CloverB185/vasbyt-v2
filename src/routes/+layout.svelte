@@ -1,16 +1,24 @@
 <script lang="ts">
 	import '../app.css';
+	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { J, KEYS } from '$lib/data/storage';
 
 	let { children } = $props();
 
 	const tabs = [
-		{ href: '/',      label: 'Today',  icon: '◈' },
-		{ href: '/gym',   label: 'Gym',    icon: '⊕' },
-		{ href: '/stats', label: 'Stats',  icon: '▲' },
-		{ href: '/log',   label: 'Log',    icon: '≡' },
-		{ href: '/body',  label: 'Body',   icon: '◎' }
+		{ href: '/',          label: 'Today',    icon: '◈' },
+		{ href: '/gym',       label: 'Gym',      icon: '⊕' },
+		{ href: '/stats',     label: 'Stats',    icon: '▲' },
+		{ href: '/log',       label: 'Log',      icon: '≡' },
+		{ href: '/settings',  label: 'Settings', icon: '⚙' }
 	];
+
+	onMount(() => {
+		// Apply saved theme on every page load
+		const t = J<string>(KEYS.theme(), '');
+		document.documentElement.dataset.theme = t;
+	});
 </script>
 
 <main>
