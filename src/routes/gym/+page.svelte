@@ -32,6 +32,14 @@
 
 	let _timer: ReturnType<typeof setInterval> | null = null;
 
+	// ── Voice mode ─────────────────────────────────────────────────
+	let voiceSupported = $state(false);
+	let voiceActive    = $state(false);
+	let voiceToast     = $state('');
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	let _voiceRec: any = null;
+	let _voiceToastTimer: ReturnType<typeof setTimeout> | null = null;
+
 	// ── Derived ───────────────────────────────────────────────────
 	let ex        = $derived(exercises[exIdx] ?? null);
 	let target    = $derived(ex ? (Number(ex.sets) || 3) : 3);
@@ -49,7 +57,13 @@
 		hasRoutine   = rd.exercises.length > 0;
 		exercises    = rd.exercises;
 		routineTitle = rd.title;
-		return () => { if (_timer) clearInterval(_timer); };
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+		voiceSupported = !!SR;
+		return () => {
+			if (_timer) clearInterval(_timer);
+			stopVoice();
+		};
 	});
 
 	// ── Refresh sets when exercise changes or gym starts ──────────
@@ -123,10 +137,103 @@
 	}
 
 	function finishAll() {
+		stopVoice();
 		finishWorkout();
 		refreshSets();
 		woDone = true;
 	}
+
+	// ── Voice mode ─────────────────────────────────────────────────
+	function _voiceFeedback(msg: string) {
+		voiceToast = msg;
+		if (_voiceToastTimer) clearTimeout(_voiceToastTimer);
+		_voiceToastTimer = setTimeout(() => (voiceToast = ''), 1800);
+	}
+
+	function _voiceProcess(transcript: string) {
+		const t = transcript.toLowerCase().replace(/[.,!?]+$/, '').trim();
+
+		if (/^(next|next exercise|next ex|move on)$/.test(t)) {
+			_voiceFeedback('Next ›'); nextEx(); return;
+		}
+		if (/^(previous|prev|back|go back)$/.test(t)) {
+			_voiceFeedback('‹ Previous'); prevEx(); return;
+		}
+		if (/^(skip|skip rest|rest done|done resting|skip timer|go)$/.test(t)) {
+			_voiceFeedback('Rest skipped'); stopTimer(); return;
+		}
+		if (/^(finish|finish workout|done workout|end workout|wrap up|all done)$/.test(t)) {
+			_voiceFeedback('Finishing…'); finishAll(); return;
+		}
+		if (/^(stop|stop listening|stop voice|off|quiet|mute)$/.test(t)) {
+			_voiceFeedback('Voice off'); stopVoice(); return;
+		}
+		if (/^(same|same as last|copy|copy last|same weight)$/.test(t)) {
+			const last = setsToday.at(-1);
+			if (last) { weight = last.weight; reps = last.reps; _voiceFeedback('Same as last'); }
+			return;
+		}
+		if (/^(done|log set|log it|commit|good|tick|yes|yep|yeah|logged|log)$/.test(t)) {
+			if (!allDone && !restOn) { _voiceFeedback('Set logged ✓'); logSet(); }
+			return;
+		}
+
+		const wPat = '(\\d+(?:\\.\\d+)?)\\s*(?:kg|kilo|kilos|kilograms?)';
+		const rPat = '(\\d+)\\s*(?:reps?|repetitions?|times?)';
+		const combWR = t.match(new RegExp('^' + wPat + '\\s+' + rPat + '$'));
+		const combRW = t.match(new RegExp('^' + rPat + '\\s+' + wPat + '$'));
+		if (combWR || combRW) {
+			const wVal = combWR ? combWR[1] : combRW![2];
+			const rVal = combWR ? combWR[2] : combRW![1];
+			weight = wVal; reps = rVal;
+			_voiceFeedback(`${wVal} kg × ${rVal}`);
+			return;
+		}
+		const wOnly = t.match(new RegExp('^' + wPat + '$'));
+		if (wOnly) { weight = wOnly[1]; _voiceFeedback(`${wOnly[1]} kg`); return; }
+		const rOnly = t.match(new RegExp('^' + rPat + '$'));
+		if (rOnly) { reps = rOnly[1]; _voiceFeedback(`${rOnly[1]} reps`); return; }
+	}
+
+	function startVoice() {
+		if (voiceActive) return;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+		if (!SR) return;
+		_voiceRec = new SR();
+		_voiceRec.continuous = true;
+		_voiceRec.interimResults = false;
+		_voiceRec.lang = 'en-ZA';
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		_voiceRec.onresult = (e: any) => {
+			const last = e.results[e.results.length - 1];
+			if (last.isFinal) _voiceProcess(last[0].transcript);
+		};
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		_voiceRec.onerror = (e: any) => {
+			if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+				voiceActive = false;
+				_voiceFeedback('Mic blocked — check permissions');
+			}
+		};
+		_voiceRec.onend = () => {
+			if (voiceActive) { try { _voiceRec.start(); } catch { /* auto-restart after silence */ } }
+		};
+		try {
+			_voiceRec.start();
+			voiceActive = true;
+			_voiceFeedback('Listening — "next", "done", "skip" or a weight');
+		} catch {
+			voiceActive = false;
+		}
+	}
+
+	function stopVoice() {
+		voiceActive = false;
+		if (_voiceRec) { try { _voiceRec.stop(); } catch { /* ignore */ } _voiceRec = null; }
+	}
+
+	function toggleVoice() { voiceActive ? stopVoice() : startVoice(); }
 </script>
 
 <svelte:head>
@@ -206,9 +313,14 @@
 		</button>
 	</div>
 
-	<!-- Target + count -->
+	<!-- Target + count + voice toggle -->
 	<div class="gym-target">
 		<span class="target-txt">{ex.sets} sets · {ex.reps}</span>
+		{#if voiceSupported}
+			<button class="voice-btn" class:voice-on={voiceActive} onclick={toggleVoice}>
+				{voiceActive ? '● Voice' : 'Voice'}
+			</button>
+		{/if}
 		<span class="set-count" class:green={allDone} class:amber={!allDone && done > 0}>
 			{done} / {target}
 		</span>
@@ -278,6 +390,11 @@
 			{isLast ? 'Finish Workout ◎' : 'Next Exercise →'}
 		</button>
 	{/if}
+{/if}
+
+<!-- Voice feedback toast (persists across re-renders) -->
+{#if voiceToast}
+	<div class="voice-toast">{voiceToast}</div>
 {/if}
 
 <style>
@@ -374,6 +491,22 @@
 .btn-primary:disabled { opacity: .35; cursor: not-allowed; }
 .btn-next { margin-top: 8px; }
 .btn-ghost { width: 100%; border: 1px solid var(--line); border-radius: 14px; padding: 12px; font-weight: 700; font-size: 14px; color: var(--muted); min-height: var(--touch); }
+
+/* ── Voice ───────────────────────────────────────────────────── */
+.voice-btn {
+	font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+	color: var(--muted); border: 1px solid var(--line);
+	border-radius: 999px; padding: 4px 12px; min-height: var(--touch);
+	transition: color 0.15s, border-color 0.15s;
+}
+.voice-btn.voice-on { color: var(--accent); border-color: var(--accent); }
+.voice-toast {
+	position: fixed; bottom: 104px; left: 50%; transform: translateX(-50%);
+	background: rgba(0,0,0,0.82); color: #fff;
+	padding: 8px 20px; border-radius: 999px;
+	font-size: 14px; font-weight: 700;
+	pointer-events: none; z-index: 9999; white-space: nowrap;
+}
 
 /* ── Label ───────────────────────────────────────────────────── */
 .label-sm { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
