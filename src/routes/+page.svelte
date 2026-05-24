@@ -108,7 +108,6 @@
 	<div class="profile-strip">
 		<span class="profile-dot"></span>
 		<span class="profile-name">{profileName}</span>
-		<a href="/settings" class="settings-link" aria-label="Settings">⚙</a>
 	</div>
 
 	<!-- Day badge + title -->
@@ -229,18 +228,6 @@
 		font-size: 14px;
 		color: var(--muted);
 	}
-	.settings-link {
-		margin-left: auto;
-		font-size: 18px;
-		color: var(--muted);
-		text-decoration: none;
-		min-height: 36px;
-		display: flex;
-		align-items: center;
-		padding: 0 4px;
-		transition: color 0.15s;
-	}
-	.settings-link:hover { color: var(--accent); }
 
 	/* Day header */
 	.day-header { margin-bottom: 2px; }

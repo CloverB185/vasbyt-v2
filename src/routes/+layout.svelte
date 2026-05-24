@@ -25,6 +25,10 @@
 	{@render children()}
 </main>
 
+{#if $page.url.pathname !== '/settings'}
+	<a href="/settings" class="settings-fab" aria-label="Settings">⚙</a>
+{/if}
+
 <nav class="tab-bar">
 	{#each tabs as tab}
 		<a
@@ -60,6 +64,23 @@
 		align-items: stretch;
 		z-index: 100;
 	}
+
+	.settings-fab {
+		position: fixed;
+		top: max(14px, calc(env(safe-area-inset-top) + 10px));
+		right: 16px;
+		width: 44px;
+		height: 44px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 22px;
+		color: var(--muted);
+		text-decoration: none;
+		z-index: 90;
+		transition: color 0.15s;
+	}
+	.settings-fab:hover { color: var(--accent); }
 
 	.tab-item {
 		flex: 1;
