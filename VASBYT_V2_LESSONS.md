@@ -171,3 +171,23 @@
 **Fix:** Store only the approved sub-map on fetch: `mediaMap = m.approved ?? {}`. Point GIF URLs to V1's deployed Cloudflare Pages site (`GIF_BASE = 'https://vasbyt.pages.dev/assets/gifs/'`) — `<img>` tags load cross-domain without CORS. `gifFailed = $state(false)` + `$effect(() => { if (ex) gifFailed = false; })` resets per exercise. Lightbox overlay uses Svelte `$state` (no DOM manipulation) — `onclick` is inline handler per Svelte 5 rules.
 **Files changed:** `src/routes/gym/+page.svelte`, `static/data/workoutx-media-map.json`
 **Cross-project:** YES — when a JSON data file has nested structure, always inspect the actual shape before writing the lookup function. For large static assets (images, fonts) shared between a V1 and V2 app, reference from the deployed V1 URL rather than duplicating in the repo.
+
+---
+
+## [2026-05-25] — getWeekBounds offset sign: positive = past, not negative
+
+**Symptom:** Frequency chart on Stats tab showed future dates (e.g. "13 Jul") instead of past 8 weeks. Streak was 0 even with historical data.
+**Root cause:** `getWeekBounds(n)` in `program.ts` subtracts `n * 7` days from the current Monday. So positive n = weeks in the past, negative n = weeks in the future. Code used `w = -7 to 0` (future), needed `w = 7 downto 0` (past).
+**Fix:** Changed `buildFreqChart` loop from `for (let w = -7; w <= 0; w++)` to `for (let w = 7; w >= 0; w--)`. Changed `buildStreak` from `w--` (going more negative) to `w++` (going further back). Confirmed by checking `getWeekBounds` signature at program.ts:728: `mon.setDate(thisMon.getDate() - weeksBack * 7)`.
+**Files changed:** `src/routes/stats/+page.svelte`
+**Cross-project:** YES — always check the offset convention of date-range helpers before writing loops. Positive/negative conventions vary between libs and codebases.
+
+---
+
+## [2026-05-25] — Phase 15 Stats tab: streak, freq chart, exercise history, AI cards
+
+**Symptom:** Stats tab only had "This Week" and all-time counts — no streak, no history, no trend.
+**Root cause:** Phase 15 not yet implemented.
+**Fix:** Added `weekSummary` + `currWeekInsight` to `KEYS` in `storage.ts`. Rewrote `stats/+page.svelte` to add: (1) streak counter (consecutive weeks from current going back), (2) 8-week frequency chart using CSS bars (no Chart.js), (3) exercise history section — collapsible per exercise with best weight/reps/vol, mini bar chart of last 8 sessions, trend direction, and 3 recent sets, (4) AI insight cards reading from `KEYS.currWeekInsight()` and `KEYS.weekSummary()`. `calcTrend` ports V1's logic: compare avg of first-3 vs last-3 training dates; >3% = up, <-3% = down.
+**Files changed:** `src/lib/data/storage.ts`, `src/routes/stats/+page.svelte`
+**Cross-project:** NO
