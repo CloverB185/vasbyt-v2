@@ -76,6 +76,7 @@ export const KEYS = {
 	bodyInsights:  () => pKey('vasbytBodyInsights.v1', 'bodyInsights'),
 	phaseSeen:     () => pKey('vasbytPhaseSeen.v1',    'phaseSeen'),
 	cardio:        () => pKey('vasbytCardio.v1',       'cardio'),
+	equip:         () => pKey('vasbytEquipment.v1',    'equip'),
 };
 
 // Init profiles on first load (browser only)

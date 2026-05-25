@@ -420,6 +420,63 @@ interface StoredRoutine {
 	days: Record<string, { title: string; exercises: Exercise[] }>;
 }
 
+/** A day inside a saved custom routine */
+export interface RbDay {
+	day: number;
+	title: string;
+	isRest: boolean;
+	exercises: { id: string; name: string; sets: number; reps: string; rest: number }[];
+}
+
+/** A saved custom routine stored in KEYS.routines() */
+export interface SavedRoutine {
+	id: string;
+	name: string;
+	description: string;
+	days: RbDay[];
+}
+
+/** Load all saved custom routines */
+export function getSavedRoutines(): SavedRoutine[] {
+	return J<SavedRoutine[]>(KEYS.routines(), []);
+}
+
+/** Save (create or update) a custom routine */
+export function saveCustomRoutine(r: SavedRoutine): void {
+	const all = getSavedRoutines();
+	const idx = all.findIndex((x) => x.id === r.id);
+	if (idx >= 0) all[idx] = r; else all.push(r);
+	S(KEYS.routines(), all);
+}
+
+/** Delete a custom routine by id */
+export function deleteCustomRoutine(id: string): void {
+	S(KEYS.routines(), getSavedRoutines().filter((r) => r.id !== id));
+	// if this was active, clear it
+	const active = J<StoredRoutine & { id?: string } | null>(KEYS.activeRoutine(), null);
+	if (active && (active as unknown as { id?: string }).id === id) {
+		localStorage.removeItem(KEYS.activeRoutine());
+	}
+}
+
+/** Activate a saved custom routine */
+export function activateCustomRoutine(id: string): boolean {
+	const r = getSavedRoutines().find((x) => x.id === id);
+	if (!r) return false;
+	const days: Record<string, { title: string; exercises: Exercise[] }> = {};
+	r.days.forEach((d) => {
+		days[String(d.day)] = {
+			title: d.isRest ? 'Rest' : d.title,
+			exercises: d.exercises.map((e) => ({
+				id: e.id, name: e.name, sets: e.sets,
+				reps: e.reps, rest: e.rest, muscles: []
+			}))
+		};
+	});
+	S(KEYS.activeRoutine(), { id, name: r.name, days });
+	return true;
+}
+
 /** True if a custom routine is active */
 export function inRoutineMode(): boolean {
 	if (typeof localStorage === 'undefined') return false;
