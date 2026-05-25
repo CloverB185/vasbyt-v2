@@ -90,7 +90,7 @@
 			const weekSets = getLogsThisWeek().length;
 			const rn = getRoutineName() || 'Default program';
 			const ci = getTodayCheckin();
-			const energyStr = ci?.energy ? `, energy ${ci.energy}/5` : '';
+			const energyStr = ci?.energy ? `, energy ${ci.energy}/10` : '';
 			const prompt = `You are a terse, direct fitness coach. Context: Week ${w}, Day ${d}, ${ph}. Routine: ${rn}. This week: ${weekSets} sets logged${energyStr}. Write ONE punchy sentence — a motivational insight or practical tip for today's training. No filler, no greeting.`;
 			const resp = await fetch(AI_PROXY, {
 				method: 'POST',
