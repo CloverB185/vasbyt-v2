@@ -191,3 +191,13 @@
 **Fix:** Added `weekSummary` + `currWeekInsight` to `KEYS` in `storage.ts`. Rewrote `stats/+page.svelte` to add: (1) streak counter (consecutive weeks from current going back), (2) 8-week frequency chart using CSS bars (no Chart.js), (3) exercise history section — collapsible per exercise with best weight/reps/vol, mini bar chart of last 8 sessions, trend direction, and 3 recent sets, (4) AI insight cards reading from `KEYS.currWeekInsight()` and `KEYS.weekSummary()`. `calcTrend` ports V1's logic: compare avg of first-3 vs last-3 training dates; >3% = up, <-3% = down.
 **Files changed:** `src/lib/data/storage.ts`, `src/routes/stats/+page.svelte`
 **Cross-project:** NO
+
+---
+
+## [2026-05-25] — Phase 16 Body tab: weight chart + measurements
+
+**Symptom:** Body tab had no weight history visualisation and no measurements logging.
+**Root cause:** Phase 16 not yet implemented.
+**Fix:** Added `measurements` key to KEYS in storage.ts. In body/+page.svelte: (1) `buildWeightChart()` reads all check-ins from `KEYS.checkins()` directly via `J()`, filters those with weight, takes last 10, normalises bar heights to min/max range; (2) `loadMeasurements()` / `saveMeasurement()` read/write `Measurement[]` to new key; form shows when no data or `showMForm=true`, history table shows last 5 entries newest-first.
+**Files changed:** `src/lib/data/storage.ts`, `src/routes/body/+page.svelte`
+**Cross-project:** NO
