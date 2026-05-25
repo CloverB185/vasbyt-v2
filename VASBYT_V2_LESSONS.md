@@ -141,3 +141,13 @@
 **Fix:** Added `KEYS.equip()` to storage.ts (mirrors V1 `vasbytEquipment.v1`). V2 stores equipment as a simple chip string (not V1's array of items). Added `RbDay`, `SavedRoutine` types and `getSavedRoutines`, `saveCustomRoutine`, `deleteCustomRoutine`, `activateCustomRoutine` functions to `program.ts`. Settings page: added Equipment chip selector section (8 chips: All/Bodyweight/Dumbbell/Cable/Barbell/Machine/Kettlebell/Band); added My routines section (list + Use/Edit/Delete); added inline routine builder (D1-D7 tabs, Workout/Rest toggle, day title, exercise list with sets/reps/rest inputs, exercise picker). Exercise picker: lazy-loads `static/data/full-library.json` (1,324 exercises, 1.1 MB) only when picker opens; equipment chip filter + search; groups by muscle group; max 200 results shown. `equipMatch()` ported directly from V1's `_rbEquipMatch()`. V1 AI suggest and routine import features not ported (deferred).
 **Files changed:** `src/lib/data/storage.ts`, `src/lib/data/program.ts`, `src/routes/settings/+page.svelte`, `static/data/full-library.json`
 **Cross-project:** NO (Vasbyt-specific feature)
+
+---
+
+## [2026-05-25] — Today Tab Quick Wins (Phase 13)
+
+**Symptom:** Today tab lacked readiness selector, check-in summary, week momentum chip, and week/day position editor — all present in V1.
+**Root cause:** These were never ported from V1's `app-today.js` when V2 was built.
+**Fix:** Added 5 exports to `program.ts`: `setWeek()`, `setDay()`, `getReady()`, `setReady()`, `getWeekMomentum()`. Updated `+page.svelte`: (1) Readiness selector — 3 buttons (Good/OK/Tired), saves to `KEYS.ready()`, color-coded active state (green/amber/red); (2) Check-in summary strip — shows today's energy/sleep/soreness fields or "No check-in today → Log it" link; (3) Momentum chip — "N/5 workouts this week" (green, data-gated, hidden at 0); (4) Change button on day header → expands week stepper (‹ Week N ›) + D1–D7 day picker. State restored on `load()`. `handleSetWeek` / `handleSetDay` handlers also refresh `routineDay`, `setsDone`, `setsTotal`, `briefingMap` in one call. `.day-header` flex layout (title flex:1 + Change button) required removing old `margin-bottom: 2px` rule and adding `.day-meta { flex: 1 }`.
+**Files changed:** `src/lib/data/program.ts`, `src/routes/+page.svelte`
+**Cross-project:** NO (Vasbyt-specific)

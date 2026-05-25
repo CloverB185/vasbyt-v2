@@ -1,133 +1,112 @@
-# Graph Report - C:/Users/clove/Documents/vasbyt-v2  (2026-05-24)
+# Graph Report - C:\Users\clove\Documents\vasbyt-v2  (2026-05-25)
 
 ## Corpus Check
-- Corpus is ~10,949 words - fits in a single context window. You may not need a graph.
+- Corpus is ~22,320 words - fits in a single context window. You may not need a graph.
 
 ## Summary
-- 133 nodes · 225 edges · 23 communities (15 shown, 8 thin omitted)
-- Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 35 edges (avg confidence: 0.82)
+- 186 nodes · 356 edges · 19 communities (12 shown, 7 thin omitted)
+- Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 56 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Architecture + Config|Architecture + Config]]
-- [[_COMMUNITY_Body + AI Analysis Flow|Body + AI Analysis Flow]]
-- [[_COMMUNITY_Gym Mode — Active Workout|Gym Mode — Active Workout]]
-- [[_COMMUNITY_Core Data Types|Core Data Types]]
-- [[_COMMUNITY_Routine + Phase Logic|Routine + Phase Logic]]
-- [[_COMMUNITY_Photo Layer — IndexedDB|Photo Layer — IndexedDB]]
-- [[_COMMUNITY_Coach Note + Auth Cache|Coach Note + Auth Cache]]
-- [[_COMMUNITY_Workout Finish + Progress|Workout Finish + Progress]]
-- [[_COMMUNITY_Set Logging + Prefill|Set Logging + Prefill]]
-- [[_COMMUNITY_Log Queries|Log Queries]]
-- [[_COMMUNITY_Profile Key System|Profile Key System]]
-- [[_COMMUNITY_Photo Compression + IDB|Photo Compression + IDB]]
+- [[_COMMUNITY_Routine & Program Builder|Routine & Program Builder]]
+- [[_COMMUNITY_AI Coach & Project Rules|AI Coach & Project Rules]]
+- [[_COMMUNITY_Workout Set Tracking|Workout Set Tracking]]
+- [[_COMMUNITY_Check-in & Data Iteration|Check-in & Data Iteration]]
+- [[_COMMUNITY_Session Completion & Coaching|Session Completion & Coaching]]
+- [[_COMMUNITY_Program Intelligence|Program Intelligence]]
+- [[_COMMUNITY_Exercise History Lookup|Exercise History Lookup]]
+- [[_COMMUNITY_Photo & Media|Photo & Media]]
 - [[_COMMUNITY_Build Config|Build Config]]
-- [[_COMMUNITY_Stats + History Views|Stats + History Views]]
-- [[_COMMUNITY_Exercise Type|Exercise Type]]
-- [[_COMMUNITY_LogEntry Type|LogEntry Type]]
-- [[_COMMUNITY_CheckIn Type|CheckIn Type]]
-- [[_COMMUNITY_Phase Calculator|Phase Calculator]]
-- [[_COMMUNITY_Body Tab Route|Body Tab Route]]
-- [[_COMMUNITY_README|README]]
+- [[_COMMUNITY_Assets & QA|Assets & QA]]
+- [[_COMMUNITY_Date Utility|Date Utility]]
+- [[_COMMUNITY_Cardio Tab|Cardio Tab]]
+- [[_COMMUNITY_Cloudflare Pages Lesson|Cloudflare Pages Lesson]]
+- [[_COMMUNITY_SW Version Rule|SW Version Rule]]
+- [[_COMMUNITY_Robots Config|Robots Config]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `J()` - 14 edges
-2. `load()` - 11 edges
-3. `loadCoachNote()` - 11 edges
-4. `getLogs()` - 10 edges
-5. `today()` - 9 edges
-6. `getDay()` - 8 edges
-7. `S()` - 8 edges
-8. `saveLog()` - 7 edges
-9. `finishWorkout()` - 7 edges
-10. `getWeek()` - 6 edges
+1. `J()` - 19 edges
+2. `S()` - 16 edges
+3. `getLogs()` - 15 edges
+4. `load()` - 14 edges
+5. `today()` - 12 edges
+6. `loadCoachNote()` - 11 edges
+7. `+page.svelte â€” Today Tab` - 11 edges
+8. `getDay()` - 10 edges
+9. `getRoutineDay()` - 8 edges
+10. `getWeek()` - 8 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Cloudflare Pages â€” SvelteKit Hosting` --rationale_for--> `+layout.svelte â€” App Shell + Nav`  [INFERRED]
-  CLAUDE.md → src/routes/+layout.svelte
-- `Svelte 5 Runes Mode â€” $state/$derived/$effect` --rationale_for--> `gym/+page.svelte â€” Gym Mode`  [INFERRED]
-  CLAUDE.md → src/routes/gym/+page.svelte
-- `VASBYT_V2_LESSONS.md â€” Bug History` --references--> `AI Proxy â€” Gemini via Cloudflare Worker`  [EXTRACTED]
+- `SitecheckX Quality Gate Script` --conceptually_related_to--> `Vasbyt Favicon â€” Brand Icon`  [INFERRED]
+  scripts/sitecheckx.ps1 → src/lib/assets/favicon.svg
+- `Sealed Modules Rule (CLAUDE.md)` --rationale_for--> `KEYS â€” localStorage Key Map`  [EXTRACTED]
+  CLAUDE.md → src/lib/data/storage.ts
+- `Lesson: $derived Won't React to localStorage` --rationale_for--> `gym/+page.svelte â€” Gym Mode`  [EXTRACTED]
+  VASBYT_V2_LESSONS.md → src/routes/gym/+page.svelte
+- `Lesson: No Event Modifiers in Svelte 5` --rationale_for--> `body/+page.svelte â€” My Body`  [EXTRACTED]
+  VASBYT_V2_LESSONS.md → src/routes/body/+page.svelte
+- `Lesson: AI Proxy CORS Must Be Updated Per Domain` --rationale_for--> `AI Proxy â€” Coach Note Endpoint`  [EXTRACTED]
   VASBYT_V2_LESSONS.md → src/routes/+page.svelte
-- `load()` --calls--> `getWeek()`  [INFERRED]
-  src/routes/+page.svelte → src/lib/data/program.ts
-- `loadCoachNote()` --calls--> `getWeek()`  [INFERRED]
-  src/routes/+page.svelte → src/lib/data/program.ts
 
 ## Hyperedges (group relationships)
-- **Data Layer â€” localStorage + IndexedDB + AI Cache** — storage_KEYS, photos_Photo, program_getCachedCoachNote [INFERRED 0.85]
-- **Gym Workout Flow** — route_gym, program_saveLog, program_finishWorkout, program_getRoutineDay [EXTRACTED 0.95]
-- **Profile Isolation Pattern** — storage_getPID, storage_pKey, storage_KEYS, concept_profileIsolation [INFERRED 0.95]
+- **localStorage Data Pipeline** — storage_keys, storage_j, storage_s, storage_pkey [EXTRACTED 1.00]
+- **Program Position Tracking** — program_getweek, program_setweek, program_getroutineday, route_layout, route_today [INFERRED 0.95]
+- **AI Coach Intelligence Layer** — program_getcoachnote, program_getperiodization, program_getdeload, aiproxy_coach, route_today [INFERRED 0.85]
 
-## Communities (23 total, 8 thin omitted)
+## Communities (19 total, 7 thin omitted)
 
-### Community 0 - "Architecture + Config"
-Cohesion: 0.13
-Nodes (23): AI Proxy â€” Gemini via Cloudflare Worker, Cloudflare Pages â€” SvelteKit Hosting, Profile Isolation â€” pKey Namespace Pattern, Svelte 5 Runes Mode â€” $state/$derived/$effect, V1 Data Compatibility â€” Shared localStorage + IDB Keys, CLAUDE.md â€” Project Rules + Stack Spec, VASBYT_V2_LESSONS.md â€” Bug History, Photo Interface â€” IndexedDB Schema (+15 more)
+### Community 0 - "Routine & Program Builder"
+Cohesion: 0.08
+Nodes (33): activateCustomRoutine(), activatePreset(), CheckIn, deleteCustomRoutine(), EX_META, Exercise, getCheckins(), getDeloadSignal() (+25 more)
 
-### Community 1 - "Body + AI Analysis Flow"
-Cohesion: 0.13
-Nodes (13): checkins, d, payload, sevenDaysAgo, text, thirtyDaysAgo, ../app.css, $lib/data/photos (+5 more)
+### Community 1 - "AI Coach & Project Rules"
+Cohesion: 0.09
+Nodes (29): AI Proxy â€” Coach Note Endpoint, Sealed Modules Rule (CLAUDE.md), Lesson: AI Proxy CORS Must Be Updated Per Domain, Lesson: $derived Won't React to localStorage, Lesson: No Event Modifiers in Svelte 5, savePhoto() â€” IndexedDB Photo Store, getTodayCheckin() / getCheckins(), getDeloadSignal() (+21 more)
 
-### Community 2 - "Gym Mode — Active Workout"
-Cohesion: 0.16
-Nodes (16): day, finishAll(), isLast, logSet(), muscles, nextEx(), pct, prevEx() (+8 more)
+### Community 2 - "Workout Set Tracking"
+Cohesion: 0.14
+Nodes (24): getTodaySetsForExercise(), saveLog(), undoLastSetToday(), finishAll(), isLast, logSet(), muscles, nextEx() (+16 more)
 
-### Community 3 - "Core Data Types"
-Cohesion: 0.27
-Nodes (9): CheckIn, Exercise, getCheckins(), getRecentCheckins(), getTodayCheckin(), LogEntry, RoutineDay, saveCheckin() (+1 more)
+### Community 3 - "Check-in & Data Iteration"
+Cohesion: 0.12
+Nodes (15): checkins, d, payload, sevenDaysAgo, text, thirtyDaysAgo, ../app.css, $lib/data/photos (+7 more)
 
-### Community 4 - "Routine + Phase Logic"
-Cohesion: 0.28
-Nodes (9): getPhase(), getPhaseName(), getProfileName(), getRoutineDay(), getRoutineName(), getTotalSetsScheduled(), inRoutineMode(), load() (+1 more)
+### Community 4 - "Session Completion & Coaching"
+Cohesion: 0.2
+Nodes (21): CoachNote, finishWorkout(), getCachedCoachNote(), getDay(), getFinishes(), getFinishesThisWeek(), getLogsThisWeek(), getPhase() (+13 more)
 
-### Community 5 - "Photo Layer — IndexedDB"
+### Community 5 - "Program Intelligence"
+Cohesion: 0.21
+Nodes (14): getPhaseName(), getSessionBriefing(), getTotalSetsScheduled(), getTotalSetsToday(), setDay(), setWeek(), today(), _deloadWeekKey() (+6 more)
+
+### Community 6 - "Exercise History Lookup"
+Cohesion: 0.24
+Nodes (11): getLastRepsForExercise(), getLastWeightForExercise(), getLogs(), getPeriodizationInsight(), getStalledExercises(), getTonnageForWeek(), getTopExercises(), getWeekBounds() (+3 more)
+
+### Community 7 - "Photo & Media"
 Cohesion: 0.43
 Nodes (7): compressImage(), loadPhotos(), localDate(), openDB(), Photo, removePhoto(), storePhoto()
 
-### Community 6 - "Coach Note + Auth Cache"
-Cohesion: 0.38
-Nodes (7): CoachNote, getCachedCoachNote(), saveCoachNote(), undoLastSetToday(), _initProfiles(), S(), today()
-
-### Community 7 - "Workout Finish + Progress"
-Cohesion: 0.48
-Nodes (7): finishWorkout(), getDay(), getFinishes(), getFinishesThisWeek(), getWeek(), saveLog(), J()
-
-### Community 8 - "Set Logging + Prefill"
-Cohesion: 0.33
-Nodes (5): getLastRepsForExercise(), getLastWeightForExercise(), getTodaySetsForExercise(), prefill(), setsLoggedFor()
-
-### Community 9 - "Log Queries"
-Cohesion: 0.5
-Nodes (4): getLogs(), getLogsThisWeek(), getTopExercises(), getTotalSetsToday()
-
-### Community 10 - "Profile Key System"
-Cohesion: 0.67
-Nodes (3): getPID(), KEYS, pKey()
-
-### Community 11 - "Photo Compression + IDB"
-Cohesion: 0.5
-Nodes (4): compressImage() â€” Canvas JPEG Resize, loadPhotos() â€” Read All Photos from IDB, openDB() â€” IndexedDB Connection, storePhoto() â€” Compress + Save to IDB
-
 ## Knowledge Gaps
-- **37 isolated node(s):** `config`, `Photo`, `Exercise`, `RoutineDay`, `LogEntry` (+32 more)
+- **48 isolated node(s):** `config`, `Photo`, `Exercise`, `RoutineDay`, `LogEntry` (+43 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `loadCoachNote()` connect `Routine + Phase Logic` to `Core Data Types`, `Coach Note + Auth Cache`, `Workout Finish + Progress`, `Set Logging + Prefill`, `Log Queries`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
-- **Why does `load()` connect `Routine + Phase Logic` to `Set Logging + Prefill`, `Log Queries`, `Workout Finish + Progress`?**
-  _High betweenness centrality (0.037) - this node is a cross-community bridge._
-- **Why does `prefill()` connect `Set Logging + Prefill` to `Gym Mode — Active Workout`?**
-  _High betweenness centrality (0.028) - this node is a cross-community bridge._
-- **Are the 10 inferred relationships involving `load()` (e.g. with `getProfileName()` and `getWeek()`) actually correct?**
-  _`load()` has 10 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 10 inferred relationships involving `loadCoachNote()` (e.g. with `getCachedCoachNote()` and `getTotalSetsToday()`) actually correct?**
-  _`loadCoachNote()` has 10 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `load()` connect `Session Completion & Coaching` to `Routine & Program Builder`, `Program Intelligence`?**
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
+- **Why does `finishWorkout()` connect `Session Completion & Coaching` to `Routine & Program Builder`, `Workout Set Tracking`, `Program Intelligence`?**
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
+- **Why does `loadCoachNote()` connect `Session Completion & Coaching` to `Routine & Program Builder`, `Program Intelligence`?**
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
+- **Are the 13 inferred relationships involving `load()` (e.g. with `getProfileName()` and `getWeek()`) actually correct?**
+  _`load()` has 13 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 2 inferred relationships involving `today()` (e.g. with `loadPeriodization()` and `dismissPeriCard()`) actually correct?**
+  _`today()` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `config`, `Photo`, `Exercise` to the rest of the system?**
-  _37 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Architecture + Config` be split into smaller, more focused modules?**
-  _Cohesion score 0.13 - nodes in this community are weakly interconnected._
+  _48 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Routine & Program Builder` be split into smaller, more focused modules?**
+  _Cohesion score 0.08 - nodes in this community are weakly interconnected._
