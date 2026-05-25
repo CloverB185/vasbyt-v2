@@ -58,6 +58,21 @@ setsToday = getTodaySetsForExercise(ex.id);
 
 ---
 
+## CloverForge
+
+**Profile name:** `vasbyt-v2`
+**Profile file:** `C:\Users\clove\cloverforge\profiles\vasbyt-v2.json`
+
+On every session start, call `mcp__cloverforge__context` with `cwd = C:\Users\clove\Documents\vasbyt-v2` and verify:
+- `profileName === "vasbyt-v2"` — if anything else (taurex, generic, onsitepro, etc.) → HALT, do not proceed
+
+If context resolves wrong: check that `C:\Users\clove\cloverforge\profiles\vasbyt-v2.json` exists and that CloverForge MCP server has been restarted since the file was created.
+
+Allowed commands (exec_run): all git, npm run build/check/dev/preview, npx wrangler pages deploy, npx playwright.
+Forbidden: git add ., git add -A, rm -rf.
+
+---
+
 ## Lessons File
 
 **Location:** `VASBYT_V2_LESSONS.md` in this project root.

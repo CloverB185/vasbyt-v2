@@ -32,6 +32,27 @@
 
 	let _timer: ReturnType<typeof setInterval> | null = null;
 
+	// ── Media / GIF ───────────────────────────────────────────────
+	let mediaMap    = $state<Record<string, { id: string }>>({});
+	let gifFailed   = $state(false);
+	let gifOverlay  = $state(false);
+	let gifOvUrl    = $state('');
+	let gifOvName   = $state('');
+
+	const GIF_BASE = 'https://vasbyt.pages.dev/assets/gifs/';
+
+	function gifUrlFor(id: string): string | null {
+		const m = mediaMap[id];
+		if (m?.id) return GIF_BASE + encodeURIComponent(m.id) + '.gif';
+		return null;
+	}
+
+	function openGif(url: string, name: string) {
+		gifOvUrl  = url;
+		gifOvName = name;
+		gifOverlay = true;
+	}
+
 	// ── Voice mode ─────────────────────────────────────────────────
 	let voiceSupported = $state(false);
 	let voiceActive    = $state(false);
@@ -60,10 +81,21 @@
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 		voiceSupported = !!SR;
+
+		fetch('/data/workoutx-media-map.json')
+			.then(r => r.json())
+			.then(m => { mediaMap = m.approved ?? {}; })
+			.catch(() => {});
+
 		return () => {
 			if (_timer) clearInterval(_timer);
 			stopVoice();
 		};
+	});
+
+	// Reset GIF failed state when exercise changes
+	$effect(() => {
+		if (ex) gifFailed = false;
 	});
 
 	// ── Refresh sets when exercise changes or gym starts ──────────
@@ -300,6 +332,23 @@
 		<div class="gym-prog-fill" style="width:{pct}%"></div>
 	</div>
 
+	<!-- Exercise GIF -->
+	{#if ex && !gifFailed}
+		{@const gUrl = gifUrlFor(ex.id)}
+		{#if gUrl}
+			<div class="ex-gif" onclick={() => openGif(gUrl, ex!.name)}>
+				<img
+					src={gUrl}
+					alt={ex.name}
+					loading="lazy"
+					class="gif-img"
+					onerror={() => gifFailed = true}
+				/>
+				<span class="gif-hint">tap to enlarge</span>
+			</div>
+		{/if}
+	{/if}
+
 	<!-- Exercise header -->
 	<div class="gym-head">
 		<button class="nav-btn" onclick={prevEx} disabled={exIdx === 0} aria-label="Previous">←</button>
@@ -390,6 +439,15 @@
 			{isLast ? 'Finish Workout ◎' : 'Next Exercise →'}
 		</button>
 	{/if}
+{/if}
+
+<!-- GIF lightbox overlay -->
+{#if gifOverlay}
+	<div class="gif-overlay" onclick={() => gifOverlay = false}>
+		<p class="gif-ov-name">{gifOvName}</p>
+		<img src={gifOvUrl} alt={gifOvName} class="gif-ov-img" />
+		<p class="gif-ov-close">Tap anywhere to close</p>
+	</div>
 {/if}
 
 <!-- Voice feedback toast (persists across re-renders) -->
@@ -507,6 +565,29 @@
 	font-size: 14px; font-weight: 700;
 	pointer-events: none; z-index: 9999; white-space: nowrap;
 }
+
+/* ── GIF visual ──────────────────────────────────────────────── */
+.ex-gif {
+	position: relative; cursor: pointer;
+	border-radius: 12px; overflow: hidden; margin-bottom: 10px;
+}
+.gif-img { width: 100%; border-radius: 12px; display: block; }
+.gif-hint {
+	position: absolute; bottom: 6px; right: 8px;
+	background: rgba(0,0,0,0.45); color: #fff;
+	font-size: 11px; padding: 2px 7px; border-radius: 20px; pointer-events: none;
+}
+
+/* ── GIF overlay ─────────────────────────────────────────────── */
+.gif-overlay {
+	position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+	z-index: 9999; display: flex; flex-direction: column;
+	align-items: center; justify-content: center;
+	padding: 20px; cursor: pointer;
+}
+.gif-ov-name  { color: #fff; font-weight: 700; font-size: 15px; margin-bottom: 14px; text-align: center; }
+.gif-ov-img   { max-width: 100%; max-height: 72vh; border-radius: 12px; display: block; }
+.gif-ov-close { color: #aaa; font-size: 13px; margin-top: 14px; }
 
 /* ── Label ───────────────────────────────────────────────────── */
 .label-sm { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }

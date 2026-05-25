@@ -151,3 +151,23 @@
 **Fix:** Added 5 exports to `program.ts`: `setWeek()`, `setDay()`, `getReady()`, `setReady()`, `getWeekMomentum()`. Updated `+page.svelte`: (1) Readiness selector — 3 buttons (Good/OK/Tired), saves to `KEYS.ready()`, color-coded active state (green/amber/red); (2) Check-in summary strip — shows today's energy/sleep/soreness fields or "No check-in today → Log it" link; (3) Momentum chip — "N/5 workouts this week" (green, data-gated, hidden at 0); (4) Change button on day header → expands week stepper (‹ Week N ›) + D1–D7 day picker. State restored on `load()`. `handleSetWeek` / `handleSetDay` handlers also refresh `routineDay`, `setsDone`, `setsTotal`, `briefingMap` in one call. `.day-header` flex layout (title flex:1 + Change button) required removing old `margin-bottom: 2px` rule and adding `.day-meta { flex: 1 }`.
 **Files changed:** `src/lib/data/program.ts`, `src/routes/+page.svelte`
 **Cross-project:** NO (Vasbyt-specific)
+
+---
+
+## [2026-05-25] — CloverForge Resolves Wrong Profile (taurex) for vasbyt-v2
+
+**Symptom:** `mcp__cloverforge__context` called with `cwd = C:\Users\clove\Documents\vasbyt-v2` returns `profileName: taurex` instead of `vasbyt-v2`. Governance runs under the wrong profile — wrong frozen paths, wrong allowedCommands.
+**Root cause:** (1) No `vasbyt-v2.json` profile existed. (2) `taurex.json` used `CLAUDE.md` as its `markerFiles` entry. Since `vasbyt-v2` has a `CLAUDE.md` and taurex loads before vasbyt-v2 alphabetically, taurex matched first. The startup protocol only halts on `isGenericFallback: true` — a wrong non-generic profile silently passes.
+**Fix:** Created `C:\Users\clove\cloverforge\profiles\vasbyt-v2.json` with root pointing at vasbyt-v2. Removed `CLAUDE.md` from taurex `markerFiles` (taurex now relies on root path match only). Added vasbyt-v2 project memory and CloverForge section to `CLAUDE.md`. Requires CloverForge MCP server restart to pick up new profile (profiles are cached in memory at startup).
+**Files changed:** `C:\Users\clove\cloverforge\profiles\vasbyt-v2.json` (created), `C:\Users\clove\cloverforge\profiles\taurex.json` (markerFiles cleared), `CLAUDE.md` (CloverForge section added), `VASBYT_V2_LESSONS.md`
+**Cross-project:** YES — any CloverForge project. markerFiles must be project-specific (e.g. `svelte.config.js`, `wrangler.toml`) — never generic files like `CLAUDE.md` or `package.json` that exist in every project. The startup protocol must verify `profileName` matches expected, not just that it's non-generic.
+
+---
+
+## [2026-05-25] — Gym GIFs (Phase 14): Media Map Structure + GIF Hosting
+
+**Symptom:** GIF block rendered as empty comment (`<!---->`). No GIF visible in gym mode after fetching media map.
+**Root cause:** Three layered issues: (1) `workoutx-media-map.json` has a nested structure — exercise IDs are under `m.approved`, not at the root. `gifUrlFor` was reading `mediaMap[id]` instead of `mediaMap.approved[id]`. (2) GIFs are 366MB — cannot be copied into V2 repo. (3) `onerror` collapses the GIF block if the image 404s, making it appear as though `gifUrlFor` returned null.
+**Fix:** Store only the approved sub-map on fetch: `mediaMap = m.approved ?? {}`. Point GIF URLs to V1's deployed Cloudflare Pages site (`GIF_BASE = 'https://vasbyt.pages.dev/assets/gifs/'`) — `<img>` tags load cross-domain without CORS. `gifFailed = $state(false)` + `$effect(() => { if (ex) gifFailed = false; })` resets per exercise. Lightbox overlay uses Svelte `$state` (no DOM manipulation) — `onclick` is inline handler per Svelte 5 rules.
+**Files changed:** `src/routes/gym/+page.svelte`, `static/data/workoutx-media-map.json`
+**Cross-project:** YES — when a JSON data file has nested structure, always inspect the actual shape before writing the lookup function. For large static assets (images, fonts) shared between a V1 and V2 app, reference from the deployed V1 URL rather than duplicating in the repo.
