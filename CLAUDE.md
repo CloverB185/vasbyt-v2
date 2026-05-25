@@ -58,6 +58,24 @@ setsToday = getTodaySetsForExercise(ex.id);
 
 ---
 
+## GIF Hosting — Current Setup & Migration Plan
+
+**Current:** 1,323 exercise GIFs (370 MB total) are **not in this repo**. They live in the V1 repo (`lischels-workout-app/site/assets/gifs/`) and are served from `https://vasbyt.pages.dev/assets/gifs/` via Cloudflare's CDN. V2 gym mode references them with absolute URLs.
+
+**Why:** 370 MB is too large to commit to a git repo. Cloudflare Pages CDN handles any number of users at no cost — this is not a scalability issue.
+
+**Risk:** If the V1 Cloudflare Pages project (`vasbyt`) is ever deleted, every GIF in V2 404s immediately. Do not delete V1 without migrating the GIFs first.
+
+**Migration plan (when V2 becomes the primary app):**
+1. Create a Cloudflare R2 bucket (e.g. `vasbyt-gifs`)
+2. Upload `site/assets/gifs/` from V1 repo to R2 (~$0.015/GB/month ≈ cents)
+3. Update `GIF_BASE` constant in `src/routes/gym/+page.svelte` to the R2 public URL
+4. V1 can then be safely decommissioned
+
+**Do not** copy GIFs into this repo — git history bloat is permanent.
+
+---
+
 ## CloverForge
 
 **Profile name:** `vasbyt-v2`
