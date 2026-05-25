@@ -25,6 +25,20 @@
 	let photoSaving  = $state(false);
 	let expanded     = $state<string | null>(null); // expanded photo dataUrl
 
+	// ── Measurements ─────────────────────────────────────────
+	interface Measurement { date: string; chest?: number; waist?: number; hips?: number; arms?: number; }
+	let measurements  = $state<Measurement[]>([]);
+	let mChest        = $state('');
+	let mWaist        = $state('');
+	let mHips         = $state('');
+	let mArms         = $state('');
+	let mSaved        = $state(false);
+	let showMForm     = $state(false);
+
+	// ── Weight chart ──────────────────────────────────────────
+	interface WeightPoint { date: string; weight: number; day: string; month: string; height: number; }
+	let weightPoints  = $state<WeightPoint[]>([]);
+
 	// ── AI state ─────────────────────────────────────────────
 	let bodyInsight     = $state('');
 	let insightLoading  = $state(false);
@@ -47,6 +61,8 @@
 		photos = await loadPhotos();
 		loadCachedInsights();
 		autoTriggerInsight();
+		buildWeightChart();
+		loadMeasurements();
 	});
 
 	// ── Check-in ──────────────────────────────────────────────
@@ -282,6 +298,59 @@
 		return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 	}
 
+	// ── Weight chart ─────────────────────────────────────────
+
+	function buildWeightChart() {
+		const all = J<CheckIn[]>(KEYS.checkins(), []);
+		const pts = all.filter(c => c.weight != null && c.weight! > 0).slice(-10);
+		if (pts.length < 2) { weightPoints = []; return; }
+		const weights = pts.map(c => c.weight!);
+		const minW = Math.min(...weights), maxW = Math.max(...weights);
+		const range = maxW - minW;
+		const MAX_H = 56, MIN_H = 8;
+		weightPoints = pts.map(c => {
+			const d = new Date(c.date + 'T00:00:00');
+			return {
+				date: c.date,
+				weight: c.weight!,
+				day:   String(d.getDate()),
+				month: d.toLocaleString('en', { month: 'short' }),
+				height: range > 0 ? Math.round(MIN_H + ((c.weight! - minW) / range) * (MAX_H - MIN_H)) : MAX_H
+			};
+		});
+	}
+
+	// ── Measurements ─────────────────────────────────────────
+
+	function loadMeasurements() {
+		measurements = J<Measurement[]>(KEYS.measurements(), []);
+		const last = measurements[measurements.length - 1];
+		if (last) {
+			mChest = last.chest != null ? String(last.chest) : '';
+			mWaist = last.waist != null ? String(last.waist) : '';
+			mHips  = last.hips  != null ? String(last.hips)  : '';
+			mArms  = last.arms  != null ? String(last.arms)  : '';
+		}
+	}
+
+	function saveMeasurement() {
+		if (!mChest && !mWaist && !mHips && !mArms) return;
+		const entry: Measurement = {
+			date:  todayStr(),
+			chest: mChest ? Number(mChest) : undefined,
+			waist: mWaist ? Number(mWaist) : undefined,
+			hips:  mHips  ? Number(mHips)  : undefined,
+			arms:  mArms  ? Number(mArms)  : undefined
+		};
+		const existing = J<Measurement[]>(KEYS.measurements(), []);
+		const idx = existing.findIndex(m => m.date === entry.date);
+		if (idx >= 0) existing[idx] = entry; else existing.push(entry);
+		S(KEYS.measurements(), existing);
+		measurements = existing;
+		mSaved = true; showMForm = false;
+		setTimeout(() => (mSaved = false), 2000);
+	}
+
 	function energyColor(e: number | undefined): string {
 		if (!e) return 'var(--muted)';
 		if (e >= 8) return 'var(--green)';
@@ -422,6 +491,88 @@
 			{/each}
 		</div>
 	{/if}
+
+	<!-- ── Weight trend chart ── -->
+	{#if weightPoints.length >= 2}
+		<div class="section-label">Weight trend</div>
+		<div class="card wt-card">
+			<div class="wt-bars">
+				{#each weightPoints as pt}
+					<div class="wt-col">
+						<span class="wt-val">{pt.weight}</span>
+						<div class="wt-bar" style="height: {pt.height}px"></div>
+						<span class="wt-day">{pt.day}</span>
+						<span class="wt-month">{pt.month}</span>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
+
+	<!-- ── Measurements ── -->
+	<div class="section-label">Measurements</div>
+	<div class="card meas-card">
+		{#if mSaved}<div class="save-flash">✓ Saved</div>{/if}
+
+		{#if measurements.length > 0 && !showMForm}
+			{@const last = measurements[measurements.length - 1]}
+			<div class="meas-latest">
+				<div class="meas-pills">
+					{#if last.chest != null}<span class="meas-pill">Chest <b>{last.chest}</b> cm</span>{/if}
+					{#if last.waist != null}<span class="meas-pill">Waist <b>{last.waist}</b> cm</span>{/if}
+					{#if last.hips  != null}<span class="meas-pill">Hips <b>{last.hips}</b> cm</span>{/if}
+					{#if last.arms  != null}<span class="meas-pill">Arms <b>{last.arms}</b> cm</span>{/if}
+				</div>
+				<div class="meas-meta">{formatDate(last.date)}</div>
+			</div>
+
+			{#if measurements.length > 1}
+				<div class="meas-table">
+					<div class="meas-thead">
+						<span>Date</span><span>Chest</span><span>Waist</span><span>Hips</span><span>Arms</span>
+					</div>
+					{#each measurements.slice(-5).reverse() as m}
+						<div class="meas-trow">
+							<span class="meas-td-date">{formatDate(m.date)}</span>
+							<span>{m.chest ?? '—'}</span>
+							<span>{m.waist ?? '—'}</span>
+							<span>{m.hips  ?? '—'}</span>
+							<span>{m.arms  ?? '—'}</span>
+						</div>
+					{/each}
+				</div>
+			{/if}
+
+			<button class="btn-edit" onclick={() => (showMForm = true)}>Log new</button>
+		{/if}
+
+		{#if showMForm || measurements.length === 0}
+			<div class="meas-form">
+				<div class="meas-row">
+					<label class="field-label" for="m-chest">Chest (cm)</label>
+					<input id="m-chest" type="number" step="0.5" placeholder="e.g. 95" bind:value={mChest} />
+				</div>
+				<div class="meas-row">
+					<label class="field-label" for="m-waist">Waist (cm)</label>
+					<input id="m-waist" type="number" step="0.5" placeholder="e.g. 80" bind:value={mWaist} />
+				</div>
+				<div class="meas-row">
+					<label class="field-label" for="m-hips">Hips (cm)</label>
+					<input id="m-hips" type="number" step="0.5" placeholder="e.g. 98" bind:value={mHips} />
+				</div>
+				<div class="meas-row">
+					<label class="field-label" for="m-arms">Arms (cm)</label>
+					<input id="m-arms" type="number" step="0.5" placeholder="e.g. 35" bind:value={mArms} />
+				</div>
+				<div class="form-actions">
+					{#if showMForm}
+						<button class="btn-cancel" onclick={() => (showMForm = false)}>Cancel</button>
+					{/if}
+					<button class="btn-primary" onclick={saveMeasurement}>Save measurements</button>
+				</div>
+			</div>
+		{/if}
+	</div>
 
 	<!-- ── Progress Photos ── -->
 	<div class="section-label">Progress photos</div>
@@ -678,4 +829,83 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2
 .empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 32px 0; text-align: center; }
 .empty-icon { font-size: 36px; opacity: .3; }
 .empty p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+/* ── Weight trend chart ── */
+.wt-card { }
+.wt-bars {
+	display: flex;
+	align-items: flex-end;
+	gap: 4px;
+	height: 80px;
+}
+.wt-col {
+	flex: 1;
+	display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+	height: 100%;
+}
+.wt-val {
+	font-size: 8px; color: rgba(255,255,255,.5);
+	margin-bottom: 3px; line-height: 1;
+}
+.wt-bar {
+	width: 100%;
+	background: var(--accent);
+	border-radius: 3px 3px 0 0;
+	opacity: .8;
+	min-height: 8px;
+}
+.wt-day   { font-size: 9px; color: rgba(255,255,255,.45); margin-top: 4px; line-height: 1.2; }
+.wt-month { font-size: 8px; color: rgba(255,255,255,.25); line-height: 1.2; }
+
+/* ── Measurements ── */
+.meas-card { display: flex; flex-direction: column; gap: 12px; }
+.meas-latest { display: flex; flex-direction: column; gap: 6px; }
+.meas-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.meas-pill {
+	background: rgba(255,255,255,.06);
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	padding: 6px 10px;
+	font-size: 12px;
+	color: rgba(255,255,255,.6);
+}
+.meas-pill b { color: var(--accent); font-weight: 700; }
+.meas-meta { font-size: 11px; color: var(--muted); }
+
+.meas-table { width: 100%; }
+.meas-thead, .meas-trow {
+	display: grid;
+	grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+	gap: 4px;
+	font-size: 11px;
+	padding: 5px 0;
+}
+.meas-thead {
+	color: var(--muted);
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	border-bottom: 1px solid var(--line);
+}
+.meas-trow {
+	color: rgba(255,255,255,.75);
+	border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.meas-trow:last-child { border-bottom: none; }
+.meas-td-date { color: var(--muted); }
+
+.meas-form { display: flex; flex-direction: column; gap: 10px; }
+.meas-row { display: flex; flex-direction: column; gap: 4px; }
+.meas-row input {
+	width: 100%;
+	background: rgba(255,255,255,.07);
+	border: 1px solid var(--line);
+	border-radius: 10px;
+	padding: 10px 12px;
+	color: #fff;
+	font-size: 15px;
+	-moz-appearance: textfield;
+}
+.meas-row input::-webkit-outer-spin-button,
+.meas-row input::-webkit-inner-spin-button { -webkit-appearance: none; }
 </style>
