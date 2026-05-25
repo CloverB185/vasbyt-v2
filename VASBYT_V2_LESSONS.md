@@ -131,3 +131,13 @@
 **Fix:** Updated `CheckIn` interface in `program.ts` to add `soreness?: number`. Changed deload threshold in `getDeloadSignal()` from `< 2.5` to `< 5` (now on 1-10 scale). Updated `body/+page.svelte`: changed `let energy = $state(3)` → `$state('')`, added `let soreness = $state('')`, replaced energy button grid with three number inputs (Energy 1-10 / Sleep quality 1-10 / Soreness 0-10), added `.field-hint` text under each, updated `energyColor()` thresholds to `>= 8` / `>= 5`, updated `energyLabel()` for 1-10 scale, updated logged-today display to show `/10`, updated history pills to show `/10`, updated `submitCheckin()` to pass `soreness`.
 **Files changed:** `src/lib/data/program.ts`, `src/routes/body/+page.svelte`
 **Cross-project:** NO (Vasbyt-specific check-in schema)
+
+---
+
+## [2026-05-25] — Equipment Filter + Custom Routine Builder (Phase 11)
+
+**Symptom:** V2 Settings had 4 preset routines but no way to build a custom routine or select equipment. Without equipment filter, the exercise picker would show equipment the user doesn't have.
+**Root cause:** V1's routine builder (`app-routines.js`) is ~1,600 lines of vanilla JS with DOM manipulation and global window bridges. V2 needed a clean Svelte 5 port.
+**Fix:** Added `KEYS.equip()` to storage.ts (mirrors V1 `vasbytEquipment.v1`). V2 stores equipment as a simple chip string (not V1's array of items). Added `RbDay`, `SavedRoutine` types and `getSavedRoutines`, `saveCustomRoutine`, `deleteCustomRoutine`, `activateCustomRoutine` functions to `program.ts`. Settings page: added Equipment chip selector section (8 chips: All/Bodyweight/Dumbbell/Cable/Barbell/Machine/Kettlebell/Band); added My routines section (list + Use/Edit/Delete); added inline routine builder (D1-D7 tabs, Workout/Rest toggle, day title, exercise list with sets/reps/rest inputs, exercise picker). Exercise picker: lazy-loads `static/data/full-library.json` (1,324 exercises, 1.1 MB) only when picker opens; equipment chip filter + search; groups by muscle group; max 200 results shown. `equipMatch()` ported directly from V1's `_rbEquipMatch()`. V1 AI suggest and routine import features not ported (deferred).
+**Files changed:** `src/lib/data/storage.ts`, `src/lib/data/program.ts`, `src/routes/settings/+page.svelte`, `static/data/full-library.json`
+**Cross-project:** NO (Vasbyt-specific feature)
