@@ -19,6 +19,8 @@
 	let theme         = $state('');
 	let nameSaved     = $state(false);
 	let confirmClear  = $state(false);
+	let importOk      = $state(false);
+	let importError   = $state('');
 	let presets       = $state<PresetRoutine[]>([]);
 	let presetApplied = $state('');
 	let customRoutines = $state<SavedRoutine[]>([]);
@@ -129,6 +131,69 @@
 		].forEach((k) => localStorage.removeItem(k));
 		week = 1; day = 1; hasRoutine = false; routineName = '';
 		customRoutines = []; confirmClear = false;
+	}
+
+	// ── Data export / import ─────────────────────────────────
+	function _dl(filename: string, content: string, mime: string) {
+		const a = document.createElement('a');
+		a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+		a.download = filename;
+		a.click();
+		URL.revokeObjectURL(a.href);
+	}
+
+	function downloadBackup() {
+		const d = today();
+		const payload = {
+			version: '2.0',
+			logs:     J(KEYS.logs(),     []),
+			checkins: J(KEYS.checkins(), []),
+			finishes: J(KEYS.finishes(), []),
+			exportedAt: new Date().toISOString()
+		};
+		_dl(`vasbyt-backup-${d}.json`, JSON.stringify(payload, null, 2), 'application/json');
+	}
+
+	function downloadCsv(type: 'workouts' | 'checkins' | 'finishes') {
+		const data: Record<string, unknown>[] =
+			type === 'checkins' ? J(KEYS.checkins(), [])
+			: type === 'finishes' ? J(KEYS.finishes(), [])
+			: J(KEYS.logs(), []);
+		const headers =
+			type === 'checkins'  ? ['date', 'energy', 'sleep', 'soreness', 'weight', 'notes']
+			: type === 'finishes' ? ['date', 'week', 'phase', 'day', 'sets', 'exercises', 'readiness', 'startedAt', 'finishedAt']
+			: ['date', 'week', 'day', 'exerciseName', 'weight', 'reps'];
+		const rows = data.map((o) =>
+			headers.map((k) => `"${String(o[k] ?? '').replaceAll('"', '""')}"`).join(',')
+		);
+		_dl(`${type}-${today()}.csv`, [headers.join(','), ...rows].join('\n'), 'text/csv');
+	}
+
+	function importBackup(e: Event) {
+		const file = (e.target as HTMLInputElement).files?.[0];
+		if (!file) return;
+		const reader = new FileReader();
+		reader.onload = (ev) => {
+			try {
+				const raw = JSON.parse(ev.target?.result as string);
+				if (!raw || (!Array.isArray(raw.logs) && !Array.isArray(raw.checkins))) {
+					importError = 'Invalid backup — missing logs or checkins.';
+					setTimeout(() => (importError = ''), 3500);
+					return;
+				}
+				if (Array.isArray(raw.logs))     S(KEYS.logs(),     raw.logs);
+				if (Array.isArray(raw.checkins)) S(KEYS.checkins(), raw.checkins);
+				if (Array.isArray(raw.finishes)) S(KEYS.finishes(), raw.finishes);
+				importOk = true;
+				setTimeout(() => (importOk = false), 3000);
+			} catch {
+				importError = 'Could not read file — is it a valid JSON backup?';
+				setTimeout(() => (importError = ''), 3500);
+			}
+		};
+		reader.readAsText(file);
+		// Reset the input so the same file can be re-imported if needed
+		(e.target as HTMLInputElement).value = '';
 	}
 
 	// ── Routine builder ───────────────────────────────────────
@@ -551,9 +616,58 @@
 		</div>
 	</div>
 
-	<!-- Danger zone -->
+	<!-- Data / Backup -->
 	<div class="section">
 		<div class="section-label">Data</div>
+
+		<!-- Downloads -->
+		<div class="card data-card">
+			<div class="data-row">
+				<div>
+					<div class="data-title">Workout CSV</div>
+					<div class="data-sub">All logged sets with weight and reps.</div>
+				</div>
+				<button class="btn-dl" onclick={() => downloadCsv('workouts')}>↓ CSV</button>
+			</div>
+			<div class="card-divider"></div>
+			<div class="data-row">
+				<div>
+					<div class="data-title">Check-In CSV</div>
+					<div class="data-sub">Energy, sleep, soreness, weight history.</div>
+				</div>
+				<button class="btn-dl" onclick={() => downloadCsv('checkins')}>↓ CSV</button>
+			</div>
+			<div class="card-divider"></div>
+			<div class="data-row">
+				<div>
+					<div class="data-title">Full Backup JSON</div>
+					<div class="data-sub">All logs + check-ins in one file. Use to restore.</div>
+				</div>
+				<button class="btn-dl" onclick={downloadBackup}>↓ JSON</button>
+			</div>
+		</div>
+
+		<!-- Restore -->
+		<div class="card data-card">
+			{#if importOk}
+				<div class="import-ok">✓ Backup restored — data updated.</div>
+			{:else if importError}
+				<div class="import-err">{importError}</div>
+			{:else}
+				<div class="data-row">
+					<div>
+						<div class="data-title">Restore from backup</div>
+						<div class="data-sub">Import a .json backup to merge data.</div>
+					</div>
+					<label class="btn-dl btn-import">
+						↑ Import
+						<input type="file" accept=".json" style="display:none" onchange={importBackup} />
+					</label>
+				</div>
+			{/if}
+		</div>
+
+		<!-- Clear -->
 		<div class="card" class:danger-active={confirmClear}>
 			{#if !confirmClear}
 				<div class="danger-row">
@@ -729,6 +843,32 @@
 .btn-danger {
 	flex: 1; min-height: var(--touch); border-radius: 10px;
 	background: var(--red); color: #fff; font-weight: 800; font-size: 14px;
+}
+
+/* Data / Backup */
+.data-card { gap: 0; padding: 0; }
+.data-row {
+	display: flex; align-items: center; justify-content: space-between; gap: 12px;
+	padding: 12px 16px;
+}
+.data-title { font-weight: 800; font-size: 14px; }
+.data-sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.card-divider { height: 1px; background: var(--line); margin: 0; }
+.btn-dl {
+	background: rgba(255,255,255,.07); border: 1px solid var(--line);
+	color: var(--accent); font-weight: 800; font-size: 13px;
+	min-height: var(--touch); border-radius: 10px; padding: 0 14px; flex-shrink: 0;
+	display: flex; align-items: center; justify-content: center;
+	cursor: pointer; white-space: nowrap;
+}
+.btn-import { cursor: pointer; }
+.import-ok  {
+	padding: 14px 16px; font-weight: 800; font-size: 14px;
+	color: var(--green); text-align: center;
+}
+.import-err {
+	padding: 14px 16px; font-weight: 700; font-size: 13px;
+	color: var(--red); text-align: center; line-height: 1.4;
 }
 
 /* Footer */
