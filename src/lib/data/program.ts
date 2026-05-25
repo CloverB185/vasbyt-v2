@@ -504,6 +504,36 @@ export function getRoutineName(): string {
 export function getWeek(): number  { return J<number>(KEYS.week(), 1); }
 export function getDay(): number   { return J<number>(KEYS.day(),  1); }
 
+export function setWeek(n: number): void { S(KEYS.week(), Math.max(1, Math.min(12, n))); }
+export function setDay(n: number): void  { S(KEYS.day(),  Math.max(1, Math.min(7,  n))); }
+
+// ── Readiness ────────────────────────────────────────────────
+export function getReady(): string       { return J<string>(KEYS.ready(), ''); }
+export function setReady(v: string): void { S(KEYS.ready(), v); }
+
+// ── Week momentum ─────────────────────────────────────────────
+/** Unique workout days this ISO week (Mon–Sun) based on finishes or logs */
+export function getWeekMomentum(): number {
+	const now = new Date();
+	const dow = now.getDay() === 0 ? 6 : now.getDay() - 1;
+	const mon = new Date(now); mon.setDate(now.getDate() - dow);
+	const monStr = mon.toISOString().slice(0, 10);
+	const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+	const sunStr = sun.toISOString().slice(0, 10);
+	const uniqueDays = new Set(
+		getFinishes()
+			.filter((f) => f.date >= monStr && f.date <= sunStr)
+			.map((f) => f.date)
+	);
+	// fall back to log days if no finishes yet
+	if (uniqueDays.size === 0) {
+		getLogs()
+			.filter((l) => l.date >= monStr && l.date <= sunStr)
+			.forEach((l) => uniqueDays.add(l.date));
+	}
+	return uniqueDays.size;
+}
+
 export function getPhase(week: number): 1 | 2 | 3 {
 	if (week <= 2)  return 1;
 	if (week <= 6)  return 2;
