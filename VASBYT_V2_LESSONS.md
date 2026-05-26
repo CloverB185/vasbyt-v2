@@ -256,3 +256,7 @@
 - Template uses `{@const}` for profile goal + equipLabel (localStorage reads, can't be in `$derived`).
 **Files changed:** `src/routes/settings/+page.svelte`
 **Cross-project:** YES — two-step AI pipeline pattern (extract structure → match to known IDs → hallucination guard) is the right approach for any AI-powered import with a validated entity library.
+
+**TestX patches (same session):**
+- H: `.btn-pick` inline text button (padding:0, min-height:unset) → block button (min-height:44px, width:100%, dashed accent border). Rule: any "trigger" button in a review/picker flow must be a full tap target, not an inline link.
+- G: `{#if libState === 'failed'}` warning banner added to both builder form and import input views. Rule: always show a visible error indicator when a silent background load fails — `libState` state variable is the right hook.
