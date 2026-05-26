@@ -260,3 +260,16 @@
 **TestX patches (same session):**
 - H: `.btn-pick` inline text button (padding:0, min-height:unset) → block button (min-height:44px, width:100%, dashed accent border). Rule: any "trigger" button in a review/picker flow must be a full tap target, not an inline link.
 - G: `{#if libState === 'failed'}` warning banner added to both builder form and import input views. Rule: always show a visible error indicator when a silent background load fails — `libState` state variable is the right hook.
+
+---
+
+## [2026-05-26] — Phase 22: Profile completion + standalone weight log
+
+**Symptom:** Profile only stored name + goal. No height, DOB, or target weight. No quick way to log weight without filling in a full check-in.
+**Root cause:** Phase 22 not yet implemented.
+**Fix:**
+- **Settings Profile section expanded**: Height (cm), target weight (kg), DOB added. `saveProfileDetails()` saves all 4 fields to `KEYS.profile()` (same object, additional keys). 2-column layout for height + target weight. No new storage key needed.
+- **Body quick weight log**: `logWeight()` reads today's check-in, merges new weight via `saveCheckin({ ...existing, weight: kg })`, refreshes both check-in display and weight chart. Pre-fills from state var. `Enter` key triggers log. Target weight displayed as reference note if set in profile. Weight chart shows target label.
+- **Key pattern**: quick weight log merges into today's check-in rather than a separate storage key — no duplicate data, chart reads same source.
+**Files changed:** `src/routes/settings/+page.svelte`, `src/routes/body/+page.svelte`
+**Cross-project:** NO
