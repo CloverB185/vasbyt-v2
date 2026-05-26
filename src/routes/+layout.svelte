@@ -2,6 +2,7 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import { J, KEYS, today } from '$lib/data/storage';
 	import { getWeek, getDay, getRoutineDay } from '$lib/data/program';
 
@@ -97,13 +98,15 @@
 	}
 
 	const tabs = [
-		{ href: '/',      label: 'Today'       },
-		{ href: '/stats', label: 'My Progress' },
-		{ href: '/body',  label: 'My Body'     },
-		{ href: '/cardio', label: 'Cardio'       },
+		{ href: '/',       label: 'Today'      },
+		{ href: '/stats',  label: 'Progress'   },
+		{ href: '/body',   label: 'My Body'    },
+		{ href: '/cardio', label: 'Cardio'     },
+		{ href: '/log',    label: 'Log'        },
 	];
 
-	const isGym = $derived($page.url.pathname === '/gym');
+	const isGym        = $derived($page.url.pathname === '/gym');
+	const isOnboarding = $derived($page.url.pathname === '/onboarding');
 
 	onMount(() => {
 		const t = J<string>(KEYS.theme(), '');
@@ -120,10 +123,15 @@
 		const allLogs = J<{ date: string }[]>(KEYS.logs(), []);
 		doneSets  = allLogs.filter(l => l.date === today()).length;
 		totalSets = getRoutineDay(day).exercises.reduce((s, ex) => s + ex.sets, 0);
+
+		// Redirect new users to onboarding
+		if (!profileName && window.location.pathname !== '/onboarding') {
+			goto('/onboarding');
+		}
 	});
 </script>
 
-{#if !isGym}
+{#if !isGym && !isOnboarding}
 	<header class="hero">
 		<div class="hero-left">
 			<h1>Vasbyt<span class="you-can">· You Can!</span></h1>
@@ -255,7 +263,7 @@
 		top: 0;
 		z-index: 10;
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
+		grid-template-columns: repeat(5, 1fr);
 		gap: 7px;
 		padding: 8px 0;
 		backdrop-filter: blur(14px);
@@ -269,10 +277,10 @@
 		color: var(--text);
 		background: rgba(255, 255, 255, .08);
 		border-radius: 13px;
-		padding: 10px 8px;
+		padding: 10px 4px;
 		min-height: 44px;
 		font-weight: 900;
-		font-size: 14px;
+		font-size: 12px;
 		text-decoration: none;
 		display: flex;
 		align-items: center;
