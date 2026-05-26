@@ -211,3 +211,48 @@
 **Fix:** Rewrote log/+page.svelte. Calendar state: `calYear`/`calMonth` ($state), `trained` (Set<string> of all logged dates), `selDate` (selected date). `buildCells(y,m)` computes Mon-first grid with null padding. `$derived` used for `calCells`, `calTitle`, `selDay`, `todayStr`. Tapping a trained day sets `selDate`; tapping same day again clears it. Detail card shows that session's exercises with an accent border. Next-month arrow disabled when at current month. Existing chronological list kept below as "All sessions".
 **Files changed:** `src/routes/log/+page.svelte`
 **Cross-project:** NO
+
+---
+
+## [2026-05-26] — Phase 18 AI Coach Chat FAB
+
+**Symptom:** No way to talk to an AI coach from within the app.
+**Root cause:** Phase 18 not yet implemented.
+**Fix:** Added floating action button (FAB) to `+layout.svelte` — present on all non-gym tabs via `{#if !isGym}`. FAB opens a slide-up chat drawer. Script section: `chatOpen`, `chatMsgs`, `chatInput`, `chatLoading`, `chatEl` state vars; `buildChatContext()` injects athlete name, week/day, today's exercises, sets done, last check-in, today's logs into the system prompt; `openChat()` sends a silent "Hey coach!" on first open to get a greeting; `sendMsg()` maintains last-10-message history window; `chatKey()` handles Enter-to-send. Template: `.fab` button, `.chat-backdrop` (tap to dismiss), `.chat-drawer` (65vh, slide-up animation), `.chat-msgs` with coach/user bubble styles, `.chat-input-row`. Key pattern: backdrop is a `<div>` with `onclick` — Svelte a11y warns but build succeeds; this is the same pattern already used in gym page's overlay.
+**Files changed:** `src/routes/+layout.svelte`
+**Cross-project:** YES — the FAB + drawer pattern (fixed button → backdrop + slide-up panel) works in any Svelte 5 layout. Chat context builder pattern reusable for any app with user state.
+
+---
+
+## [2026-05-26] — Phase 19: Log nav link + Onboarding flow
+
+**Symptom:** (1) Log page at `/log` was built in Phase 17 but not linked from nav — unreachable without typing the URL. (2) New users hit a blank Today screen with no direction.
+**Root cause:** Phase 17 added the Log page but never added a tab. Onboarding was never ported from V1.
+**Fix:** (1) Added `{ href: '/log', label: 'Log' }` as 5th tab. Updated `.tabs` grid from `repeat(4, 1fr)` to `repeat(5, 1fr)`. Reduced tab font-size 14px → 12px and padding to fit. (2) New `/onboarding/+page.svelte` — 4-step flow: Name → Goal → Equipment → Done. Saves `profile.name + goal` to `KEYS.profile()` and equip to `KEYS.equip()`. Layout `onMount` redirects users with no `profile.name` to `/onboarding` (skips if already on `/onboarding`). Onboarding excluded from app chrome via `isOnboarding = $derived(...)` added to existing `{#if !isGym && !isOnboarding}` guard.
+**Files changed:** `src/routes/+layout.svelte`, `src/routes/onboarding/+page.svelte`
+**Cross-project:** YES — the redirect-on-empty-name pattern (check in onMount, goto if missing) is the standard SvelteKit onboarding gate. isOnboarding derived from $page.url.pathname is the right way to hide app chrome on special routes.
+
+---
+
+## [2026-05-26] — Phase 20: Resume Workout
+
+**Symptom:** Closing the gym tab mid-session lost all exercise position progress. Sets were saved to KEYS.logs() but the user had to start from exercise 1 on return.
+**Root cause:** Gym page had no persistence of exIdx or session state between navigations.
+**Fix:** Added `KEYS.resume()` (`vasbytResume.v1`) to storage.ts. Gym page: `saveResume()` writes `{ date: today(), exIdx }` after every `logSet()`, `nextEx()`, `prevEx()`. `clearResume()` called in `finishAll()`. On mount, checks for today's resume state and restores `exIdx` + sets `started = true` if found. Today page: reads resume state in `load()`, sets `hasResume` — swaps Start button to green "Resume Workout →" when active. Sets are already persisted in KEYS.logs() so only position needs saving.
+**Files changed:** `src/lib/data/storage.ts`, `src/routes/gym/+page.svelte`, `src/routes/+page.svelte`
+**Cross-project:** YES — this pattern (save position key on action, restore on mount, clear on completion) works for any multi-step flow that needs to survive navigation.
+
+---
+
+## [2026-05-26] — Phase 21: AI Routine Builder + Program Import
+
+**Symptom:** No way to generate a custom routine via AI or import an existing program from pasted text.
+**Root cause:** Phase 21 not yet implemented.
+**Fix:**
+- **AI Builder:** Single AI call with profile goal + equipment + user-selected experience/days/length/focus/avoid → JSON program → local fuzzy match (`localMatch()`) + equipment validation (`checkEquipMismatch()`) → review queue for unmatched/mismatched items → `activateBuilderProgram()` converts to SavedRoutine and sets active.
+- **Program Import:** Two-step AI pipeline. Step 1 (4k tokens): extract structure from raw pasted text → `{ name, days[] }`. Step 2 (3k tokens): match extracted exercise names to library IDs. Hallucination guard filters any returned ID not in `validIds = new Set(fullLib.map(x => x.id))`. Confidence ≥ 0.7 threshold. Equipment check after matching. Review queue shows unmatched items with "Pick manually" inline search picker. `activateImportProgram()` applies confirmed IDs and activates.
+- **My routines section** updated to three-button row: + New routine / ✨ AI Builder / ↑ Import.
+- **Bug fix:** `today` was used in settings page backup functions but missing from `storage.ts` import — added.
+- Template uses `{@const}` for profile goal + equipLabel (localStorage reads, can't be in `$derived`).
+**Files changed:** `src/routes/settings/+page.svelte`
+**Cross-project:** YES — two-step AI pipeline pattern (extract structure → match to known IDs → hallucination guard) is the right approach for any AI-powered import with a validated entity library.
