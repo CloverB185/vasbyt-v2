@@ -201,3 +201,13 @@
 **Fix:** Added `measurements` key to KEYS in storage.ts. In body/+page.svelte: (1) `buildWeightChart()` reads all check-ins from `KEYS.checkins()` directly via `J()`, filters those with weight, takes last 10, normalises bar heights to min/max range; (2) `loadMeasurements()` / `saveMeasurement()` read/write `Measurement[]` to new key; form shows when no data or `showMForm=true`, history table shows last 5 entries newest-first.
 **Files changed:** `src/lib/data/storage.ts`, `src/routes/body/+page.svelte`
 **Cross-project:** NO
+
+---
+
+## [2026-05-26] — Phase 17 Log tab: monthly calendar view
+
+**Symptom:** Log tab had no calendar view — just a flat chronological list.
+**Root cause:** Phase 17 not yet implemented.
+**Fix:** Rewrote log/+page.svelte. Calendar state: `calYear`/`calMonth` ($state), `trained` (Set<string> of all logged dates), `selDate` (selected date). `buildCells(y,m)` computes Mon-first grid with null padding. `$derived` used for `calCells`, `calTitle`, `selDay`, `todayStr`. Tapping a trained day sets `selDate`; tapping same day again clears it. Detail card shows that session's exercises with an accent border. Next-month arrow disabled when at current month. Existing chronological list kept below as "All sessions".
+**Files changed:** `src/routes/log/+page.svelte`
+**Cross-project:** NO
