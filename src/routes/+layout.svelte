@@ -65,7 +65,7 @@
 				const data = await resp.json();
 				const txt = data?.choices?.[0]?.message?.content?.trim();
 				if (txt) chatMsgs = [{ role: 'coach', text: txt }];
-			} catch { /* silent */ } finally { chatLoading = false; }
+			} catch { chatMsgs = [{ role: 'coach', text: "Hey! Ask me anything about your training." }]; } finally { chatLoading = false; }
 		}
 	}
 
@@ -368,7 +368,8 @@
 	.chat-close {
 		background: none; border: none; cursor: pointer;
 		font-size: 22px; color: rgba(255,255,255,.4);
-		line-height: 1; padding: 0 4px;
+		min-width: 44px; min-height: 44px;
+		display: flex; align-items: center; justify-content: center;
 	}
 	.chat-close:hover { color: rgba(255,255,255,.7); }
 
@@ -431,8 +432,8 @@
 	.chat-input::placeholder { color: var(--muted); }
 	.chat-input:disabled { opacity: 0.5; }
 	.chat-send {
-		width: 40px;
-		height: 40px;
+		width: 44px;
+		height: 44px;
 		border-radius: 50%;
 		background: linear-gradient(135deg, var(--accent), var(--accent-light));
 		color: var(--accent-text);
