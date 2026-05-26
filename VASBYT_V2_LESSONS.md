@@ -273,3 +273,7 @@
 - **Key pattern**: quick weight log merges into today's check-in rather than a separate storage key — no duplicate data, chart reads same source.
 **Files changed:** `src/routes/settings/+page.svelte`, `src/routes/body/+page.svelte`
 **Cross-project:** NO
+
+**TestX patches (same session):**
+- G+H: "Log weight" button gets `disabled={!quickWeight || weightSaved}` + `.btn-log-wt:disabled { opacity:.4 }`. Rule: any log/submit button must be disabled when its required input is empty — silent no-op on click is a G fail.
+- D: Profile form "clear" gap resolved with a hint line ("leave blank to keep existing value") rather than a code change. Rule: when "blank = no-op" is the right behaviour, document it inline rather than adding complex clear logic.
