@@ -287,3 +287,7 @@
 **Fix:** Added dual-bar chart to `stats/+page.svelte`. `buildEnergyChart()` calls `getRecentCheckins(90)` (imported from program.ts), filters for entries with `energy != null || sleep != null`, reverses to oldest-first, takes last 14 data points. Two bars per date column: energy (teal/accent) and sleep (purple #8b7dea). Bar heights scale linearly: `Math.max(4, Math.round((value / 10) * 48))` (min 4px, max 48px). Empty bar stub (4px, dim) when one field is absent but the other is present. Data-gated: `hasEnergyData = false` if < 2 check-ins with energy/sleep. Placed after the 8-week training frequency chart, before exercise history. Legend uses color dot + label chips.
 **Files changed:** `src/routes/stats/+page.svelte`
 **Cross-project:** YES — dual-bar chart pattern (two bars per date, paired in a flex row, heights scaled to known range) works for any data that has two parallel 1-N metrics over time.
+
+**TestX patches (same session):**
+- G: Section label always visible; `{:else}` branch renders message card + `<a href="/body">` CTA (min-height 44px, chip-bg/chip-border tokens). Rule: data-gated chart sections must show a feature-discovery message + CTA when empty — silent hide is a G fail.
+- H: Sleep bar colour `#8b7dea` extracted to `--sleep-color` CSS token in `app.css` (both `:root` and `[data-theme="bloom"]`). Rule: any new semantic chart colour needs a CSS variable, not inline hex — even if the project uses hex for some existing chart colours (gold, trend green/red).
