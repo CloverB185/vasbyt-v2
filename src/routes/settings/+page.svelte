@@ -8,7 +8,7 @@
 		deleteCustomRoutine, activateCustomRoutine,
 		type PresetRoutine, type SavedRoutine, type RbDay
 	} from '$lib/data/program';
-	import { J, S, KEYS } from '$lib/data/storage';
+	import { J, S, KEYS, today } from '$lib/data/storage';
 
 	// ── Profile / position / theme ────────────────────────────
 	let profileInput  = $state('');
@@ -322,6 +322,221 @@
 		const d = new Date(iso + 'T00:00:00');
 		return d.toLocaleDateString('en-ZA', { weekday: 'short', day: 'numeric', month: 'short' });
 	}
+
+	// ── AI Program Builder + Program Import ───────────────────
+
+	const AI_PROXY = 'https://vasbyt-ai-proxy.clover887.workers.dev';
+	const AI_MODEL = 'google/gemini-3-flash-preview';
+
+	interface AiDay   { title: string; exercises: AiExRaw[]; }
+	interface AiExRaw { name: string; sets: number; reps: string; rest: number; id?: string; }
+	interface ReviewItem {
+		original: string; matchedId: string | null; confirmedId: string | null;
+		matchedName: string | null; confidence: number; equipMismatch: boolean;
+	}
+
+	// AI builder state
+	let abActive    = $state(false);
+	let abStep      = $state<'form' | 'preview'>('form');
+	let abExp       = $state('intermediate');
+	let abDays      = $state(4);
+	let abLength    = $state('45');
+	let abFocus     = $state<string[]>([]);
+	let abAvoid     = $state('');
+	let abLoading   = $state(false);
+	let abResult    = $state<{ name: string; days: AiDay[] } | null>(null);
+	let abReview    = $state<ReviewItem[]>([]);
+	let abActivated = $state(false);
+
+	// Import state
+	let piActive    = $state(false);
+	let piStep      = $state<'input' | 'parsing' | 'review'>('input');
+	let piText      = $state('');
+	let piLoading   = $state(false);
+	let piResult    = $state<{ name: string; days: AiDay[] } | null>(null);
+	let piReview    = $state<ReviewItem[]>([]);
+	let piSearch    = $state('');
+	let piPickFor   = $state<string | null>(null);
+	let piActivated = $state(false);
+
+	const AB_EXP     = [{ val:'beginner',label:'Beginner'},{val:'intermediate',label:'Intermediate'},{val:'advanced',label:'Advanced'}];
+	const AB_LENGTHS = ['30','45','60','75'];
+	const AB_FOCUS   = ['Chest','Back','Shoulders','Arms','Legs','Glutes','Core'];
+
+	const piPickerLib = $derived(
+		piPickFor !== null
+			? fullLib.filter(x => {
+				const q = piSearch.toLowerCase().trim();
+				if (equipChip && !equipMatch(x.equipment, equipChip)) return false;
+				if (q && !x.name.toLowerCase().includes(q)) return false;
+				return true;
+			}).slice(0, 40)
+			: []
+	);
+
+	function localMatch(name: string): { id: string | null; name: string | null; confidence: number } {
+		if (fullLib.length === 0) return { id: null, name: null, confidence: 0 };
+		const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+		const n = norm(name);
+		const exact = fullLib.find(x => norm(x.name) === n);
+		if (exact) return { id: exact.id, name: exact.name, confidence: 1.0 };
+		const words = n.split(' ').filter(w => w.length > 3);
+		if (!words.length) return { id: null, name: null, confidence: 0 };
+		const scored = fullLib
+			.map(x => ({ ...x, score: words.filter(w => norm(x.name).includes(w)).length / words.length }))
+			.filter(x => x.score >= 0.6).sort((a, b) => b.score - a.score);
+		return scored.length > 0
+			? { id: scored[0].id, name: scored[0].name, confidence: scored[0].score }
+			: { id: null, name: null, confidence: 0 };
+	}
+
+	function checkEquipMismatch(id: string): boolean {
+		if (!equipChip) return false;
+		const ex = fullLib.find(x => x.id === id);
+		return ex ? !equipMatch(ex.equipment, equipChip) : false;
+	}
+
+	function stripJson(raw: string): string {
+		return raw.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
+	}
+
+	async function runAiBuilder() {
+		if (abLoading) return;
+		if (libState === 'idle') await loadLib();
+		abLoading = true;
+		try {
+			const goal      = J<{ goal?: string }>(KEYS.profile(), {}).goal ?? 'general fitness';
+			const equipLabel = EQUIP_CHIPS.find(c => c.val === equipChip)?.label ?? 'All equipment';
+			const focusStr  = abFocus.length > 0 ? abFocus.join(', ') : 'balanced full body';
+			const prompt = `You are a strength coach. Generate a ${abDays}-day workout program.
+Athlete: goal=${goal}, experience=${abExp}, session=${abLength}min, equipment=${equipLabel}, focus=${focusStr}${abAvoid ? ', avoid='+abAvoid : ''}.
+Return ONLY valid JSON (no markdown):
+{"name":"Short Program Name","days":[{"title":"Day Title","exercises":[{"name":"Exercise Name","sets":3,"reps":"8-10","rest":90}]}]}
+Rules: exactly ${abDays} training days. Standard exercise names matching equipment: ${equipLabel}. sets=integer, reps=string, rest=integer seconds.`;
+			const resp = await fetch(AI_PROXY, {
+				method: 'POST', headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ model: AI_MODEL, max_tokens: 2000, messages: [{ role: 'user', content: prompt }] })
+			});
+			const parsed = JSON.parse(stripJson((await resp.json())?.choices?.[0]?.message?.content?.trim() ?? '')) as { name: string; days: AiDay[] };
+			if (!Array.isArray(parsed.days)) throw new Error('invalid');
+			const review: ReviewItem[] = [];
+			for (const d of parsed.days) {
+				for (const ex of d.exercises) {
+					const m = localMatch(ex.name);
+					const mismatch = m.id ? checkEquipMismatch(m.id) : false;
+					if (m.confidence < 0.8 || mismatch) {
+						if (!review.find(r => r.original === ex.name))
+							review.push({ original: ex.name, matchedId: m.id, confirmedId: m.id, matchedName: m.name, confidence: m.confidence, equipMismatch: mismatch });
+					}
+					ex.id = (m.confidence >= 0.8 && !mismatch) ? (m.id ?? undefined) : undefined;
+				}
+			}
+			abResult = parsed; abReview = review; abStep = 'preview';
+		} catch { alert('Program generation failed — try again.'); }
+		finally { abLoading = false; }
+	}
+
+	function activateBuilderProgram() {
+		if (!abResult) return;
+		const confirmMap = new Map(abReview.map(r => [r.original, r.confirmedId]));
+		const days: RbDay[] = abResult.days.map((d, i) => ({
+			day: i + 1, title: d.title, isRest: false,
+			exercises: d.exercises.map(ex => ({
+				id: ex.id ?? confirmMap.get(ex.name) ?? ('gen-' + Math.random().toString(36).slice(2)),
+				name: ex.name, sets: Number(ex.sets) || 3, reps: String(ex.reps || '10-12'), rest: Number(ex.rest) || 60
+			}))
+		}));
+		while (days.length < 7) days.push({ day: days.length + 1, title: 'Rest', isRest: true, exercises: [] });
+		const r: SavedRoutine = { id: 'ai-' + Date.now(), name: abResult.name || 'AI Program', description: `${abResult.days.length}-day AI-generated`, days };
+		saveCustomRoutine(r); activateCustomRoutine(r.id);
+		customRoutines = getSavedRoutines(); hasRoutine = true; routineName = r.name;
+		abActivated = true;
+		setTimeout(() => { abActive = false; abActivated = false; abStep = 'form'; abResult = null; }, 1000);
+	}
+
+	async function runImport() {
+		if (piLoading || !piText.trim()) return;
+		if (libState === 'idle') await loadLib();
+		piLoading = true; piStep = 'parsing';
+		try {
+			// Step 1 — extract structure
+			const s1 = `Extract the workout program below. Return ONLY valid JSON (no markdown):
+{"name":"Program Name","days":[{"title":"Day Title","exercises":[{"name":"exercise","sets":3,"reps":"8-12","rest":60}]}]}
+Include only training days. Preserve exercise names exactly. Defaults: 3 sets, "8-12" reps, 60s rest.
+
+Program text:
+${piText}`;
+			const r1   = await fetch(AI_PROXY, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ model: AI_MODEL, max_tokens: 4000, messages: [{ role: 'user', content: s1 }] }) });
+			const parsed = JSON.parse(stripJson((await r1.json())?.choices?.[0]?.message?.content?.trim() ?? '')) as { name: string; days: AiDay[] };
+			if (!Array.isArray(parsed.days)) throw new Error('no days');
+			piResult = parsed;
+
+			// Step 2 — match to library
+			const names = [...new Set(parsed.days.flatMap(d => d.exercises.map(e => e.name)))];
+			const libSnippet = fullLib.filter(x => !equipChip || equipMatch(x.equipment, equipChip))
+				.slice(0, 500).map(x => `${x.id}: ${x.name}`).join('\n');
+			const s2 = `Match each exercise to the closest library entry. Return ONLY valid JSON array (no markdown):
+[{"original":"exercise name","id":"matched-id-or-null","confidence":0.0}]
+confidence: 1.0=exact, 0.7+=good match, <0.7=set id to null. Match on movement + equipment. Never invent IDs not in the library.
+
+Exercises:
+${names.join('\n')}
+
+Library (id: name):
+${libSnippet}`;
+			const r2   = await fetch(AI_PROXY, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ model: AI_MODEL, max_tokens: 3000, messages: [{ role: 'user', content: s2 }] }) });
+			const matches: { original: string; id: string | null; confidence: number }[] =
+				JSON.parse(stripJson((await r2.json())?.choices?.[0]?.message?.content?.trim() ?? ''));
+
+			// Hallucination guard + equipment check
+			const validIds  = new Set(fullLib.map(x => x.id));
+			const matchMap  = new Map(matches.map(m => [m.original, {
+				id: (m.id && validIds.has(m.id) && m.confidence >= 0.7) ? m.id : null,
+				confidence: m.confidence,
+				matchedName: (m.id && validIds.has(m.id)) ? (fullLib.find(x => x.id === m.id)?.name ?? null) : null
+			}]));
+
+			// Attach IDs + build review queue
+			const review: ReviewItem[] = [];
+			for (const d of piResult!.days) {
+				for (const ex of d.exercises) {
+					const m = matchMap.get(ex.name) ?? { id: null, confidence: 0, matchedName: null };
+					const mismatch = m.id ? checkEquipMismatch(m.id) : false;
+					ex.id = (m.id && !mismatch) ? m.id : undefined;
+					if (!ex.id && !review.find(r => r.original === ex.name))
+						review.push({ original: ex.name, matchedId: m.id, confirmedId: m.id, matchedName: m.matchedName, confidence: m.confidence, equipMismatch: mismatch });
+				}
+			}
+			piReview = review; piStep = 'review';
+		} catch { alert('Import failed — check the program text format and try again.'); piStep = 'input'; }
+		finally { piLoading = false; }
+	}
+
+	function activateImportProgram() {
+		if (!piResult) return;
+		const confirmMap = new Map(piReview.map(r => [r.original, r.confirmedId]));
+		const days: RbDay[] = piResult.days.map((d, i) => ({
+			day: i + 1, title: d.title, isRest: false,
+			exercises: d.exercises.map(ex => ({
+				id: ex.id ?? confirmMap.get(ex.name) ?? ('imp-' + Math.random().toString(36).slice(2)),
+				name: ex.name, sets: Number(ex.sets) || 3, reps: String(ex.reps || '10-12'), rest: Number(ex.rest) || 60
+			}))
+		}));
+		while (days.length < 7) days.push({ day: days.length + 1, title: 'Rest', isRest: true, exercises: [] });
+		const r: SavedRoutine = { id: 'imp-' + Date.now(), name: piResult.name || 'Imported Program', description: `${piResult.days.length}-day imported program`, days };
+		saveCustomRoutine(r); activateCustomRoutine(r.id);
+		customRoutines = getSavedRoutines(); hasRoutine = true; routineName = r.name;
+		piActivated = true;
+		setTimeout(() => { piActive = false; piActivated = false; piStep = 'input'; piText = ''; piResult = null; piReview = []; }, 1000);
+	}
+
+	function piPickResult(original: string, id: string, name: string) {
+		piReview = piReview.map(r => r.original === original
+			? { ...r, confirmedId: id, matchedName: name, equipMismatch: checkEquipMismatch(id) } : r);
+		piPickFor = null; piSearch = '';
+	}
 </script>
 
 <svelte:head>
@@ -484,6 +699,223 @@
 	<div class="app-version">Vasbyt v2 preview · vasbyt-v2.pages.dev</div>
 </div>
 
+<!-- ── AI PROGRAM BUILDER ── -->
+{:else if abActive}
+<div class="settings-wrap">
+
+	<div class="rb-header">
+		<button class="btn-back" onclick={() => { abActive = false; abStep = 'form'; abResult = null; abReview = []; }}>← Routines</button>
+		<span class="label-sm">AI Program Builder</span>
+	</div>
+
+	{#if abLoading}
+		<div class="ai-loading-card card">
+			<div class="ai-dots"><span></span><span></span><span></span></div>
+			<div class="ai-loading-note">Building your program…</div>
+		</div>
+
+	{:else if abStep === 'form'}
+		{@const profGoal = (J(KEYS.profile(), {}) as {goal?: string}).goal ?? 'general fitness'}
+		{@const equipLabel = EQUIP_CHIPS.find(c => c.val === equipChip)?.label ?? 'All'}
+		<!-- Pre-filled info -->
+		<div class="ab-info-card card">
+			<div class="ab-prefill-row">
+				<span class="ab-prefill-label">Goal</span>
+				<span class="ab-prefill-vals">{profGoal}</span>
+			</div>
+			<div class="ab-prefill-row">
+				<span class="ab-prefill-label">Equipment</span>
+				<span class="ab-prefill-vals">{equipLabel}</span>
+			</div>
+			<p class="muted-note" style="margin:0">Change in Settings → Profile / Equipment.</p>
+		</div>
+
+		<!-- Experience -->
+		<div class="section">
+			<div class="section-label">Experience level</div>
+			<div class="chips">
+				{#each AB_EXP as e}
+					<button class="chip" class:chip-active={abExp === e.val} onclick={() => abExp = e.val}>{e.label}</button>
+				{/each}
+			</div>
+		</div>
+
+		<!-- Days per week -->
+		<div class="section">
+			<div class="section-label">Training days per week</div>
+			<div class="card" style="padding:12px 16px">
+				<div class="stepper-row">
+					<span class="stepper-label">{abDays} days</span>
+					<div class="stepper">
+						<button class="step-btn" onclick={() => abDays = Math.max(2, abDays - 1)} disabled={abDays <= 2}>−</button>
+						<span class="step-val">{abDays}</span>
+						<button class="step-btn" onclick={() => abDays = Math.min(6, abDays + 1)} disabled={abDays >= 6}>+</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Session length -->
+		<div class="section">
+			<div class="section-label">Session length (minutes)</div>
+			<div class="chips">
+				{#each AB_LENGTHS as l}
+					<button class="chip" class:chip-active={abLength === l} onclick={() => abLength = l}>{l} min</button>
+				{/each}
+			</div>
+		</div>
+
+		<!-- Focus areas -->
+		<div class="section">
+			<div class="section-label">Focus areas (optional)</div>
+			<div class="chips">
+				{#each AB_FOCUS as f}
+					<button class="chip" class:chip-active={abFocus.includes(f)} onclick={() => {
+						if (abFocus.includes(f)) abFocus = abFocus.filter(x => x !== f);
+						else abFocus = [...abFocus, f];
+					}}>{f}</button>
+				{/each}
+			</div>
+		</div>
+
+		<!-- Avoid -->
+		<div class="section">
+			<div class="section-label">Avoid / notes (optional)</div>
+			<input type="text" placeholder="e.g. no overhead press, bad knees" bind:value={abAvoid} />
+		</div>
+
+		<button class="btn-primary-settings" onclick={runAiBuilder}>✨ Generate Program</button>
+
+	{:else if abStep === 'preview' && abResult}
+		<div class="ab-program-name">{abResult.name}</div>
+
+		{#each abResult.days as d}
+			<div class="day-preview-card">
+				<div class="day-preview-head">{d.title}</div>
+				{#each d.exercises as ex}
+					{@const isUnmatched = abReview.some(r => r.original === ex.name && !r.confirmedId)}
+					{@const isMismatch  = abReview.some(r => r.original === ex.name && !!r.confirmedId && r.equipMismatch)}
+					<div class="day-preview-ex" class:ex-unmatched={isUnmatched}>
+						<span>{ex.name}</span>
+						{#if isUnmatched}<span class="ex-badge ex-badge-warn">?</span>
+						{:else if isMismatch}<span class="ex-badge ex-badge-mismatch">⚠</span>{/if}
+						<span class="day-preview-sets">{ex.sets}×{ex.reps}</span>
+					</div>
+				{/each}
+			</div>
+		{/each}
+
+		{#if abReview.length > 0}
+			<div class="section">
+				<div class="section-label">Review queue ({abReview.length})</div>
+				{#each abReview as item}
+					<div class="review-card" class:review-mismatch={item.equipMismatch}>
+						<div class="review-orig">{item.original}</div>
+						{#if item.matchedName}
+							<div class="review-match">→ {item.matchedName}{item.equipMismatch ? ' ⚠ equipment mismatch' : ''}</div>
+						{:else}
+							<div class="review-no-match review-warn">No library match found</div>
+						{/if}
+					</div>
+				{/each}
+				<p class="muted-note">These exercises will still be added — edit in the routine builder if needed.</p>
+			</div>
+		{:else}
+			<div class="all-matched">✓ All exercises matched</div>
+		{/if}
+
+		<button class="btn-primary-settings" class:btn-activated={abActivated} onclick={activateBuilderProgram}>
+			{abActivated ? '✓ Activated!' : 'Activate Program →'}
+		</button>
+	{/if}
+
+	<div class="app-version">Vasbyt v2 preview · vasbyt-v2.pages.dev</div>
+</div>
+
+<!-- ── PROGRAM IMPORT ── -->
+{:else if piActive}
+<div class="settings-wrap">
+
+	<div class="rb-header">
+		<button class="btn-back" onclick={() => { piActive = false; piStep = 'input'; piText = ''; piResult = null; piReview = []; }}>← Routines</button>
+		<span class="label-sm">Import Program</span>
+	</div>
+
+	{#if piStep === 'input'}
+		<p class="muted-note">Paste any workout program — AI will extract the structure and match exercises to the library.</p>
+		<textarea class="import-textarea" placeholder="Paste program text here…" bind:value={piText} rows="10"></textarea>
+		<button class="btn-primary-settings" disabled={!piText.trim()} onclick={runImport}>Import →</button>
+
+	{:else if piStep === 'parsing'}
+		<div class="ai-loading-card card">
+			<div class="ai-dots"><span></span><span></span><span></span></div>
+			<div class="ai-loading-note">Parsing program…</div>
+		</div>
+		<div class="ai-loading-card card" style="margin-top:8px">
+			<div class="ai-loading-note">Matching exercises to library…</div>
+		</div>
+
+	{:else if piStep === 'review' && piResult}
+		<div class="import-summary-card card">
+			<div class="import-prog-name">{piResult.name}</div>
+			<div class="import-prog-sub">{piResult.days.length} days · {piResult.days.reduce((a, d) => a + d.exercises.length, 0)} exercises</div>
+		</div>
+
+		{#each piResult.days as d}
+			<div class="day-preview-card">
+				<div class="day-preview-head">{d.title}</div>
+				{#each d.exercises as ex}
+					{@const reviewItem = piReview.find(r => r.original === ex.name)}
+					{@const isUnmatched = !!reviewItem && !reviewItem.confirmedId}
+					{@const isMismatch  = !!reviewItem && !!reviewItem.confirmedId && reviewItem.equipMismatch}
+					<div class="day-preview-ex" class:ex-unmatched={isUnmatched}>
+						<span>{ex.name}</span>
+						{#if isUnmatched}<span class="ex-badge ex-badge-warn">?</span>
+						{:else if isMismatch}<span class="ex-badge ex-badge-mismatch">⚠</span>{/if}
+						<span class="day-preview-sets">{ex.sets}×{ex.reps}</span>
+					</div>
+				{/each}
+			</div>
+		{/each}
+
+		{#if piReview.length > 0}
+			<div class="section">
+				<div class="section-label">Review queue ({piReview.length})</div>
+				{#each piReview as item}
+					<div class="review-card" class:review-mismatch={item.equipMismatch}>
+						<div class="review-orig">{item.original}</div>
+						{#if item.confirmedId}
+							<div class="review-match">{item.matchedName}{item.equipMismatch ? ' ⚠ equipment mismatch' : ' ✓'}</div>
+						{:else}
+							<div class="review-no-match">No match — <button class="btn-pick" onclick={() => { piPickFor = item.original; piSearch = ''; }}>Pick manually</button></div>
+						{/if}
+						{#if piPickFor === item.original}
+							<input class="pi-search" type="search" placeholder="Search library…" bind:value={piSearch} />
+							{#if piPickerLib.length > 0}
+								<div class="pi-picker">
+									{#each piPickerLib as x}
+										<button class="pi-picker-item" onclick={() => piPickResult(item.original, x.id, x.name)}>{x.name}</button>
+									{/each}
+								</div>
+							{:else}
+								<p class="pi-empty">No results — try a different search.</p>
+							{/if}
+						{/if}
+					</div>
+				{/each}
+			</div>
+		{:else}
+			<div class="all-matched">✓ All exercises matched</div>
+		{/if}
+
+		<button class="btn-primary-settings" class:btn-activated={piActivated} onclick={activateImportProgram}>
+			{piActivated ? '✓ Activated!' : 'Activate Program →'}
+		</button>
+	{/if}
+
+	<div class="app-version">Vasbyt v2 preview · vasbyt-v2.pages.dev</div>
+</div>
+
 <!-- ── SETTINGS ── -->
 {:else}
 <div class="settings-wrap">
@@ -600,7 +1032,11 @@
 				</div>
 			</div>
 		{/each}
-		<button class="btn-new-routine" onclick={() => rbOpen()}>+ New routine</button>
+		<div class="routine-btns">
+			<button class="btn-new-routine" onclick={() => rbOpen()}>+ New routine</button>
+			<button class="btn-new-routine btn-ai-build" onclick={() => { abActive = true; if (libState === 'idle') loadLib(); }}>✨ AI Builder</button>
+			<button class="btn-new-routine" onclick={() => { piActive = true; if (libState === 'idle') loadLib(); }}>↑ Import</button>
+		</div>
 	</div>
 
 	<!-- Appearance -->
@@ -994,4 +1430,123 @@
 	transition: background .2s;
 }
 .btn-save-rb.btn-saved { background: var(--green); }
+
+/* ── AI Builder / Import ────────────────────────────────── */
+.btn-primary-settings {
+	width: 100%; min-height: var(--touch-lg); border-radius: 14px;
+	background: linear-gradient(135deg, var(--accent), var(--accent-light));
+	color: var(--accent-text); font-weight: 800; font-size: 15px;
+	margin-top: 4px; transition: background .2s;
+}
+.btn-primary-settings:disabled { opacity: .4; cursor: not-allowed; }
+.btn-activated { background: var(--green) !important; }
+
+.ai-loading-card {
+	display: flex; flex-direction: column; align-items: center;
+	justify-content: center; gap: 14px; padding: 32px 16px; text-align: center;
+}
+.ai-dots { display: flex; gap: 8px; align-items: center; justify-content: center; }
+.ai-dots span {
+	width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+	animation: ai-bounce 1.2s ease-in-out infinite;
+}
+.ai-dots span:nth-child(2) { animation-delay: .2s; }
+.ai-dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes ai-bounce {
+	0%, 80%, 100% { transform: scale(.6); opacity: .4; }
+	40%            { transform: scale(1);  opacity: 1;  }
+}
+.ai-loading-note { font-size: 13px; color: var(--muted); font-weight: 700; }
+
+.ab-info-card { gap: 8px; }
+.ab-prefill-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ab-prefill-label { font-size: 12px; font-weight: 700; color: var(--muted); }
+.ab-prefill-vals  { font-size: 13px; font-weight: 800; color: var(--accent); text-transform: capitalize; }
+
+.ab-program-name {
+	font-size: 18px; font-weight: 900; text-align: center;
+	padding: 10px 0 4px; color: var(--text);
+}
+
+.day-preview-card {
+	background: var(--card); border: 1px solid var(--line);
+	border-radius: 14px; padding: 12px 14px;
+	display: flex; flex-direction: column; gap: 6px;
+}
+.day-preview-head {
+	font-size: 12px; font-weight: 800; text-transform: uppercase;
+	letter-spacing: .06em; color: var(--accent); margin-bottom: 4px;
+}
+.day-preview-ex {
+	display: flex; align-items: center; gap: 6px;
+	font-size: 13px; font-weight: 700; padding: 4px 0;
+	border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.day-preview-ex:last-child { border-bottom: none; }
+.day-preview-ex > span:first-child { flex: 1; min-width: 0; }
+.ex-unmatched > span:first-child { color: var(--muted); }
+.ex-badge {
+	font-size: 11px; font-weight: 900; padding: 1px 6px; border-radius: 999px;
+	flex-shrink: 0; line-height: 1.4;
+}
+.ex-badge-warn     { background: rgba(233,174,83,.2); color: #e9ae53; }
+.ex-badge-mismatch { background: rgba(233,83,83,.2);  color: var(--red); }
+.day-preview-sets  { font-size: 11px; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
+
+.review-card {
+	background: var(--card); border: 1px solid var(--line);
+	border-radius: 12px; padding: 10px 14px;
+	display: flex; flex-direction: column; gap: 4px;
+}
+.review-card.review-mismatch { border-color: rgba(233,83,83,.35); }
+.review-orig     { font-size: 13px; font-weight: 800; }
+.review-match    { font-size: 12px; color: var(--green); font-weight: 700; }
+.review-no-match { font-size: 12px; color: var(--muted); font-weight: 700; }
+.review-warn     { color: #e9ae53; }
+.all-matched {
+	text-align: center; font-size: 13px; font-weight: 800;
+	color: var(--green); padding: 12px 0;
+}
+
+.import-textarea {
+	width: 100%; border-radius: 14px; padding: 14px;
+	font-size: 13px; font-weight: 600; line-height: 1.5;
+	resize: vertical; min-height: 160px;
+	background: var(--card); border: 1px solid var(--line); color: var(--text);
+	font-family: inherit; box-sizing: border-box;
+}
+.import-summary-card { gap: 4px; }
+.import-prog-name { font-size: 16px; font-weight: 900; }
+.import-prog-sub  { font-size: 12px; color: var(--muted); font-weight: 700; }
+
+.pi-search {
+	border-radius: 10px; font-size: 13px; padding: 8px 12px;
+	min-height: 40px; margin-top: 6px; width: 100%; box-sizing: border-box;
+}
+.pi-picker {
+	display: flex; flex-direction: column; gap: 2px;
+	max-height: 220px; overflow-y: auto; margin-top: 4px;
+}
+.pi-picker-item {
+	text-align: left; padding: 8px 12px; border-radius: 8px;
+	font-size: 13px; font-weight: 700;
+	background: rgba(255,255,255,.05); border: 1px solid transparent;
+	color: var(--text); min-height: unset;
+	transition: background .1s;
+}
+.pi-picker-item:hover { background: rgba(255,255,255,.1); }
+.pi-empty { font-size: 12px; color: var(--muted); padding: 8px 0; }
+.btn-pick {
+	background: none; color: var(--accent); font-weight: 800; font-size: 12px;
+	text-decoration: underline; min-height: unset; padding: 0;
+	border-radius: 0; display: inline;
+}
+
+/* My routines multi-button row */
+.routine-btns { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.btn-ai-build {
+	background: rgba(14,154,184,.12);
+	border-color: rgba(14,154,184,.3);
+	color: var(--accent);
+}
 </style>
