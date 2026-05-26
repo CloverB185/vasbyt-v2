@@ -522,7 +522,8 @@
 				bind:value={quickWeight}
 				onkeydown={(e) => { if (e.key === 'Enter') logWeight(); }}
 			/>
-			<button class="btn-log-wt" class:btn-wt-saved={weightSaved} onclick={logWeight}>
+			<button class="btn-log-wt" class:btn-wt-saved={weightSaved}
+					disabled={!quickWeight || weightSaved} onclick={logWeight}>
 				{weightSaved ? '✓ Logged' : 'Log weight'}
 			</button>
 		</div>
@@ -884,6 +885,7 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2
 	color: var(--accent-text); font-weight: 800; font-size: 14px;
 	transition: background .2s;
 }
+.btn-log-wt:disabled { opacity: .4; cursor: not-allowed; }
 .btn-wt-saved { background: var(--green) !important; }
 .wt-target-note  { font-size: 12px; color: var(--muted); font-weight: 700; }
 .wt-target-label {

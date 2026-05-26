@@ -966,6 +966,7 @@ ${libSnippet}`;
 				<label class="field-label" for="profile-dob">Date of birth</label>
 				<input id="profile-dob" type="date" bind:value={dobInput} />
 			</div>
+			<p class="profile-hint">Optional fields — leave blank to keep any existing value.</p>
 			<button class="btn-save" class:saved={nameSaved} onclick={saveProfileDetails}>
 				{nameSaved ? '✓ Saved' : 'Save profile'}
 			</button>
@@ -1200,6 +1201,7 @@ ${libSnippet}`;
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field-label { font-size: 12px; font-weight: 700; color: var(--muted); }
 .profile-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.profile-hint  { font-size: 11px; color: var(--muted); opacity: .7; line-height: 1.4; }
 .btn-save {
 	background: var(--accent); color: var(--accent-text);
 	font-weight: 800; font-size: 14px;
