@@ -717,6 +717,9 @@ ${libSnippet}`;
 	{:else if abStep === 'form'}
 		{@const profGoal = (J(KEYS.profile(), {}) as {goal?: string}).goal ?? 'general fitness'}
 		{@const equipLabel = EQUIP_CHIPS.find(c => c.val === equipChip)?.label ?? 'All'}
+		{#if libState === 'failed'}
+			<div class="lib-fail-warn">⚠ Exercise library failed to load — generated exercises won't match your library. Reload the page to retry.</div>
+		{/if}
 		<!-- Pre-filled info -->
 		<div class="ab-info-card card">
 			<div class="ab-prefill-row">
@@ -843,6 +846,9 @@ ${libSnippet}`;
 
 	{#if piStep === 'input'}
 		<p class="muted-note">Paste any workout program — AI will extract the structure and match exercises to the library.</p>
+		{#if libState === 'failed'}
+			<div class="lib-fail-warn">⚠ Exercise library failed to load — exercise matching won't work. Reload the page to retry.</div>
+		{/if}
 		<textarea class="import-textarea" placeholder="Paste program text here…" bind:value={piText} rows="10"></textarea>
 		<button class="btn-primary-settings" disabled={!piText.trim()} onclick={runImport}>Import →</button>
 
@@ -887,7 +893,8 @@ ${libSnippet}`;
 						{#if item.confirmedId}
 							<div class="review-match">{item.matchedName}{item.equipMismatch ? ' ⚠ equipment mismatch' : ' ✓'}</div>
 						{:else}
-							<div class="review-no-match">No match — <button class="btn-pick" onclick={() => { piPickFor = item.original; piSearch = ''; }}>Pick manually</button></div>
+							<div class="review-no-match">No library match found</div>
+							<button class="btn-pick" onclick={() => { piPickFor = item.original; piSearch = ''; }}>Pick manually →</button>
 						{/if}
 						{#if piPickFor === item.original}
 							<input class="pi-search" type="search" placeholder="Search library…" bind:value={piSearch} />
@@ -1537,9 +1544,16 @@ ${libSnippet}`;
 .pi-picker-item:hover { background: rgba(255,255,255,.1); }
 .pi-empty { font-size: 12px; color: var(--muted); padding: 8px 0; }
 .btn-pick {
-	background: none; color: var(--accent); font-weight: 800; font-size: 12px;
-	text-decoration: underline; min-height: unset; padding: 0;
-	border-radius: 0; display: inline;
+	background: rgba(14,154,184,.1); color: var(--accent); font-weight: 800; font-size: 13px;
+	min-height: 44px; width: 100%; border-radius: 10px; padding: 0 14px;
+	border: 1px dashed rgba(14,154,184,.35); margin-top: 4px;
+	display: flex; align-items: center; justify-content: center;
+}
+
+.lib-fail-warn {
+	background: rgba(233,83,83,.1); border: 1px solid rgba(233,83,83,.3);
+	border-radius: 12px; padding: 12px 14px;
+	font-size: 13px; font-weight: 700; color: var(--red); line-height: 1.5;
 }
 
 /* My routines multi-button row */
