@@ -35,6 +35,11 @@
 	let mSaved        = $state(false);
 	let showMForm     = $state(false);
 
+	// ── Quick weight log ─────────────────────────────────────
+	let quickWeight  = $state('');
+	let weightSaved  = $state(false);
+	let targetWeight = $state<number | null>(null);
+
 	// ── Weight chart ──────────────────────────────────────────
 	interface WeightPoint { date: string; weight: number; day: string; month: string; height: number; }
 	let weightPoints  = $state<WeightPoint[]>([]);
@@ -63,6 +68,8 @@
 		autoTriggerInsight();
 		buildWeightChart();
 		loadMeasurements();
+		const prof = J<{ targetWeight?: number }>(KEYS.profile(), {});
+		targetWeight = prof.targetWeight ?? null;
 	});
 
 	// ── Check-in ──────────────────────────────────────────────
@@ -320,6 +327,18 @@
 		});
 	}
 
+	function logWeight() {
+		const kg = parseFloat(quickWeight);
+		if (!kg || kg < 20 || kg > 300) return;
+		const existing = getTodayCheckin();
+		saveCheckin({ ...(existing ?? {}), weight: kg });
+		quickWeight = '';
+		weightSaved = true;
+		refreshCheckin();
+		buildWeightChart();
+		setTimeout(() => (weightSaved = false), 2000);
+	}
+
 	// ── Measurements ─────────────────────────────────────────
 
 	function loadMeasurements() {
@@ -492,9 +511,27 @@
 		</div>
 	{/if}
 
-	<!-- ── Weight trend chart ── -->
+	<!-- ── Weight ── -->
+	<div class="section-label">Weight</div>
+	<div class="card wt-quick-card">
+		<div class="wt-entry-row">
+			<input
+				class="wt-input"
+				type="number" step="0.1" min="20" max="300"
+				placeholder="kg"
+				bind:value={quickWeight}
+				onkeydown={(e) => { if (e.key === 'Enter') logWeight(); }}
+			/>
+			<button class="btn-log-wt" class:btn-wt-saved={weightSaved} onclick={logWeight}>
+				{weightSaved ? '✓ Logged' : 'Log weight'}
+			</button>
+		</div>
+		{#if targetWeight}
+			<div class="wt-target-note">Target: {targetWeight} kg</div>
+		{/if}
+	</div>
+
 	{#if weightPoints.length >= 2}
-		<div class="section-label">Weight trend</div>
 		<div class="card wt-card">
 			<div class="wt-bars">
 				{#each weightPoints as pt}
@@ -506,6 +543,9 @@
 					</div>
 				{/each}
 			</div>
+			{#if targetWeight}
+				<div class="wt-target-label">Target: {targetWeight} kg</div>
+			{/if}
 		</div>
 	{/if}
 
@@ -829,6 +869,27 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2
 .empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 32px 0; text-align: center; }
 .empty-icon { font-size: 36px; opacity: .3; }
 .empty p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+/* ── Quick weight log ── */
+.wt-quick-card { gap: 8px; padding: 12px 16px; }
+.wt-entry-row { display: flex; gap: 10px; align-items: center; }
+.wt-input {
+	flex: 0 0 90px; min-height: 44px; border-radius: 10px;
+	font-size: 18px; font-weight: 900; text-align: center;
+	padding: 0 10px; margin: 0;
+}
+.btn-log-wt {
+	flex: 1; min-height: 44px; border-radius: 10px;
+	background: linear-gradient(135deg, var(--accent), var(--accent-light));
+	color: var(--accent-text); font-weight: 800; font-size: 14px;
+	transition: background .2s;
+}
+.btn-wt-saved { background: var(--green) !important; }
+.wt-target-note  { font-size: 12px; color: var(--muted); font-weight: 700; }
+.wt-target-label {
+	font-size: 11px; color: var(--muted); font-weight: 700;
+	text-align: center; padding-top: 6px; letter-spacing: .02em;
+}
 
 /* ── Weight trend chart ── */
 .wt-card { }

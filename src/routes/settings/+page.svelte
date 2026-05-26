@@ -25,6 +25,11 @@
 	let presetApplied = $state('');
 	let customRoutines = $state<SavedRoutine[]>([]);
 
+	// ── Profile extended fields ───────────────────────────────
+	let heightInput   = $state('');
+	let targetWtInput = $state('');
+	let dobInput      = $state('');
+
 	// ── Equipment ─────────────────────────────────────────────
 	let equipChip = $state('');
 	const EQUIP_CHIPS = [
@@ -68,6 +73,12 @@
 		presets        = getPresetRoutines();
 		customRoutines = getSavedRoutines();
 
+		// Extended profile fields
+		const prof = J<Record<string, unknown>>(KEYS.profile(), {});
+		heightInput   = prof.height       ? String(prof.height)       : '';
+		targetWtInput = prof.targetWeight ? String(prof.targetWeight) : '';
+		dobInput      = (prof.dob as string) ?? '';
+
 		// Read equipment chip — V1 stores an array of items; V2 stores a string
 		const rawEquip = J<unknown>(KEYS.equip(), '');
 		if (typeof rawEquip === 'string') equipChip = rawEquip;
@@ -81,11 +92,12 @@
 	}
 
 	// ── Profile / settings helpers ────────────────────────────
-	function saveProfileName() {
-		const trimmed = profileInput.trim();
-		if (!trimmed) return;
+	function saveProfileDetails() {
 		const prof = J<Record<string, unknown>>(KEYS.profile(), {});
-		prof.name = trimmed;
+		if (profileInput.trim())  prof.name         = profileInput.trim();
+		if (heightInput)          prof.height        = Number(heightInput);
+		if (targetWtInput)        prof.targetWeight  = Number(targetWtInput);
+		if (dobInput)             prof.dob           = dobInput;
 		S(KEYS.profile(), prof);
 		nameSaved = true;
 		setTimeout(() => (nameSaved = false), 1800);
@@ -940,8 +952,22 @@ ${libSnippet}`;
 				<label class="field-label" for="profile-name">Your name</label>
 				<input id="profile-name" type="text" bind:value={profileInput} placeholder="Enter your name" />
 			</div>
-			<button class="btn-save" class:saved={nameSaved} onclick={saveProfileName}>
-				{nameSaved ? '✓ Saved' : 'Save name'}
+			<div class="profile-row-2">
+				<div class="field">
+					<label class="field-label" for="profile-height">Height (cm)</label>
+					<input id="profile-height" type="number" min="100" max="250" placeholder="165" bind:value={heightInput} />
+				</div>
+				<div class="field">
+					<label class="field-label" for="profile-target">Target weight (kg)</label>
+					<input id="profile-target" type="number" min="30" max="200" step="0.1" placeholder="60.0" bind:value={targetWtInput} />
+				</div>
+			</div>
+			<div class="field">
+				<label class="field-label" for="profile-dob">Date of birth</label>
+				<input id="profile-dob" type="date" bind:value={dobInput} />
+			</div>
+			<button class="btn-save" class:saved={nameSaved} onclick={saveProfileDetails}>
+				{nameSaved ? '✓ Saved' : 'Save profile'}
 			</button>
 		</div>
 	</div>
@@ -1173,6 +1199,7 @@ ${libSnippet}`;
 /* Profile */
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field-label { font-size: 12px; font-weight: 700; color: var(--muted); }
+.profile-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .btn-save {
 	background: var(--accent); color: var(--accent-text);
 	font-weight: 800; font-size: 14px;
