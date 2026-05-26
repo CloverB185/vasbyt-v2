@@ -277,3 +277,13 @@
 **TestX patches (same session):**
 - G+H: "Log weight" button gets `disabled={!quickWeight || weightSaved}` + `.btn-log-wt:disabled { opacity:.4 }`. Rule: any log/submit button must be disabled when its required input is empty — silent no-op on click is a G fail.
 - D: Profile form "clear" gap resolved with a hint line ("leave blank to keep existing value") rather than a code change. Rule: when "blank = no-op" is the right behaviour, document it inline rather than adding complex clear logic.
+
+---
+
+## [2026-05-26] — Phase 23: Energy & Sleep trend chart on Stats tab
+
+**Symptom:** Stats tab had no visibility into energy or sleep quality trends over time — check-in data was collected on the Body tab but never visualised on Stats.
+**Root cause:** Phase 23 not yet implemented.
+**Fix:** Added dual-bar chart to `stats/+page.svelte`. `buildEnergyChart()` calls `getRecentCheckins(90)` (imported from program.ts), filters for entries with `energy != null || sleep != null`, reverses to oldest-first, takes last 14 data points. Two bars per date column: energy (teal/accent) and sleep (purple #8b7dea). Bar heights scale linearly: `Math.max(4, Math.round((value / 10) * 48))` (min 4px, max 48px). Empty bar stub (4px, dim) when one field is absent but the other is present. Data-gated: `hasEnergyData = false` if < 2 check-ins with energy/sleep. Placed after the 8-week training frequency chart, before exercise history. Legend uses color dot + label chips.
+**Files changed:** `src/routes/stats/+page.svelte`
+**Cross-project:** YES — dual-bar chart pattern (two bars per date, paired in a flex row, heights scaled to known range) works for any data that has two parallel 1-N metrics over time.
