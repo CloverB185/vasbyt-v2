@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { J, KEYS, today } from '$lib/data/storage';
-	import { getWeek, getDay, getWeekBounds } from '$lib/data/program';
+	import { getWeek, getDay, getWeekBounds, getRecentCheckins, type CheckIn } from '$lib/data/program';
 
 	interface LogEntry { date: string; exerciseId: string; exerciseName: string; weight: string; reps: string; }
 	interface Finish   { date: string; }
@@ -25,6 +25,11 @@
 	let weekPRs      = $state<PR[]>([]);
 	let motivText    = $state('');
 	let daysLeft     = $state(0);
+
+	// ── Energy / Sleep chart ──────────────────────────────────
+	interface EnergyBar { day: string; month: string; energy: number | null; sleep: number | null; eH: number; sH: number; }
+	let energyBars    = $state<EnergyBar[]>([]);
+	let hasEnergyData = $state(false);
 
 	// ── Extended state ────────────────────────────────────────
 	let totalSets    = $state(0);
@@ -52,6 +57,7 @@
 		buildStreak(allFinishes);
 		buildFreqChart(allFinishes);
 		buildExHistory(allLogs);
+		buildEnergyChart();
 
 		aiThisWeek = extractInsight(J<unknown>(KEYS.currWeekInsight(), null));
 		aiLastWeek = extractInsight(J<unknown>(KEYS.weekSummary(), null));
@@ -218,6 +224,32 @@
 			.sort((a, b) => b.sessions - a.sessions);
 	}
 
+	function buildEnergyChart() {
+		// newest-first from getRecentCheckins, then reverse for left-to-right display
+		const all = getRecentCheckins(90)
+			.filter((c: CheckIn) => c.energy != null || c.sleep != null)
+			.reverse(); // oldest → newest
+
+		if (all.length < 2) { hasEnergyData = false; return; }
+		hasEnergyData = true;
+
+		const last14 = all.slice(-14);
+		const BAR_MAX = 48;
+		energyBars = last14.map((c: CheckIn) => {
+			const d = new Date(c.date + 'T00:00:00');
+			const e = c.energy ?? null;
+			const s = c.sleep  ?? null;
+			return {
+				day:    String(d.getDate()),
+				month:  d.toLocaleString('en', { month: 'short' }),
+				energy: e,
+				sleep:  s,
+				eH: e != null ? Math.max(4, Math.round((e / 10) * BAR_MAX)) : 0,
+				sH: s != null ? Math.max(4, Math.round((s / 10) * BAR_MAX)) : 0
+			};
+		});
+	}
+
 	function toggleEx(id: string) {
 		exHistory = exHistory.map(e => e.id === id ? { ...e, open: !e.open } : e);
 	}
@@ -352,6 +384,40 @@
 						</div>
 						<span class="freq-day">{bar.day}</span>
 						<span class="freq-month">{bar.month}</span>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
+
+	<!-- ── Energy & Sleep Trend ──────────────────────────── -->
+	{#if hasEnergyData}
+		<div class="section-label">Energy &amp; sleep</div>
+		<div class="card energy-card">
+			<div class="energy-head">
+				<span class="energy-title">Energy &amp; Sleep Trend</span>
+				<div class="energy-legend">
+					<span class="legend-dot legend-e"></span><span class="legend-lbl">Energy</span>
+					<span class="legend-dot legend-s"></span><span class="legend-lbl">Sleep</span>
+				</div>
+			</div>
+			<div class="energy-bars">
+				{#each energyBars as bar}
+					<div class="energy-col">
+						<div class="energy-pair">
+							{#if bar.energy != null}
+								<div class="e-bar e-bar-energy" style="height: {bar.eH}px"></div>
+							{:else}
+								<div class="e-bar e-bar-empty"></div>
+							{/if}
+							{#if bar.sleep != null}
+								<div class="e-bar e-bar-sleep" style="height: {bar.sH}px"></div>
+							{:else}
+								<div class="e-bar e-bar-empty"></div>
+							{/if}
+						</div>
+						<span class="e-day">{bar.day}</span>
+						<span class="e-month">{bar.month}</span>
 					</div>
 				{/each}
 			</div>
@@ -615,6 +681,46 @@
 }
 .freq-day { font-size: 9px; color: rgba(255,255,255,.45); margin-top: 4px; line-height: 1.2; }
 .freq-month { font-size: 8px; color: rgba(255,255,255,.25); line-height: 1.2; }
+
+/* ── Energy & Sleep Chart ── */
+.energy-card { }
+.energy-head {
+	display: flex; align-items: center; justify-content: space-between;
+	margin-bottom: 14px;
+}
+.energy-title { font-size: 14px; font-weight: 700; }
+.energy-legend { display: flex; align-items: center; gap: 6px; }
+.legend-dot {
+	width: 8px; height: 8px; border-radius: 50%;
+	display: inline-block; flex-shrink: 0;
+}
+.legend-e { background: var(--accent); }
+.legend-s { background: #8b7dea; }
+.legend-lbl { font-size: 11px; color: var(--muted); margin-right: 4px; }
+.energy-bars {
+	display: flex;
+	align-items: flex-end;
+	gap: 3px;
+	height: 68px;
+}
+.energy-col {
+	flex: 1;
+	display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+	height: 100%;
+}
+.energy-pair {
+	display: flex; gap: 1px; align-items: flex-end;
+}
+.e-bar {
+	width: 7px;
+	border-radius: 2px 2px 0 0;
+	min-height: 4px;
+}
+.e-bar-energy { background: var(--accent); opacity: .85; }
+.e-bar-sleep  { background: #8b7dea; opacity: .85; }
+.e-bar-empty  { background: rgba(255,255,255,.08); height: 4px; }
+.e-day   { font-size: 9px; color: rgba(255,255,255,.45); margin-top: 4px; line-height: 1.2; }
+.e-month { font-size: 8px; color: rgba(255,255,255,.25); line-height: 1.2; }
 
 /* ── Exercise History ── */
 .ex-card { padding: 0; overflow: hidden; }
