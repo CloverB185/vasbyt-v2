@@ -29,6 +29,8 @@
   --chip-bg:      rgba(10, 122, 154, .14);
   --chip-border:  rgba(14, 154, 184, .30);
   --chip-text:    #b0e4f0;
+  /* Chart colours */
+  --sleep-color:  #8b7dea;
   /* Touch targets */
   --touch:        44px;
   --touch-lg:     56px;
@@ -51,6 +53,7 @@
   --chip-bg:      rgba(232, 114, 138, .18);
   --chip-border:  rgba(232, 114, 138, .42);
   --chip-text:    #ffe0e8;
+  --sleep-color:  #7b6ce0;
 }
 
 /* ── Reset ────────────────────────────────────────────────── */

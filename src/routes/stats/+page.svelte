@@ -391,8 +391,8 @@
 	{/if}
 
 	<!-- ── Energy & Sleep Trend ──────────────────────────── -->
+	<div class="section-label">Energy &amp; sleep</div>
 	{#if hasEnergyData}
-		<div class="section-label">Energy &amp; sleep</div>
 		<div class="card energy-card">
 			<div class="energy-head">
 				<span class="energy-title">Energy &amp; Sleep Trend</span>
@@ -421,6 +421,11 @@
 					</div>
 				{/each}
 			</div>
+		</div>
+	{:else}
+		<div class="card energy-empty-card">
+			<p class="energy-empty-text">Log energy &amp; sleep in your daily check-in to see your trend here.</p>
+			<a href="/body" class="btn-energy-cta">Go to My Body →</a>
 		</div>
 	{/if}
 
@@ -695,7 +700,7 @@
 	display: inline-block; flex-shrink: 0;
 }
 .legend-e { background: var(--accent); }
-.legend-s { background: #8b7dea; }
+.legend-s { background: var(--sleep-color); }
 .legend-lbl { font-size: 11px; color: var(--muted); margin-right: 4px; }
 .energy-bars {
 	display: flex;
@@ -717,10 +722,24 @@
 	min-height: 4px;
 }
 .e-bar-energy { background: var(--accent); opacity: .85; }
-.e-bar-sleep  { background: #8b7dea; opacity: .85; }
+.e-bar-sleep  { background: var(--sleep-color); opacity: .85; }
 .e-bar-empty  { background: rgba(255,255,255,.08); height: 4px; }
 .e-day   { font-size: 9px; color: rgba(255,255,255,.45); margin-top: 4px; line-height: 1.2; }
 .e-month { font-size: 8px; color: rgba(255,255,255,.25); line-height: 1.2; }
+.energy-empty-card { display: flex; flex-direction: column; gap: 12px; }
+.energy-empty-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.btn-energy-cta {
+	display: inline-block;
+	min-height: 44px; line-height: 44px;
+	padding: 0 16px;
+	border-radius: 10px;
+	background: var(--chip-bg);
+	border: 1px solid var(--chip-border);
+	color: var(--accent);
+	font-size: 13px; font-weight: 700;
+	text-decoration: none;
+	text-align: center;
+}
 
 /* ── Exercise History ── */
 .ex-card { padding: 0; overflow: hidden; }
