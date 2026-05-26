@@ -80,6 +80,7 @@ export const KEYS = {
 	weekSummary:     () => pKey('vasbytWeekSummary.v1',       'weekSummary'),
 	currWeekInsight: () => pKey('vasbytCurrWeekInsight.v1',   'currWeekInsight'),
 	measurements:    () => pKey('vasbytMeasurements.v1',      'measurements'),
+	resume:          () => pKey('vasbytResume.v1',            'resume'),
 };
 
 // Init profiles on first load (browser only)

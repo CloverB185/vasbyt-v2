@@ -33,7 +33,7 @@
 		type SessionBriefingEntry,
 		type CheckIn
 	} from '$lib/data/program';
-	import { today } from '$lib/data/storage';
+	import { J, KEYS, today } from '$lib/data/storage';
 
 	// ── State ──────────────────────────────────────────────────
 	let profileName  = $state('Me');
@@ -52,6 +52,7 @@
 	let editing      = $state(false);       // week/day Change panel
 	let momentum     = $state(0);           // workouts this week
 	let todayCheckin = $state<CheckIn | null>(null);
+	let hasResume    = $state(false);       // in-progress gym session
 
 	// ── Periodization ─────────────────────────────────────────
 	let phaseTransition  = $state<PhaseTransitionInfo | null>(null);
@@ -85,6 +86,8 @@
 		ready        = getReady();
 		momentum     = getWeekMomentum();
 		todayCheckin = getTodayCheckin();
+		const resume = J<{ date: string } | null>(KEYS.resume(), null);
+		hasResume    = !!(resume && resume.date === today());
 	}
 
 	// ── Week / day change handlers ────────────────────────────
@@ -395,9 +398,13 @@
 		</div>
 	{/if}
 
-	<!-- Start workout CTA -->
+	<!-- Start / Resume workout CTA -->
 	{#if routineDay.exercises.length > 0}
-		<a href="/gym" class="btn-primary btn-link">Start Gym Mode →</a>
+		{#if hasResume}
+			<a href="/gym" class="btn-primary btn-link btn-resume">Resume Workout →</a>
+		{:else}
+			<a href="/gym" class="btn-primary btn-link">Start Gym Mode →</a>
+		{/if}
 	{:else}
 		<button class="btn-primary" disabled>Rest day — no workout today</button>
 	{/if}
@@ -711,5 +718,9 @@
 	.btn-link {
 		display: flex; align-items: center; justify-content: center;
 		text-decoration: none;
+	}
+	.btn-resume {
+		background: linear-gradient(135deg, #2e7d32, #43a047);
+		box-shadow: 0 0 18px rgba(67, 160, 71, 0.35);
 	}
 </style>

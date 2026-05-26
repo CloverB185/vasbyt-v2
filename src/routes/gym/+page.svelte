@@ -13,6 +13,7 @@
 		type Exercise,
 		type LogEntry
 	} from '$lib/data/program';
+	import { J, S, KEYS, today } from '$lib/data/storage';
 
 	// ── Data ─────────────────────────────────────────────────────
 	let exercises    = $state<Exercise[]>([]);
@@ -72,12 +73,28 @@
 	let restFmt   = $derived(`${Math.floor(restSecs / 60)}:${String(restSecs % 60).padStart(2, '0')}`);
 	let muscles   = $derived((ex?.muscles ?? []).join(' · '));
 
+	// ── Resume helpers ────────────────────────────────────────────
+	function saveResume() {
+		S(KEYS.resume(), { date: today(), exIdx });
+	}
+	function clearResume() {
+		S(KEYS.resume(), null);
+	}
+
 	// ── Load ──────────────────────────────────────────────────────
 	onMount(() => {
 		const rd     = getRoutineDay(getDay());
 		hasRoutine   = rd.exercises.length > 0;
 		exercises    = rd.exercises;
 		routineTitle = rd.title;
+
+		// Restore mid-session state if resuming
+		const resume = J<{ date: string; exIdx: number } | null>(KEYS.resume(), null);
+		if (resume && resume.date === today() && exercises.length > 0) {
+			started = true;
+			exIdx   = Math.min(resume.exIdx, exercises.length - 1);
+		}
+
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 		voiceSupported = !!SR;
@@ -147,6 +164,7 @@
 		if (!ex || !reps) return;
 		saveLog(ex.id, ex.name, weight, reps);
 		refreshSets();
+		saveResume();
 		if (setsToday.length < target) startTimer(ex.rest || 60);
 	}
 
@@ -159,17 +177,18 @@
 
 	function nextEx() {
 		stopTimer();
-		if (!isLast) exIdx++;
+		if (!isLast) { exIdx++; saveResume(); }
 		else finishAll();
 	}
 
 	function prevEx() {
 		stopTimer();
-		if (exIdx > 0) exIdx--;
+		if (exIdx > 0) { exIdx--; saveResume(); }
 	}
 
 	function finishAll() {
 		stopVoice();
+		clearResume();
 		finishWorkout();
 		refreshSets();
 		woDone = true;
