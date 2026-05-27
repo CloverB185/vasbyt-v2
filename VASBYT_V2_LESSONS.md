@@ -314,6 +314,16 @@
 
 ---
 
+## [2026-05-27] — Onboarding equipment: categorized multi-select checklist
+
+**Symptom:** V2 onboarding step 3 was a single-select chip grid (8 broad categories). Clover flagged that V1 had a more granular, categorized list. Users couldn't indicate specific equipment (Pull-up bar, Treadmill, etc.) — important for accurate exercise filtering.
+**Root cause:** During Phase 19 port, equipment onboarding was simplified to chips without explicit approval. Should have been flagged as a deviation from intended UX.
+**Fix:** Replaced chip grid with 14-item multi-select categorized checklist (FREE WEIGHTS / CABLES & MACHINES / BODYWEIGHT & ACCESSORIES / CARDIO). `toggleItem()` manages `string[]` state. New `KEYS.equipItems()` key stores the array. `deriveChip()` maps item selection to a single equipment chip for the Settings picker (single category → that chip, mixed/none → '' = all). "Nothing selected" and item count hints update live.
+**Files changed:** `src/routes/onboarding/+page.svelte`, `src/lib/data/storage.ts`
+**Cross-project:** YES — rule: onboarding UX simplifications must be explicitly flagged and approved, not silently reduced. Pattern: multi-select checklist with `string[]` state, `toggleItem()` toggle helper, and a `deriveChip()` mapping function is reusable for any onboarding that needs to translate named items to filter categories.
+
+---
+
 ## [2026-05-27] — Phase 24: Check-in pills on Log tab
 
 **Symptom:** Log tab showed workout sets per day but no visibility into how the user felt on training days. Check-in energy/sleep data existed in localStorage but was only visible on the Body tab.
