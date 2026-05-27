@@ -401,3 +401,13 @@
 **Fix:** Added `adjWeight(delta)` and `adjReps(delta)` functions. `adjWeight` uses `Math.round(v * 2) / 2` to keep values at 0.5kg precision when stepping by ±2.5kg. `adjReps` uses `Math.max(1, ...)` as floor. Wrapped each input in a `.stepper-row` flex container with `−` / `+` buttons on either side. Input changed from `width: 100%` to `flex: 1; min-width: 0` to fill remaining space without overflowing. Step buttons: 44px wide, `var(--touch-lg)` min-height to match input height.
 **Files changed:** `src/routes/gym/+page.svelte`
 **Cross-project:** YES — pattern for stepper ±buttons around a number input: wrap in flex row, `flex: 1; min-width: 0` on input, rounding trick for float precision (`Math.round(v * 2) / 2` for 0.5 step). Weight decrement floored at 0, reps floored at 1.
+
+---
+
+## [2026-05-27] — Coaching cues in gym (Gap #3)
+
+**Symptom:** Gym page showed no exercise technique cues. V1 had expandable coaching cue panels for each exercise.
+**Root cause:** V2's `Exercise` interface had no `cues` field; `_pe()` did not propagate metadata cues from `EX_META` to returned Exercise objects.
+**Fix:** (1) Added `cues?: string[]` to `Exercise` interface and to `EX_META` type signature. (2) Added 2-3 cues per exercise to all 25+ EX_META entries (12-week program exercises + 6 compound preset entries). (3) Updated `_pe()` to spread `cues` into the returned object when present. (4) In gym page: `cuesOpen = $state(false)`; reset in `nextEx()` and `prevEx()`; Cues toggle button added to `.target-actions` (only renders when `ex.cues?.length`); expandable `.cues-card` panel with heading, bullet list (`▸` accent marker), and slide-in animation. Panel uses accent border and tinted background to distinguish from note card.
+**Files changed:** `src/lib/data/program.ts`, `src/routes/gym/+page.svelte`
+**Cross-project:** YES — pattern: data-driven expandable detail panels (interface field → toggle state → `{#if open && data?.length}` block) is reusable for any metadata you want to progressively reveal per item. Reset the open flag in all navigation functions that change the current item.

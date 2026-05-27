@@ -214,9 +214,35 @@
 		reps = String(v);
 	}
 
+	// ── Same as last set ──────────────────────────────────────────
+	function sameAsLast() {
+		const last = setsToday.at(-1);
+		if (last) { weight = last.weight; reps = last.reps; }
+	}
+
 	// ── Extra set ─────────────────────────────────────────────────
 	function addExtraSet() {
 		targetOverride = (targetOverride ?? (ex ? Number(ex.sets) || 3 : 3)) + 1;
+	}
+
+	// ── Audio beep (Web Audio API) ────────────────────────────────
+	function _beep(freq = 880, durationMs = 120, vol = 0.25) {
+		try {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const AC = (window as any).AudioContext || (window as any).webkitAudioContext;
+			if (!AC) return;
+			const ctx  = new AC() as AudioContext;
+			const osc  = ctx.createOscillator();
+			const gain = ctx.createGain();
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.type            = 'sine';
+			osc.frequency.value = freq;
+			gain.gain.value     = vol;
+			osc.start();
+			osc.stop(ctx.currentTime + durationMs / 1000);
+			osc.onended = () => ctx.close();
+		} catch { /* ignore — audio not available */ }
 	}
 
 	// ── Timer ─────────────────────────────────────────────────────
@@ -234,6 +260,7 @@
 		if (_timer) { clearInterval(_timer); _timer = null; }
 		restOn   = false;
 		restSecs = 0;
+		_beep();  // beep when rest ends
 	}
 
 	// ── Actions ───────────────────────────────────────────────────
@@ -614,6 +641,9 @@
 			<button class="btn-primary" onclick={logSet} disabled={Math.round(Number(reps)) < 1}>
 				Log Set {done + 1}
 			</button>
+			{#if setsToday.length > 0}
+				<button class="btn-same-last" onclick={sameAsLast}>↩ Same as last</button>
+			{/if}
 		</div>
 	{/if}
 
@@ -749,6 +779,16 @@
 .set-input:focus { outline: none; border-color: var(--accent); }
 .bw-grp    { justify-content: center; align-items: center; }
 .bw-lbl    { font-size: 14px; font-weight: 700; color: var(--muted); }
+
+/* ── Same as last set ────────────────────────────────────────── */
+.btn-same-last {
+	width: 100%; min-height: var(--touch);
+	background: none; border: none;
+	font-size: 12px; font-weight: 700; color: var(--muted);
+	letter-spacing: .02em;
+	transition: color 0.15s;
+}
+.btn-same-last:hover { color: var(--text); }
 
 /* ── Nav buttons ─────────────────────────────────────────────── */
 .nav-btn { min-width: var(--touch); min-height: var(--touch); background: var(--card); border: 1px solid var(--line); border-radius: 12px; font-size: 18px; font-weight: 700; color: var(--text); flex-shrink: 0; }
