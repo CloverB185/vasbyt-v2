@@ -40,11 +40,12 @@
 	let _timer: ReturnType<typeof setInterval> | null = null;
 
 	// ── Media / GIF ───────────────────────────────────────────────
-	let mediaMap    = $state<Record<string, { id: string }>>({});
-	let gifFailed   = $state(false);
-	let gifOverlay  = $state(false);
-	let gifOvUrl    = $state('');
-	let gifOvName   = $state('');
+	let mediaMap       = $state<Record<string, { id: string }>>({});
+	let gifFailed      = $state(false);
+	let gifOverlay     = $state(false);
+	let gifOvUrl       = $state('');
+	let gifOvName      = $state('');
+	let gifFeedbackVal = $state<'ok' | 'wrong' | null>(null);
 
 	const GIF_BASE = 'https://vasbyt.pages.dev/assets/gifs/';
 
@@ -127,6 +128,7 @@
 			refreshSets();
 			prefill();
 			loadNote();
+			loadGifFeedback();
 			targetOverride = null;
 		}
 	});
@@ -167,6 +169,22 @@
 	function onNoteInput() {
 		if (_noteTimer) clearTimeout(_noteTimer);
 		_noteTimer = setTimeout(saveNote, 500);
+	}
+
+	// ── GIF feedback ──────────────────────────────────────────────
+	function loadGifFeedback() {
+		if (!ex) { gifFeedbackVal = null; return; }
+		const fb = J<Record<string, 'ok' | 'wrong'>>(KEYS.gifFeedback(), {});
+		gifFeedbackVal = fb[String(ex.id)] ?? null;
+	}
+
+	function saveGifFeedback(flag: 'ok' | 'wrong') {
+		if (!ex) return;
+		const fb = J<Record<string, 'ok' | 'wrong'>>(KEYS.gifFeedback(), {});
+		fb[String(ex.id)] = flag;
+		S(KEYS.gifFeedback(), fb);
+		gifFeedbackVal = flag;
+		_voiceFeedback(flag === 'ok' ? 'GIF confirmed ✓' : 'GIF flagged ✗');
 	}
 
 	// ── Extra set ─────────────────────────────────────────────────
@@ -402,6 +420,25 @@
 				<span class="gif-hint">tap to enlarge</span>
 			</div>
 		{/if}
+	{/if}
+
+	<!-- GIF feedback strip -->
+	{#if ex && !gifFailed && gifUrlFor(ex.id)}
+		<div class="gif-feedback">
+			<span class="gif-fb-lbl">Right GIF?</span>
+			<button
+				class="gif-fb-btn"
+				class:gif-fb-active={gifFeedbackVal === 'ok'}
+				onclick={() => saveGifFeedback('ok')}
+				aria-label="Correct GIF"
+			>✓</button>
+			<button
+				class="gif-fb-btn gif-fb-wrong"
+				class:gif-fb-active={gifFeedbackVal === 'wrong'}
+				onclick={() => saveGifFeedback('wrong')}
+				aria-label="Wrong GIF"
+			>✗</button>
+		</div>
 	{/if}
 
 	<!-- Exercise header -->
@@ -673,6 +710,25 @@
 	font-size: 14px; font-weight: 700;
 	pointer-events: none; z-index: 9999; white-space: nowrap;
 }
+
+/* ── GIF feedback strip ──────────────────────────────────────── */
+.gif-feedback {
+	display: flex; align-items: center; gap: 8px;
+	padding: 0 0 8px;
+}
+.gif-fb-lbl {
+	flex: 1; font-size: 11px; font-weight: 700;
+	color: rgba(255,255,255,.28); text-transform: uppercase; letter-spacing: .05em;
+}
+.gif-fb-btn {
+	font-size: 15px; font-weight: 900;
+	border: 1px solid var(--line); border-radius: 999px;
+	padding: 4px 16px; min-height: var(--touch);
+	color: rgba(255,255,255,.35); background: none;
+	transition: color 0.15s, border-color 0.15s;
+}
+.gif-fb-btn.gif-fb-active { color: var(--accent); border-color: var(--accent); background: rgba(0,188,212,.08); }
+.gif-fb-wrong.gif-fb-active { color: #f47; border-color: #f47; background: rgba(255,68,119,.08); }
 
 /* ── GIF visual ──────────────────────────────────────────────── */
 .ex-gif {
