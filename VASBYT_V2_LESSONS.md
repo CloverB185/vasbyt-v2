@@ -381,3 +381,13 @@
 **Fix:** Added plateau detection (3+ distinct sessions spanning 14+ days with flat/declining weight → `isPlateaued: true`). Added readiness synthesis from last 3 check-ins (energy avg < 2.5 or sleep avg < 5 → `takeItEasy: true`). Four-state suggestion logic: plateau (amber) → takeItEasy (muted, same weight) → ready (green, +2.5kg) → default (muted). Added `hint-plateau` CSS class. Added amber recovery banner below exercise list when `takeItEasy` is true. `SessionBriefingEntry` interface extended with `isPlateaued` and `takeItEasy` fields.
 **Files changed:** `src/lib/data/program.ts`, `src/routes/+page.svelte`
 **Cross-project:** YES — plateau detection pattern (per-date max weight map, sorted dates, span check) works for any exercise progression tracker. Readiness synthesis from last N check-ins (energy + sleep thresholds) is reusable for any wellbeing-aware training app.
+
+---
+
+## [2026-05-27] — Stepper ±buttons for weight and reps inputs in gym
+
+**Symptom:** No ± buttons on weight/reps inputs in gym — users had to type values directly. V1 had stepper buttons that allowed quick up/down adjustment without opening the keyboard.
+**Root cause:** Stepper buttons were deferred during the V2 gym port.
+**Fix:** Added `adjWeight(delta)` and `adjReps(delta)` functions. `adjWeight` uses `Math.round(v * 2) / 2` to keep values at 0.5kg precision when stepping by ±2.5kg. `adjReps` uses `Math.max(1, ...)` as floor. Wrapped each input in a `.stepper-row` flex container with `−` / `+` buttons on either side. Input changed from `width: 100%` to `flex: 1; min-width: 0` to fill remaining space without overflowing. Step buttons: 44px wide, `var(--touch-lg)` min-height to match input height.
+**Files changed:** `src/routes/gym/+page.svelte`
+**Cross-project:** YES — pattern for stepper ±buttons around a number input: wrap in flex row, `flex: 1; min-width: 0` on input, rounding trick for float precision (`Math.round(v * 2) / 2` for 0.5 step). Weight decrement floored at 0, reps floored at 1.

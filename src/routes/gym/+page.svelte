@@ -187,6 +187,16 @@
 		_voiceFeedback(flag === 'ok' ? 'GIF confirmed ✓' : 'GIF flagged ✗');
 	}
 
+	// ── Steppers ──────────────────────────────────────────────────
+	function adjWeight(delta: number) {
+		const v = Math.max(0, Math.round((Number(weight || 0) + delta) * 2) / 2);
+		weight = String(v);
+	}
+	function adjReps(delta: number) {
+		const v = Math.max(1, Number(reps || 0) + delta);
+		reps = String(v);
+	}
+
 	// ── Extra set ─────────────────────────────────────────────────
 	function addExtraSet() {
 		targetOverride = (targetOverride ?? (ex ? Number(ex.sets) || 3 : 3)) + 1;
@@ -516,17 +526,21 @@
 				{#if !ex.isBodyweight}
 					<div class="input-grp">
 						<label class="input-lbl" for="inp-weight">kg</label>
-						<input
-							id="inp-weight"
-							class="set-input"
-							type="number"
-							inputmode="decimal"
-							placeholder="0"
-							min="0"
-							max="500"
-							step="0.5"
-							bind:value={weight}
-						/>
+						<div class="stepper-row">
+							<button class="step-btn" onclick={() => adjWeight(-2.5)} aria-label="Decrease weight">−</button>
+							<input
+								id="inp-weight"
+								class="set-input"
+								type="number"
+								inputmode="decimal"
+								placeholder="0"
+								min="0"
+								max="500"
+								step="0.5"
+								bind:value={weight}
+							/>
+							<button class="step-btn" onclick={() => adjWeight(2.5)} aria-label="Increase weight">+</button>
+						</div>
 					</div>
 				{:else}
 					<div class="input-grp bw-grp">
@@ -535,17 +549,21 @@
 				{/if}
 				<div class="input-grp">
 					<label class="input-lbl" for="inp-reps">reps</label>
-					<input
-						id="inp-reps"
-						class="set-input"
-						type="number"
-						inputmode="numeric"
-						placeholder="0"
-						min="1"
-						max="999"
-						step="1"
-						bind:value={reps}
-					/>
+					<div class="stepper-row">
+						<button class="step-btn" onclick={() => adjReps(-1)} aria-label="Decrease reps">−</button>
+						<input
+							id="inp-reps"
+							class="set-input"
+							type="number"
+							inputmode="numeric"
+							placeholder="0"
+							min="1"
+							max="999"
+							step="1"
+							bind:value={reps}
+						/>
+						<button class="step-btn" onclick={() => adjReps(1)} aria-label="Increase reps">+</button>
+					</div>
 				</div>
 			</div>
 			<button class="btn-primary" onclick={logSet} disabled={Math.round(Number(reps)) < 1}>
@@ -659,7 +677,15 @@
 .inputs    { display: flex; gap: 12px; }
 .input-grp { flex: 1; display: flex; flex-direction: column; gap: 5px; }
 .input-lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-.set-input { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px; font-size: 28px; font-weight: 900; text-align: center; color: var(--text); min-height: var(--touch-lg); }
+.stepper-row { display: flex; align-items: center; gap: 6px; }
+.step-btn {
+	flex-shrink: 0; width: 44px; min-height: var(--touch-lg);
+	background: rgba(255,255,255,.06); border: 1px solid var(--line);
+	border-radius: 12px; font-size: 22px; font-weight: 900;
+	color: var(--text); line-height: 1;
+}
+.step-btn:active { background: rgba(255,255,255,.12); }
+.set-input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px; font-size: 28px; font-weight: 900; text-align: center; color: var(--text); min-height: var(--touch-lg); }
 .set-input:focus { outline: none; border-color: var(--accent); }
 .bw-grp    { justify-content: center; align-items: center; }
 .bw-lbl    { font-size: 14px; font-weight: 700; color: var(--muted); }
