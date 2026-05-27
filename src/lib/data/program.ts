@@ -842,26 +842,94 @@ export interface SessionBriefingEntry {
 	lastWeight: string;
 	suggestion: string;
 	readyToProgress: boolean;
+	isPlateaued: boolean;
+	takeItEasy: boolean;
 }
 
 export function getSessionBriefing(exercises: Exercise[]): SessionBriefingEntry[] {
 	const allLogs = getLogs();
 	const t = today();
+
+	// Readiness synthesis — last 3 check-ins with energy/sleep data
+	const recentCi = getCheckins()
+		.filter((c) => c.date < t)
+		.sort((a, b) => b.date.localeCompare(a.date))
+		.slice(0, 3);
+	const avgEnergy =
+		recentCi.length
+			? recentCi.reduce((s, c) => s + (c.energy ?? 3), 0) / recentCi.length
+			: null;
+	const ciWithSleep = recentCi.filter((c) => (c.sleep ?? 0) > 0);
+	const avgSleep =
+		ciWithSleep.length
+			? ciWithSleep.reduce((s, c) => s + (c.sleep ?? 0), 0) / ciWithSleep.length
+			: null;
+	const takeItEasy = (avgEnergy !== null && avgEnergy < 2.5) || (avgSleep !== null && avgSleep < 5);
+	const lowEnergy = avgEnergy !== null && avgEnergy < 2.5;
+	const poorSleep = avgSleep !== null && avgSleep < 5;
+
 	return exercises.slice(0, 6).flatMap((ex) => {
 		const prevLogs = allLogs.filter(
 			(l) => String(l.exerciseId) === String(ex.id) && l.date < t && parseFloat(l.weight) > 0
 		);
 		if (!prevLogs.length) return [];
+
+		// Last session data
 		const lastDate = prevLogs[prevLogs.length - 1].date;
 		const lastSets = prevLogs.filter((l) => l.date === lastDate);
 		const maxW = Math.max(...lastSets.map((l) => parseFloat(l.weight) || 0));
 		if (!maxW) return [];
+
+		// Plateau detection — 3+ distinct dates spanning 14+ days, weight flat or declining
+		const dateWeightMap: Record<string, number> = {};
+		prevLogs.forEach((l) => {
+			const w = parseFloat(l.weight) || 0;
+			const existing = dateWeightMap[l.date] ?? 0;
+			if (w > existing) dateWeightMap[l.date] = w;
+		});
+		const sortedDates = Object.keys(dateWeightMap).sort();
+		let isPlateaued = false;
+		if (sortedDates.length >= 3) {
+			const daySpan =
+				(new Date(sortedDates[sortedDates.length - 1]).getTime() -
+					new Date(sortedDates[0]).getTime()) /
+				86_400_000;
+			if (daySpan >= 14 && dateWeightMap[sortedDates[sortedDates.length - 1]] <= dateWeightMap[sortedDates[0]]) {
+				isPlateaued = true;
+			}
+		}
+
+		// Reps check — did they hit target last session?
 		const targetSets = Number(ex.sets) || 3;
 		const minReps = parseInt(String(ex.reps)) || 10;
 		const goodSets = lastSets.filter((l) => (parseInt(l.reps) || 0) >= minReps);
 		const ready = goodSets.length >= targetSets;
-		const suggestion = ready ? `↑ try ${(maxW + 2.5).toFixed(1)} kg` : `→ ${maxW} kg`;
-		return [{ exerciseId: ex.id, name: ex.name, lastWeight: `${maxW} kg`, suggestion, readyToProgress: ready }];
+
+		// Four-state suggestion
+		let suggestion: string;
+		let readyToProgress = false;
+		if (isPlateaued) {
+			suggestion = 'Plateau — try tempo or pause reps';
+		} else if (takeItEasy) {
+			suggestion = `→ ${maxW} kg (keep same)`;
+		} else if (ready) {
+			suggestion = `↑ try ${(maxW + 2.5).toFixed(1)} kg`;
+			readyToProgress = true;
+		} else {
+			suggestion = `→ ${maxW} kg`;
+		}
+
+		return [
+			{
+				exerciseId: ex.id,
+				name: ex.name,
+				lastWeight: `${maxW} kg`,
+				suggestion,
+				readyToProgress,
+				isPlateaued,
+				takeItEasy: lowEnergy || poorSleep
+			}
+		];
 	});
 }
 

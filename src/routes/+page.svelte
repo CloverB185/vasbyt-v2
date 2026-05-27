@@ -247,6 +247,9 @@
 				{#each [1,2,3,4,5,6,7] as d}
 					<button class="day-btn" class:active={day === d} onclick={() => handleSetDay(d)}>D{d}</button>
 				{/each}
+				{#if Object.values(briefingMap).some((b) => b.takeItEasy)}
+					<div class="recovery-banner">Low recovery the past few days — same weights today, focus on form</div>
+				{/if}
 			</div>
 		</div>
 	{/if}
@@ -339,7 +342,8 @@
 							<span class="exercise-name">{ex.name}</span>
 							<span class="exercise-detail">{ex.sets} sets · {ex.reps}</span>
 							{#if briefingMap[String(ex.id)]}
-								<span class="exercise-hint {briefingMap[String(ex.id)].readyToProgress ? 'hint-up' : 'hint-same'}">{briefingMap[String(ex.id)].suggestion}</span>
+								{@const b = briefingMap[String(ex.id)]}
+								<span class="exercise-hint {b.isPlateaued ? 'hint-plateau' : b.readyToProgress ? 'hint-up' : 'hint-same'}">{b.suggestion}</span>
 							{/if}
 						</div>
 						<div class="exercise-progress">
@@ -353,6 +357,9 @@
 						</div>
 					</div>
 				{/each}
+				{#if Object.values(briefingMap).some((b) => b.takeItEasy)}
+					<div class="recovery-banner">Low recovery the past few days — same weights today, focus on form</div>
+				{/if}
 			</div>
 		</div>
 	{:else}
@@ -557,8 +564,20 @@
 		letter-spacing: .02em;
 		margin-top: 1px;
 	}
-	.hint-up   { color: var(--green); }
-	.hint-same { color: var(--muted); }
+	.hint-up      { color: var(--green); }
+	.hint-same    { color: var(--muted); }
+	.hint-plateau { color: var(--amber); }
+	.recovery-banner {
+		margin-top: 10px;
+		padding: 8px 12px;
+		background: rgba(245, 166, 35, 0.08);
+		border-left: 2px solid var(--amber);
+		border-radius: 6px;
+		font-size: 12px;
+		font-weight: 600;
+		color: var(--amber);
+		line-height: 1.4;
+	}
 
 	/* Intel cards (phase transition, deload) */
 	.intel-card {

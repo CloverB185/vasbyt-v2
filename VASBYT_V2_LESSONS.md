@@ -371,3 +371,13 @@
 **Fix:** Installed `@playwright/test` as devDep. Created `playwright.config.ts` with `snapshotPathTemplate: '{testDir}/snapshots/{arg}{ext}'`, `devices['iPhone 14 Pro']` viewport (390×844), `webServer.reuseExistingServer: true`. Created `tests/visual-regression.spec.ts` — 7 tab tests, each navigates → `waitForLoadState('networkidle')` → `page.waitForTimeout(300)` (Svelte tick) → `toHaveScreenshot(name, { fullPage: true, maxDiffPixelRatio: 0.03 })`. Ran `--update-snapshots` with dev server live to capture 7 PNG baselines in `tests/snapshots/`. Updated `.sitecheckx.json` playwright layer with one entry (project: chromium, testDir: tests/). Update baselines after any intentional UI change: `npx playwright test --update-snapshots`.
 **Files changed:** `playwright.config.ts` (new), `tests/visual-regression.spec.ts` (new), `tests/snapshots/*.png` (7 new baselines), `.sitecheckx.json`, `package.json`
 **Cross-project:** YES — `snapshotPathTemplate` override is needed to keep snapshot paths flat and readable. `reuseExistingServer: true` avoids double-starting dev server during development. The `waitForTimeout(300)` after networkidle catches Svelte reactive renders that settle after the load event.
+
+---
+
+## [2026-05-27] — Session briefing: plateau detection + readiness synthesis
+
+**Symptom:** V2's session briefing hints only had two states (ready/not ready). No plateau detection, no energy/sleep synthesis from check-ins — ported from V1 comparison audit.
+**Root cause:** `getSessionBriefing()` in `program.ts` was simplified during Phase 8 port. It checked last-session reps vs target but skipped plateau logic and readiness synthesis.
+**Fix:** Added plateau detection (3+ distinct sessions spanning 14+ days with flat/declining weight → `isPlateaued: true`). Added readiness synthesis from last 3 check-ins (energy avg < 2.5 or sleep avg < 5 → `takeItEasy: true`). Four-state suggestion logic: plateau (amber) → takeItEasy (muted, same weight) → ready (green, +2.5kg) → default (muted). Added `hint-plateau` CSS class. Added amber recovery banner below exercise list when `takeItEasy` is true. `SessionBriefingEntry` interface extended with `isPlateaued` and `takeItEasy` fields.
+**Files changed:** `src/lib/data/program.ts`, `src/routes/+page.svelte`
+**Cross-project:** YES — plateau detection pattern (per-date max weight map, sorted dates, span check) works for any exercise progression tracker. Readiness synthesis from last N check-ins (energy + sleep thresholds) is reusable for any wellbeing-aware training app.
