@@ -21,15 +21,21 @@
 	let hasRoutine   = $state(false);
 
 	// ── Gym state ─────────────────────────────────────────────────
-	let started   = $state(false);
-	let exIdx     = $state(0);
-	let weight    = $state('');
-	let reps      = $state('');
-	let setsToday = $state<LogEntry[]>([]);
-	let restSecs  = $state(0);
-	let restOn    = $state(false);
-	let woDone    = $state(false);
-	let totalDone = $state(0);
+	let started        = $state(false);
+	let exIdx          = $state(0);
+	let weight         = $state('');
+	let reps           = $state('');
+	let setsToday      = $state<LogEntry[]>([]);
+	let restSecs       = $state(0);
+	let restOn         = $state(false);
+	let woDone         = $state(false);
+	let totalDone      = $state(0);
+	let targetOverride = $state<number | null>(null);
+
+	// ── Notes ─────────────────────────────────────────────────────
+	let noteVal   = $state('');
+	let noteOpen  = $state(false);
+	let _noteTimer: ReturnType<typeof setTimeout> | null = null;
 
 	let _timer: ReturnType<typeof setInterval> | null = null;
 
@@ -64,7 +70,7 @@
 
 	// ── Derived ───────────────────────────────────────────────────
 	let ex        = $derived(exercises[exIdx] ?? null);
-	let target    = $derived(ex ? (Number(ex.sets) || 3) : 3);
+	let target    = $derived(targetOverride ?? (ex ? (Number(ex.sets) || 3) : 3));
 	let done      = $derived(setsToday.length);
 	let allDone   = $derived(done >= target);
 	let isLast    = $derived(exIdx >= exercises.length - 1);
@@ -120,6 +126,8 @@
 		if (started && ex) {
 			refreshSets();
 			prefill();
+			loadNote();
+			targetOverride = null;
 		}
 	});
 
@@ -138,6 +146,32 @@
 			weight = getLastWeightForExercise(ex.id);
 			reps   = getLastRepsForExercise(ex.id);
 		}
+	}
+
+	// ── Notes ─────────────────────────────────────────────────────
+	function loadNote() {
+		if (!ex) { noteVal = ''; return; }
+		const notes = J<Record<string, string>>(KEYS.gymNotes(), {});
+		noteVal = notes[`${ex.id}_${today()}`] ?? '';
+	}
+
+	function saveNote() {
+		if (!ex) return;
+		const notes = J<Record<string, string>>(KEYS.gymNotes(), {});
+		const key = `${ex.id}_${today()}`;
+		if (noteVal.trim()) notes[key] = noteVal.trim();
+		else delete notes[key];
+		S(KEYS.gymNotes(), notes);
+	}
+
+	function onNoteInput() {
+		if (_noteTimer) clearTimeout(_noteTimer);
+		_noteTimer = setTimeout(saveNote, 500);
+	}
+
+	// ── Extra set ─────────────────────────────────────────────────
+	function addExtraSet() {
+		targetOverride = (targetOverride ?? (ex ? Number(ex.sets) || 3 : 3)) + 1;
 	}
 
 	// ── Timer ─────────────────────────────────────────────────────
@@ -177,12 +211,14 @@
 
 	function nextEx() {
 		stopTimer();
+		targetOverride = null; noteOpen = false;
 		if (!isLast) { exIdx++; saveResume(); }
 		else finishAll();
 	}
 
 	function prevEx() {
 		stopTimer();
+		targetOverride = null; noteOpen = false;
 		if (exIdx > 0) { exIdx--; saveResume(); }
 	}
 
@@ -381,14 +417,19 @@
 		</button>
 	</div>
 
-	<!-- Target + count + voice toggle -->
+	<!-- Target + count + voice + note toggles -->
 	<div class="gym-target">
 		<span class="target-txt">{ex.sets} sets · {ex.reps}</span>
-		{#if voiceSupported}
-			<button class="voice-btn" class:voice-on={voiceActive} onclick={toggleVoice}>
-				{voiceActive ? '● Voice' : 'Voice'}
+		<div class="target-actions">
+			{#if voiceSupported}
+				<button class="voice-btn" class:voice-on={voiceActive} onclick={toggleVoice}>
+					{voiceActive ? '● Voice' : 'Voice'}
+				</button>
+			{/if}
+			<button class="note-btn" class:note-has={noteVal.trim()} onclick={() => (noteOpen = !noteOpen)}>
+				Note{noteVal.trim() ? ' ●' : ''}
 			</button>
-		{/if}
+		</div>
 		<span class="set-count" class:green={allDone} class:amber={!allDone && done > 0}>
 			{done} / {target}
 		</span>
@@ -404,6 +445,19 @@
 				</div>
 			{/each}
 			<button class="undo-btn" onclick={undo} title="Undo last set">↩</button>
+		</div>
+	{/if}
+
+	<!-- Exercise note -->
+	{#if noteOpen}
+		<div class="note-card">
+			<textarea
+				class="note-input"
+				placeholder="Note for this exercise..."
+				rows={3}
+				bind:value={noteVal}
+				oninput={onNoteInput}
+			></textarea>
 		</div>
 	{/if}
 
@@ -454,9 +508,12 @@
 
 	<!-- Next / Finish CTA -->
 	{#if allDone}
-		<button class="btn-primary btn-next" onclick={nextEx}>
-			{isLast ? 'Finish Workout ◎' : 'Next Exercise →'}
-		</button>
+		<div class="next-row">
+			<button class="btn-add-set" onclick={addExtraSet}>+ Set</button>
+			<button class="btn-primary btn-next-main" onclick={nextEx}>
+				{isLast ? 'Finish ◎' : 'Next →'}
+			</button>
+		</div>
 	{/if}
 {/if}
 
@@ -566,8 +623,40 @@
 /* ── Shared buttons ──────────────────────────────────────────── */
 .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: var(--accent-text); font-weight: 900; width: 100%; min-height: var(--touch-lg); border-radius: 16px; font-size: 16px; }
 .btn-primary:disabled { opacity: .35; cursor: not-allowed; }
-.btn-next { margin-top: 8px; }
 .btn-ghost { width: 100%; border: 1px solid var(--line); border-radius: 14px; padding: 12px; font-weight: 700; font-size: 14px; color: var(--muted); min-height: var(--touch); }
+
+/* ── Target actions (voice + note) ──────────────────────────── */
+.target-actions { display: flex; gap: 6px; align-items: center; }
+
+/* ── Note toggle button ──────────────────────────────────────── */
+.note-btn {
+	font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+	color: var(--muted); border: 1px solid var(--line);
+	border-radius: 999px; padding: 4px 12px; min-height: var(--touch);
+	transition: color 0.15s, border-color 0.15s;
+}
+.note-btn.note-has { color: var(--accent); border-color: var(--accent); }
+
+/* ── Note card ───────────────────────────────────────────────── */
+.note-card {
+	background: var(--card); border: 1px solid var(--line);
+	border-radius: 14px; padding: 10px 12px; margin: 4px 0;
+}
+.note-input {
+	width: 100%; background: transparent; border: none; resize: none;
+	color: var(--text); font-size: 14px; font-family: inherit; line-height: 1.55;
+}
+.note-input:focus { outline: none; }
+.note-input::placeholder { color: rgba(255,255,255,.22); }
+
+/* ── Next row (add set + next/finish) ────────────────────────── */
+.next-row { display: flex; gap: 10px; margin-top: 8px; }
+.btn-add-set {
+	flex-shrink: 0; padding: 0 18px; min-height: var(--touch-lg);
+	border-radius: 16px; font-size: 15px; font-weight: 900;
+	background: rgba(255,255,255,.06); border: 1px solid var(--line); color: var(--text);
+}
+.btn-next-main { flex: 1; }
 
 /* ── Voice ───────────────────────────────────────────────────── */
 .voice-btn {
