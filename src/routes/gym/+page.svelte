@@ -5,6 +5,7 @@
 		getRoutineDay,
 		getDay,
 		getTodaySetsForExercise,
+		getLogs,
 		saveLog,
 		getLastWeightForExercise,
 		getLastRepsForExercise,
@@ -51,6 +52,109 @@
 		prVisible = true;
 		if (_prTimer) clearTimeout(_prTimer);
 		_prTimer = setTimeout(() => (prVisible = false), 3000);
+	}
+
+	// ── Overload nudge ────────────────────────────────────────────
+	let nudgeText      = $state('');
+	let nudgeDismissed = $state(false);
+	let _nudgeFetching = new Set<string>();
+	const AI_PROXY     = 'https://vasbyt-ai-proxy.clover887.workers.dev';
+
+	function loadNudge() {
+		if (!ex) { nudgeText = ''; return; }
+		nudgeDismissed = false;
+		const id = String(ex.id);
+		// 1 — serve cached advice for today
+		const cache = J<Record<string, { date: string; advice: string }>>(KEYS.overloadAdvice(), {});
+		if (cache[id]?.date === today()) { nudgeText = cache[id].advice; return; }
+		// 2 — need history: gather prev sessions (exclude today)
+		const allLogs  = getLogs();
+		const prevLogs = allLogs.filter((l) => String(l.exerciseId) === id && l.date !== today() && Number(l.weight) > 0);
+		if (prevLogs.length === 0) { nudgeText = ''; return; }
+		const dates = [...new Set(prevLogs.map((l) => l.date))].sort().reverse();
+		if (dates.length < 2) { nudgeText = ''; return; }
+		// 3 — static fallback: 3 sessions same max weight
+		if (dates.length >= 3) {
+			const maxes = dates.slice(0, 3).map((d) => {
+				const sets = prevLogs.filter((l) => l.date === d);
+				return Math.max(...sets.map((l) => Number(l.weight)));
+			});
+			if (maxes[0] === maxes[1] && maxes[1] === maxes[2]) {
+				nudgeText = `3 sessions at ${maxes[0]}kg — try adding 2.5kg today`;
+			}
+		}
+		// 4 — fire async AI fetch (non-blocking — updates nudgeText when ready)
+		_fetchOverloadAdvice(id, ex.name, prevLogs, dates);
+	}
+
+	async function _fetchOverloadAdvice(
+		id: string, name: string,
+		prevLogs: import('$lib/data/program').LogEntry[],
+		dates: string[]
+	) {
+		if (_nudgeFetching.has(id)) return;
+		_nudgeFetching.add(id);
+		try {
+			const history = dates.slice(0, 5).map((d) => {
+				const sets  = prevLogs.filter((l) => l.date === d);
+				const maxW  = Math.max(...sets.map((l) => Number(l.weight)));
+				const reps  = sets.reduce((s, l) => s + (Number(l.reps) || 0), 0);
+				return `${d}: ${sets.length} sets, max ${maxW}kg, ${reps} reps`;
+			}).join(' | ');
+			const resp = await fetch(AI_PROXY, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					model: 'google/gemini-3-flash-preview',
+					max_tokens: 60,
+					messages: [{ role: 'user', content: `Strength coach. Exercise: ${name}. Last ${dates.length} session(s): ${history}. Give ONE short specific sentence: should they increase weight today (if so by how much), keep the same weight, or try a different strategy? Be direct. No filler.` }]
+				})
+			});
+			if (!resp.ok) return;
+			const data = await resp.json();
+			const advice = data?.choices?.[0]?.message?.content?.trim();
+			if (advice) {
+				const c = J<Record<string, { date: string; advice: string }>>(KEYS.overloadAdvice(), {});
+				c[id] = { date: today(), advice };
+				S(KEYS.overloadAdvice(), c);
+				// only update UI if we're still on the same exercise
+				if (ex && String(ex.id) === id && !nudgeDismissed) nudgeText = advice;
+			}
+		} catch { /* silent fail */ }
+		_nudgeFetching.delete(id);
+	}
+
+	// ── Workout done — AI coach note ──────────────────────────────
+	let woCoachNote    = $state('');
+	let woCoachLoading = $state(false);
+
+	async function _fetchWoCoachNote() {
+		const cached = J<{ date: string; note: string } | null>(KEYS.woCoachNote(), null);
+		if (cached?.date === today()) { woCoachNote = cached.note; return; }
+		woCoachLoading = true;
+		try {
+			const exList  = exercises.map((e) => e.name).join(', ');
+			const prStr   = woPRs.length ? ` PRs: ${woPRs.join(', ')}.` : '';
+			const volStr  = woVolume > 0 ? ` Total volume: ${woVolume}kg.` : '';
+			const prompt  = `You are a direct, encouraging strength coach. Workout just finished: ${totalDone} sets across ${exercises.length} exercises (${exList}).${volStr}${prStr} Write ONE punchy sentence of post-workout feedback — what they did well or one thing to focus on next time. No greeting, no filler.`;
+			const resp    = await fetch(AI_PROXY, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					model: 'google/gemini-3-flash-preview',
+					max_tokens: 80,
+					messages: [{ role: 'user', content: prompt }]
+				})
+			});
+			if (!resp.ok) return;
+			const data = await resp.json();
+			const note = data?.choices?.[0]?.message?.content?.trim();
+			if (note) {
+				S(KEYS.woCoachNote(), { date: today(), note });
+				woCoachNote = note;
+			}
+		} catch { /* silent fail */ }
+		woCoachLoading = false;
 	}
 
 	// ── Coaching cues ─────────────────────────────────────────────
@@ -153,6 +257,7 @@
 			prefill();
 			loadNote();
 			loadGifFeedback();
+			loadNudge();
 			targetOverride = null;
 		}
 	});
@@ -305,6 +410,7 @@
 	function nextEx() {
 		stopTimer();
 		targetOverride = null; noteOpen = false; cuesOpen = false;
+		nudgeText = ''; nudgeDismissed = false;
 		if (!isLast) { exIdx++; saveResume(); }
 		else finishAll();
 	}
@@ -312,6 +418,7 @@
 	function prevEx() {
 		stopTimer();
 		targetOverride = null; noteOpen = false; cuesOpen = false;
+		nudgeText = ''; nudgeDismissed = false;
 		if (exIdx > 0) { exIdx--; saveResume(); }
 	}
 
@@ -322,6 +429,7 @@
 		refreshSets();
 		woPRs    = [...prNames.values()];
 		woDone   = true;
+		_fetchWoCoachNote(); // non-blocking — populates woCoachNote when ready
 	}
 
 	// ── Voice mode ─────────────────────────────────────────────────
@@ -471,6 +579,18 @@
 						<li>{name}</li>
 					{/each}
 				</ul>
+			</div>
+		{/if}
+
+		{#if woCoachLoading}
+			<div class="coach-note-card coach-note-loading">
+				<span class="coach-note-label">Coach</span>
+				<span class="coach-note-dots">···</span>
+			</div>
+		{:else if woCoachNote}
+			<div class="coach-note-card">
+				<span class="coach-note-label">Coach</span>
+				<p class="coach-note-text">{woCoachNote}</p>
 			</div>
 		{/if}
 
@@ -626,6 +746,14 @@
 				bind:value={noteVal}
 				oninput={onNoteInput}
 			></textarea>
+		</div>
+	{/if}
+
+	<!-- Overload nudge -->
+	{#if nudgeText && !nudgeDismissed}
+		<div class="nudge-card">
+			<span class="nudge-text">{nudgeText}</span>
+			<button class="nudge-dismiss" onclick={() => (nudgeDismissed = true)} aria-label="Dismiss">×</button>
 		</div>
 	{/if}
 
@@ -927,6 +1055,37 @@
 	background: rgba(255,255,255,.06); border: 1px solid var(--line); color: var(--text);
 }
 .btn-next-main { flex: 1; }
+
+/* ── Overload nudge ──────────────────────────────────────────── */
+.nudge-card {
+	display: flex; align-items: flex-start; gap: 10px;
+	background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+	border-radius: 12px; padding: 10px 12px; margin: 4px 0;
+	animation: cues-in 0.18s ease-out;
+}
+.nudge-text {
+	flex: 1; font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.5;
+}
+.nudge-dismiss {
+	flex-shrink: 0; font-size: 16px; color: var(--muted); padding: 0 4px;
+	min-height: var(--touch); display: flex; align-items: center;
+}
+.nudge-dismiss:hover { color: var(--text); }
+
+/* ── AI coach note (summary screen) ─────────────────────────── */
+.coach-note-card {
+	width: 100%;
+	background: rgba(0,188,212,.07); border: 1px solid rgba(0,188,212,.2);
+	border-radius: 14px; padding: 12px 16px;
+	display: flex; flex-direction: column; gap: 4px;
+}
+.coach-note-label {
+	font-size: 10px; font-weight: 900; text-transform: uppercase;
+	letter-spacing: .1em; color: var(--accent);
+}
+.coach-note-text { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.55; margin: 0; }
+.coach-note-loading { flex-direction: row; align-items: center; gap: 10px; }
+.coach-note-dots { font-size: 20px; color: var(--accent); letter-spacing: 3px; opacity: .6; }
 
 /* ── Voice ───────────────────────────────────────────────────── */
 .voice-btn {

@@ -84,6 +84,8 @@ export const KEYS = {
 	gymNotes:        () => pKey('vasbytGymNotes.v1',          'gymNotes'),
 	gifFeedback:     () => pKey('vasbytGifFeedback.v1',       'gifFeedback'),
 	equipItems:      () => pKey('vasbytEquipItems.v1',        'equipItems'),
+	overloadAdvice:  () => pKey('vasbytOverloadAdvice.v1',    'overloadAdvice'),
+	woCoachNote:     () => pKey('vasbytWoCoachNote.v1',       'woCoachNote'),
 };
 
 // Init profiles on first load (browser only)
