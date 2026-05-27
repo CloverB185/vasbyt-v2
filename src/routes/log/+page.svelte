@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getLogs, type LogEntry } from '$lib/data/program';
+	import { getLogs, getCheckins, type LogEntry, type CheckIn } from '$lib/data/program';
 
 	interface DayGroup {
 		date: string;
@@ -9,8 +9,9 @@
 	}
 
 	// ── List state ────────────────────────────────────────────
-	let days       = $state<DayGroup[]>([]);
-	let hasData    = $state(false);
+	let days        = $state<DayGroup[]>([]);
+	let hasData     = $state(false);
+	let checkinMap  = $state<Map<string, CheckIn>>(new Map());
 
 	// ── Calendar state ────────────────────────────────────────
 	const now      = new Date();
@@ -84,6 +85,10 @@
 	onMount(() => {
 		const logs = getLogs();
 		hasData = logs.length > 0;
+
+		const checkins = getCheckins();
+		checkinMap = new Map(checkins.map(c => [c.date, c]));
+
 		if (!hasData) return;
 
 		trained = new Set(logs.map(l => l.date));
@@ -166,9 +171,18 @@
 
 		<!-- ── Selected day detail ───────────────────────────── -->
 		{#if selDay}
+			{@const dci = checkinMap.get(selDay.date)}
 			<div class="detail-card">
 				<div class="detail-head">
-					<span class="detail-date">{formatShort(selDay.date)}</span>
+					<div class="detail-head-left">
+						<span class="detail-date">{formatShort(selDay.date)}</span>
+						{#if dci?.energy != null || dci?.sleep != null}
+							<div class="ci-pills">
+								{#if dci?.energy != null}<span class="ci-pill ci-energy">E {dci.energy}/10</span>{/if}
+								{#if dci?.sleep != null}<span class="ci-pill ci-sleep">Z {dci.sleep}/10</span>{/if}
+							</div>
+						{/if}
+					</div>
 					<button type="button" class="detail-close" onclick={() => (selDate = null)}>×</button>
 				</div>
 				{#each selDay.exercises as ex}
@@ -189,8 +203,17 @@
 		<!-- ── Full list ─────────────────────────────────────── -->
 		<div class="list-label">All sessions</div>
 		{#each days as day}
+			{@const lci = checkinMap.get(day.date)}
 			<div class="day-block">
-				<div class="day-label">{day.label}</div>
+				<div class="day-label-row">
+					<span class="day-label">{day.label}</span>
+					{#if lci?.energy != null || lci?.sleep != null}
+						<div class="ci-pills">
+							{#if lci?.energy != null}<span class="ci-pill ci-energy">E {lci.energy}/10</span>{/if}
+							{#if lci?.sleep != null}<span class="ci-pill ci-sleep">Z {lci.sleep}/10</span>{/if}
+						</div>
+					{/if}
+				</div>
 				<div class="day-card">
 					{#each day.exercises as ex}
 						<div class="ex-row">
@@ -310,12 +333,22 @@
 	padding: 10px 14px;
 	border-bottom: 1px solid var(--line);
 }
+.detail-head-left { display: flex; flex-direction: column; gap: 5px; }
 .detail-date { font-size: 13px; font-weight: 700; color: var(--accent); }
 .detail-close {
 	background: none; border: none; cursor: pointer;
 	font-size: 20px; color: rgba(255,255,255,.4);
 	line-height: 1; padding: 0 2px;
 }
+
+/* ── Check-in pills ── */
+.ci-pills { display: flex; gap: 5px; }
+.ci-pill {
+	font-size: 11px; font-weight: 700;
+	border-radius: 999px; padding: 2px 8px;
+}
+.ci-energy { background: rgba(0,188,212,.15); color: var(--accent); border: 1px solid rgba(0,188,212,.3); }
+.ci-sleep  { background: rgba(139,125,234,.15); color: #8b7dea; border: 1px solid rgba(139,125,234,.3); }
 
 /* ── List ── */
 .list-label {
@@ -325,6 +358,7 @@
 }
 
 .day-block { display: flex; flex-direction: column; gap: 6px; }
+.day-label-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .day-label {
 	font-size: 12px; font-weight: 800; color: var(--muted);
 	text-transform: uppercase; letter-spacing: .04em;

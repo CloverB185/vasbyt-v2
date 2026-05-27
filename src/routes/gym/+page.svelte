@@ -42,8 +42,8 @@
 
 	const GIF_BASE = 'https://vasbyt.pages.dev/assets/gifs/';
 
-	function gifUrlFor(id: string): string | null {
-		const m = mediaMap[id];
+	function gifUrlFor(id: string | number): string | null {
+		const m = mediaMap[String(id)];
 		if (m?.id) return GIF_BASE + encodeURIComponent(m.id) + '.gif';
 		return null;
 	}

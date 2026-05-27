@@ -96,8 +96,8 @@ Orient before coding.
 ### Issue 1 — CloverForge resolves as `taurex` instead of `vasbyt-v2`
 **Root cause:** `taurex.json` had `CLAUDE.md` as markerFile. Fixed: removed from taurex, created vasbyt-v2.json with correct root. If it happens again, restart CloverForge MCP server.
 
-### Issue 2 — `npm run check` exits 1 (pre-existing, not a blocker)
-**Symptom:** `svelte-check` reports 1 ERROR in `src/routes/gym/+page.svelte:356` — `gifUrlFor(ex.id)` receives `string | number` but expects `string`. Pre-existing. `npm run build` (vite) passes clean. Use build as the gate, not check.
+### Issue 2 — ~~`npm run check` exits 1~~ FIXED (2026-05-27)
+**Was:** `svelte-check` reported 1 ERROR in `src/routes/gym/+page.svelte:356` — `gifUrlFor(ex.id)` received `string | number` but expected `string`. **Fix:** Changed signature to `gifUrlFor(id: string | number)` with `String(id)` internally. `npm run check` now exits 0 — 0 errors, 17 pre-existing a11y/CSS warnings.
 
 ### Issue 3 — Bash tool fails on Windows paths
 **Fix:** Always use PowerShell tool for `cd` + commands on Windows. Never mix Bash `cd C:\...` with git commands.
@@ -171,7 +171,6 @@ Live URL: `https://vasbyt-v2.pages.dev`
 
 | ID | Item | Impact |
 |---|---|---|
-| TD-01 | `gifUrlFor(ex.id)` passes `string\|number` to function expecting `string` — gym.svelte:356 | svelte-check exits 1; build passes; no runtime issue |
 | TD-02 | OR_KEY (OpenRouter API key) hardcoded in app-boot.js (V1 project, not V2) | Acknowledged pre-existing |
 | TD-03 | Profile field "clear" (empty → save) silently keeps old value | Documented with hint in UI — not a bug, design choice |
 | TD-04 | Graphify graph not built for vasbyt-v2 | Run `/graphify . --exclude node_modules` to build at start of architecture-heavy session |
