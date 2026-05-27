@@ -1,10 +1,10 @@
 # CLOVERFORGE_HANDOVER.md
 # Vasbyt V2 — CloverForge Governance Handover Pack
-# Version: v1.0
-# Date: 2026-05-26
+# Version: v1.1
+# Date: 2026-05-27
 # Purpose: Complete reference for any Claude Code session to correctly load,
 #          verify, and operate under CloverForge governance for this project.
-#          Accurate as of commit 910c5b5 (docs: Phase 22 TestX patch lessons)
+#          Accurate as of commit d30f79e (docs: Phase 23 TestX patch lessons)
 
 ---
 
@@ -140,7 +140,7 @@ Live URL: `https://vasbyt-v2.pages.dev`
 
 ---
 
-## 8. Current Project State (2026-05-26 · HEAD: 910c5b5)
+## 8. Current Project State (2026-05-27 · HEAD: d30f79e)
 
 ### 8.1 Completed Phases
 
@@ -157,12 +157,12 @@ Live URL: `https://vasbyt-v2.pages.dev`
 | 20 | Resume Workout (persist exIdx, restore on reopen, green button) | ✅ Done |
 | 21 | AI Routine Builder + Program Import (two-step pipeline, review queue, manual picker) | ✅ Done + TestX GO |
 | 22 | Profile completion (height/DOB/target wt) + standalone weight log | ✅ Done + TestX GO |
+| 23 | Energy trend chart on Stats (dual-bar energy + sleep, --sleep-color token, empty-state CTA) | ✅ Done + TestX GO |
 
 ### 8.2 Pending Phases (priority order)
 
 | Phase | Feature | Notes |
 |---|---|---|
-| 23 | Energy trend chart on Stats | Mini line/bar chart of energy + sleep from check-in history |
 | 24 | Log week strip + day detail with check-in data | Log tab shows energy/sleep pills per day alongside workout summary |
 | 25 | Per-exercise notes + Extra focus mini loop | Tap exercise in gym → add note; "Add a set" mini loop at end |
 | 26 | GIF wrong/confirm feedback | Thumbs up/down on GIF in gym, feeds into media map corrections |
@@ -244,4 +244,4 @@ Live URL: `https://vasbyt-v2.pages.dev`
 
 ---
 
-END OF CLOVERFORGE_HANDOVER.md v1.0
+END OF CLOVERFORGE_HANDOVER.md v1.1
