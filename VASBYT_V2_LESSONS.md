@@ -411,3 +411,25 @@
 **Fix:** (1) Added `cues?: string[]` to `Exercise` interface and to `EX_META` type signature. (2) Added 2-3 cues per exercise to all 25+ EX_META entries (12-week program exercises + 6 compound preset entries). (3) Updated `_pe()` to spread `cues` into the returned object when present. (4) In gym page: `cuesOpen = $state(false)`; reset in `nextEx()` and `prevEx()`; Cues toggle button added to `.target-actions` (only renders when `ex.cues?.length`); expandable `.cues-card` panel with heading, bullet list (`▸` accent marker), and slide-in animation. Panel uses accent border and tinted background to distinguish from note card.
 **Files changed:** `src/lib/data/program.ts`, `src/routes/gym/+page.svelte`
 **Cross-project:** YES — pattern: data-driven expandable detail panels (interface field → toggle state → `{#if open && data?.length}` block) is reusable for any metadata you want to progressively reveal per item. Reset the open flag in all navigation functions that change the current item.
+
+---
+
+## [2026-05-27] — Same-as-last set button + audio beep — Gaps #5 & #4
+
+**Symptom:** No quick way to repeat the previous set without re-typing. No audio signal when rest timer ends.
+**Root cause:** Both features deferred from the V2 port.
+**Fix:**
+- Same-as-last: `sameAsLast()` copies `setsToday.at(-1)` weight and reps into the inputs. Button renders below Log Set only when `setsToday.length > 0`. Uses ghost styling (`background: none`, muted colour) — visible but non-primary.
+- Audio beep: `_beep(freq, durationMs, vol)` creates a Web Audio API `AudioContext`, attaches sine oscillator → gain → destination, starts immediately, stops at `currentTime + duration`. `ctx.close()` called in `onerror` to release resources. Called in `stopTimer()`. Whole try/catch wrapped — silently ignored if Web Audio not available (SSR, old browser).
+**Files changed:** `src/routes/gym/+page.svelte`
+**Cross-project:** YES — Web Audio beep pattern (create AudioContext per beep, use `osc.onended` to close context) is the right approach for one-shot sounds with no persistent audio state. Don't share a context across calls — create and close per sound.
+
+---
+
+## [2026-05-27] — Richer finish summary screen — Gap #2
+
+**Symptom:** Done screen showed only exercise count and sets logged — no duration, no volume, no PR summary.
+**Root cause:** V2 done screen was a minimal placeholder. V1 had a full post-workout summary.
+**Fix:** Added `woStartTime`, `woEndTime`, `woVolume`, `woPRs` state vars. `logSet()` sets `woStartTime` on first call (`=== 0` guard), updates `woEndTime` each call, accumulates `woVolume` for weighted sets (`w > 0`). `prNames` Map (parallel to `prShown` Set) stores exerciseId → name for PRs. `finishAll()` snapshots `woPRs = [...prNames.values()]`. Done screen uses `{@const woDurMin}` derived from timestamps. Stats grid: exercises / sets / duration (hidden if 0) / volume (hidden if 0, formatted as `1.2k` above 1000kg). PR list section: gold border card, only rendered if `woPRs.length > 0`. Layout changed from `.center-state` to `.summary-wrap` to accommodate variable-height content.
+**Files changed:** `src/routes/gym/+page.svelte`
+**Cross-project:** YES — `{@const derived}` inside `{:else if}` blocks works in Svelte 5 — useful for computing template-only values without adding state vars. `Map<id, name>` alongside a `Set<id>` is the pattern when you need both fast membership check AND the display name later.
