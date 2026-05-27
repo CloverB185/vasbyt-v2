@@ -213,8 +213,10 @@
 	function startGym() { started = true; exIdx = 0; }
 
 	function logSet() {
-		if (!ex || !reps) return;
-		saveLog(ex.id, ex.name, weight, reps);
+		const r = Math.round(Number(reps));
+		if (!ex || r < 1) return;
+		if (!ex.isBodyweight && Number(weight) < 0) return;
+		saveLog(ex.id, ex.name, weight, String(r));
 		refreshSets();
 		saveResume();
 		if (setsToday.length < target) startTimer(ex.rest || 60);
@@ -400,6 +402,7 @@
 
 <!-- ═══ ACTIVE GYM ════════════════════════════════════════════════ -->
 {:else if ex}
+	<h1 class="sr-only">Gym session — {routineTitle}</h1>
 	<!-- Progress bar -->
 	<div class="gym-prog">
 		<div class="gym-prog-fill" style="width:{pct}%"></div>
@@ -512,12 +515,16 @@
 			<div class="inputs">
 				{#if !ex.isBodyweight}
 					<div class="input-grp">
-						<label class="input-lbl">kg</label>
+						<label class="input-lbl" for="inp-weight">kg</label>
 						<input
+							id="inp-weight"
 							class="set-input"
 							type="number"
 							inputmode="decimal"
 							placeholder="0"
+							min="0"
+							max="500"
+							step="0.5"
 							bind:value={weight}
 						/>
 					</div>
@@ -527,17 +534,21 @@
 					</div>
 				{/if}
 				<div class="input-grp">
-					<label class="input-lbl">reps</label>
+					<label class="input-lbl" for="inp-reps">reps</label>
 					<input
+						id="inp-reps"
 						class="set-input"
 						type="number"
 						inputmode="numeric"
 						placeholder="0"
+						min="1"
+						max="999"
+						step="1"
 						bind:value={reps}
 					/>
 				</div>
 			</div>
-			<button class="btn-primary" onclick={logSet} disabled={!reps}>
+			<button class="btn-primary" onclick={logSet} disabled={Math.round(Number(reps)) < 1}>
 				Log Set {done + 1}
 			</button>
 		</div>

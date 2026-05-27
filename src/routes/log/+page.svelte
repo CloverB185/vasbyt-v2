@@ -296,7 +296,7 @@
 	font-size: 13px; font-weight: 500;
 	border-radius: 50%;
 	background: none; border: none; cursor: default;
-	color: rgba(255,255,255,.35);
+	color: rgba(255,255,255,.50);
 	position: relative;
 }
 
