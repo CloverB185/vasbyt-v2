@@ -348,7 +348,7 @@
 	border-radius: 999px; padding: 2px 8px;
 }
 .ci-energy { background: rgba(0,188,212,.15); color: var(--accent); border: 1px solid rgba(0,188,212,.3); }
-.ci-sleep  { background: rgba(139,125,234,.15); color: #8b7dea; border: 1px solid rgba(139,125,234,.3); }
+.ci-sleep  { background: rgba(139,125,234,.15); color: var(--sleep-color); border: 1px solid rgba(139,125,234,.3); }
 
 /* ── List ── */
 .list-label {

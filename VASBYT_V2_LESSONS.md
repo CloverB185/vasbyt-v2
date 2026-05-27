@@ -291,3 +291,33 @@
 **TestX patches (same session):**
 - G: Section label always visible; `{:else}` branch renders message card + `<a href="/body">` CTA (min-height 44px, chip-bg/chip-border tokens). Rule: data-gated chart sections must show a feature-discovery message + CTA when empty — silent hide is a G fail.
 - H: Sleep bar colour `#8b7dea` extracted to `--sleep-color` CSS token in `app.css` (both `:root` and `[data-theme="bloom"]`). Rule: any new semantic chart colour needs a CSS variable, not inline hex — even if the project uses hex for some existing chart colours (gold, trend green/red).
+
+---
+
+## [2026-05-27] — Phase 26: GIF feedback strip in gym
+
+**Symptom:** No way to flag a GIF as wrong or confirm it's correct during a workout.
+**Root cause:** Phase 26 not yet implemented.
+**Fix:** Added `KEYS.gifFeedback()` (`vasbytGifFeedback.v1`) to `storage.ts` — value is `Record<string, 'ok'|'wrong'>` keyed by exerciseId. In gym: `gifFeedbackVal = $state<'ok'|'wrong'|null>(null)`. `loadGifFeedback()` and `saveGifFeedback(flag)` added; loaded inside the existing `$effect` that fires on exercise change. Feedback strip rendered below the GIF block, gated on `ex && !gifFailed && gifUrlFor(ex.id)` — so it only shows when a GIF is actually visible. `saveGifFeedback` reuses `_voiceFeedback()` for the confirmation toast (no second toast mechanism needed). Buttons use accent / #f47 active states with subtle background fill.
+**Files changed:** `src/lib/data/storage.ts`, `src/routes/gym/+page.svelte`
+**Cross-project:** YES — reuse `_voiceFeedback()` (or any existing toast) for quick non-blocking feedback on tap interactions rather than adding a second toast system. Gate feedback UI on the same condition as the element it refers to, not a separate boolean.
+
+---
+
+## [2026-05-27] — Phase 25: Per-exercise notes + extra set in gym
+
+**Symptom:** No way to jot form cues or coaching notes during a workout, and no way to add a bonus set after hitting the target.
+**Root cause:** Phase 25 not yet implemented.
+**Fix:** Added `KEYS.gymNotes()` to `storage.ts` (value: `Record<string,string>` keyed by `{exerciseId}_{date}`). In gym: `targetOverride = $state<number|null>(null)` — `target` derived from override or `ex.sets`. `targetOverride` reset to null inside the `$effect` that fires on exercise change (no separate effect needed — it already tracks `ex`). Note: `noteVal` loaded via `loadNote()` inside the same effect. Note toggle button added to `.target-actions` wrapper in gym-target row (alongside voice). `.btn-next` orphaned selector removed when replacing single CTA with `.next-row` flex layout (`+Set` ghost + full-width primary).
+**Files changed:** `src/lib/data/storage.ts`, `src/routes/gym/+page.svelte`
+**Cross-project:** YES — `targetOverride` pattern (null = use data default, number = override) is the right way to add user-controlled overrides to a `$derived` value without lifting state. Reset it inside the effect that fires on the same trigger as the derived value.
+
+---
+
+## [2026-05-27] — Phase 24: Check-in pills on Log tab
+
+**Symptom:** Log tab showed workout sets per day but no visibility into how the user felt on training days. Check-in energy/sleep data existed in localStorage but was only visible on the Body tab.
+**Root cause:** Phase 24 not yet implemented.
+**Fix:** Imported `getCheckins` + `CheckIn` type into `log/+page.svelte`. Built `checkinMap: Map<string, CheckIn>` in `onMount` alongside the log grouping. Added `{@const dci = checkinMap.get(selDay.date)}` in the detail card block and `{@const lci = checkinMap.get(day.date)}` in each list day block. Pills render only when `energy != null || sleep != null` — absent days show nothing. `detail-head` restructured to `detail-head-left` column (date + pills) + close button. List day label wrapped in `day-label-row` flex row. Same `.ci-pill` / `.ci-energy` / `.ci-sleep` token styles used on Stats tab.
+**Files changed:** `src/routes/log/+page.svelte`
+**Cross-project:** YES — pattern for joining a secondary data source (check-ins) to a primary list (logs) by date key: build a Map in onMount, look up inline with `{@const}` inside each block. Clean, zero extra state vars.

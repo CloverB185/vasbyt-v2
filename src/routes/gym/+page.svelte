@@ -728,7 +728,7 @@
 	transition: color 0.15s, border-color 0.15s;
 }
 .gif-fb-btn.gif-fb-active { color: var(--accent); border-color: var(--accent); background: rgba(0,188,212,.08); }
-.gif-fb-wrong.gif-fb-active { color: #f47; border-color: #f47; background: rgba(255,68,119,.08); }
+.gif-fb-wrong.gif-fb-active { color: var(--red); border-color: var(--red); background: rgba(233,83,83,.08); }
 
 /* ── GIF visual ──────────────────────────────────────────────── */
 .ex-gif {

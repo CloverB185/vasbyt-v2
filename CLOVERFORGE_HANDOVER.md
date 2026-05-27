@@ -158,14 +158,17 @@ Live URL: `https://vasbyt-v2.pages.dev`
 | 21 | AI Routine Builder + Program Import (two-step pipeline, review queue, manual picker) | ✅ Done + TestX GO |
 | 22 | Profile completion (height/DOB/target wt) + standalone weight log | ✅ Done + TestX GO |
 | 23 | Energy trend chart on Stats (dual-bar energy + sleep, --sleep-color token, empty-state CTA) | ✅ Done + TestX GO |
+| 24 | Log tab check-in pills (energy/sleep per day on detail card + list rows) | ✅ Done |
+| 25 | Per-exercise notes + extra set (Note toggle, gymNotes storage, +Set button) | ✅ Done |
+| 26 | GIF feedback strip (✓/✗ below GIF, gifFeedback storage, voice toast) | ✅ Done |
 
 ### 8.2 Pending Phases (priority order)
 
-| Phase | Feature | Notes |
-|---|---|---|
-| 24 | Log week strip + day detail with check-in data | Log tab shows energy/sleep pills per day alongside workout summary |
-| 25 | Per-exercise notes + Extra focus mini loop | Tap exercise in gym → add note; "Add a set" mini loop at end |
+No planned phases remaining. Phases 1–26 complete.
+
 | 26 | GIF wrong/confirm feedback | Thumbs up/down on GIF in gym, feeds into media map corrections |
+
+
 
 ### 8.3 Known Carry Items / Technical Debt
 
