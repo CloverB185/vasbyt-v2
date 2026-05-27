@@ -9,9 +9,9 @@
 	const TOTAL = 4;
 
 	// ── Step data ─────────────────────────────────────────────
-	let name  = $state('');
-	let goal  = $state('');
-	let equip = $state('All');
+	let name          = $state('');
+	let goal          = $state('');
+	let selectedItems = $state<string[]>([]);
 
 	const GOALS = [
 		{ id: 'strength', label: 'Build Strength', sub: 'Heavier lifts, lower reps' },
@@ -19,10 +19,36 @@
 		{ id: 'general',  label: 'Stay Active',     sub: 'Balanced & sustainable'    },
 	];
 
-	const EQUIP_CHIPS = [
-		'All', 'Bodyweight', 'Dumbbell', 'Barbell',
-		'Machine', 'Kettlebell', 'Band', 'Cable',
+	const EQUIP_CATS = [
+		{ label: 'Free Weights',          items: ['Dumbbells', 'Barbell', 'Kettlebell', 'EZ-bar'] },
+		{ label: 'Cables & Machines',     items: ['Cable machine', 'Weight machines', 'Resistance bands'] },
+		{ label: 'Bodyweight & Accessories', items: ['Pull-up bar', 'Dip bars', 'Yoga mat'] },
+		{ label: 'Cardio',                items: ['Treadmill', 'Rowing machine', 'Stationary bike'] },
 	];
+
+	function toggleItem(item: string) {
+		if (selectedItems.includes(item)) {
+			selectedItems = selectedItems.filter(i => i !== item);
+		} else {
+			selectedItems = [...selectedItems, item];
+		}
+	}
+
+	function deriveChip(items: string[]): string {
+		if (items.length === 0) return '';
+		const cats = new Set<string>();
+		for (const item of items) {
+			const n = item.toLowerCase();
+			if (n.includes('barbell') || n.includes('ez-bar'))        cats.add('barbell');
+			else if (n.includes('dumbbell'))                           cats.add('dumbbell');
+			else if (n.includes('cable'))                              cats.add('cable');
+			else if (n.includes('kettlebell'))                         cats.add('kettlebell');
+			else if (n.includes('band') || n.includes('resistance'))   cats.add('band');
+			else if (n.includes('machine'))                            cats.add('machine');
+			else if (['pull-up','dip','yoga','mat'].some(k => n.includes(k))) cats.add('bodyweight');
+		}
+		return cats.size === 1 ? [...cats][0] : '';
+	}
 
 	// ── Guards ────────────────────────────────────────────────
 	onMount(() => {
@@ -51,7 +77,8 @@
 	function finish() {
 		const existing = J<Record<string, unknown>>(KEYS.profile(), {});
 		S(KEYS.profile(), { ...existing, name: name.trim(), goal });
-		S(KEYS.equip(), equip);
+		S(KEYS.equipItems(), selectedItems);
+		S(KEYS.equip(), deriveChip(selectedItems));
 		goto('/');
 	}
 
@@ -112,19 +139,31 @@
 
 	<!-- ── Step 3: Equipment ─────────────────────────────────── -->
 	{#if step === 3}
-		<div class="step">
+		<div class="step step-equip">
 			<h1 class="step-title">What equipment<br/>do you have?</h1>
-			<p class="step-hint">This filters your exercise options.</p>
-			<div class="chip-grid">
-				{#each EQUIP_CHIPS as chip}
-					<button
-						type="button"
-						class="chip"
-						class:chip-sel={equip === chip}
-						onclick={() => (equip = chip)}
-					>{chip}</button>
+			<p class="step-hint">Tap all that apply — we'll filter your exercises accordingly.</p>
+			<div class="equip-cats">
+				{#each EQUIP_CATS as cat}
+					<div class="equip-cat">
+						<div class="cat-label">{cat.label}</div>
+						<div class="cat-items">
+							{#each cat.items as item}
+								<button
+									type="button"
+									class="equip-item"
+									class:equip-sel={selectedItems.includes(item)}
+									onclick={() => toggleItem(item)}
+								>{item}</button>
+							{/each}
+						</div>
+					</div>
 				{/each}
 			</div>
+			{#if selectedItems.length === 0}
+				<p class="equip-none-hint">Nothing selected — all exercises will be shown.</p>
+			{:else}
+				<p class="equip-none-hint">{selectedItems.length} item{selectedItems.length > 1 ? 's' : ''} selected</p>
+			{/if}
 		</div>
 	{/if}
 
@@ -272,28 +311,51 @@
 	color: var(--muted);
 }
 
-/* ── Equipment chips ── */
-.chip-grid {
+/* ── Equipment categorized checklist ── */
+.step-equip { gap: 0; }
+.equip-cats {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	overflow-y: auto;
+	flex: 1;
+	margin-bottom: 8px;
+}
+.equip-cat { display: flex; flex-direction: column; gap: 8px; }
+.cat-label {
+	font-size: 10px;
+	font-weight: 900;
+	letter-spacing: .1em;
+	text-transform: uppercase;
+	color: var(--accent);
+}
+.cat-items {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
 }
-.chip {
-	background: rgba(255,255,255,.07);
+.equip-item {
+	background: rgba(255,255,255,.06);
 	border: 1px solid var(--line);
 	border-radius: 999px;
 	color: var(--text);
 	font-size: 14px;
 	font-weight: 700;
-	padding: 10px 18px;
+	padding: 9px 16px;
 	min-height: 44px;
 	cursor: pointer;
-	transition: border-color 0.15s, background 0.15s;
+	transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
-.chip.chip-sel {
+.equip-item.equip-sel {
 	border-color: var(--accent);
 	background: rgba(0,188,212,.15);
 	color: var(--accent);
+}
+.equip-none-hint {
+	font-size: 12px;
+	color: var(--muted);
+	margin: 4px 0 0;
+	text-align: center;
 }
 
 /* ── Done step ── */
