@@ -46,6 +46,9 @@
 		_prTimer = setTimeout(() => (prVisible = false), 3000);
 	}
 
+	// ── Coaching cues ─────────────────────────────────────────────
+	let cuesOpen  = $state(false);
+
 	// ── Notes ─────────────────────────────────────────────────────
 	let noteVal   = $state('');
 	let noteOpen  = $state(false);
@@ -258,14 +261,14 @@
 
 	function nextEx() {
 		stopTimer();
-		targetOverride = null; noteOpen = false;
+		targetOverride = null; noteOpen = false; cuesOpen = false;
 		if (!isLast) { exIdx++; saveResume(); }
 		else finishAll();
 	}
 
 	function prevEx() {
 		stopTimer();
-		targetOverride = null; noteOpen = false;
+		targetOverride = null; noteOpen = false; cuesOpen = false;
 		if (exIdx > 0) { exIdx--; saveResume(); }
 	}
 
@@ -484,13 +487,18 @@
 		</button>
 	</div>
 
-	<!-- Target + count + voice + note toggles -->
+	<!-- Target + count + voice + note + cues toggles -->
 	<div class="gym-target">
 		<span class="target-txt">{ex.sets} sets · {ex.reps}</span>
 		<div class="target-actions">
 			{#if voiceSupported}
 				<button class="voice-btn" class:voice-on={voiceActive} onclick={toggleVoice}>
 					{voiceActive ? '● Voice' : 'Voice'}
+				</button>
+			{/if}
+			{#if ex.cues?.length}
+				<button class="note-btn" class:note-has={cuesOpen} onclick={() => (cuesOpen = !cuesOpen)}>
+					Cues{cuesOpen ? ' ▲' : ' ▼'}
 				</button>
 			{/if}
 			<button class="note-btn" class:note-has={noteVal.trim()} onclick={() => (noteOpen = !noteOpen)}>
@@ -520,6 +528,18 @@
 				</div>
 			{/each}
 			<button class="undo-btn" onclick={undo} title="Undo last set">↩</button>
+		</div>
+	{/if}
+
+	<!-- Coaching cues panel -->
+	{#if cuesOpen && ex.cues?.length}
+		<div class="cues-card">
+			<p class="cues-heading">Coaching cues</p>
+			<ul class="cues-list">
+				{#each ex.cues as cue}
+					<li class="cue-item">{cue}</li>
+				{/each}
+			</ul>
 		</div>
 	{/if}
 
@@ -762,6 +782,35 @@
 }
 .note-input:focus { outline: none; }
 .note-input::placeholder { color: rgba(255,255,255,.22); }
+
+/* ── Coaching cues card ──────────────────────────────────────── */
+.cues-card {
+	background: rgba(0,188,212,.06);
+	border: 1px solid rgba(0,188,212,.25);
+	border-radius: 14px; padding: 12px 14px; margin: 4px 0;
+	animation: cues-in 0.18s ease-out;
+}
+@keyframes cues-in {
+	from { opacity: 0; transform: translateY(-4px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+.cues-heading {
+	font-size: 10px; font-weight: 900; text-transform: uppercase;
+	letter-spacing: .1em; color: var(--accent); margin: 0 0 8px;
+}
+.cues-list {
+	list-style: none; margin: 0; padding: 0;
+	display: flex; flex-direction: column; gap: 6px;
+}
+.cue-item {
+	font-size: 13px; font-weight: 700; color: var(--text);
+	padding-left: 14px; position: relative; line-height: 1.5;
+}
+.cue-item::before {
+	content: '▸';
+	position: absolute; left: 0;
+	color: var(--accent); font-size: 10px; top: 2px;
+}
 
 /* ── Next row (add set + next/finish) ────────────────────────── */
 .next-row { display: flex; gap: 10px; margin-top: 8px; }

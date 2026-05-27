@@ -15,6 +15,7 @@ export interface Exercise {
 	rest: number;
 	muscles: string[];
 	isBodyweight?: boolean;
+	cues?: string[];
 }
 
 export interface RoutineDay {
@@ -36,45 +37,54 @@ export interface LogEntry {
 
 // ── 12-week program data ──────────────────────────────────────
 
-const EX_META: Record<string, { name: string; muscles: string[]; rest: number; isBodyweight?: boolean }> = {
-	'incline-dumbbell-chest-press':           { name: 'Incline DB Press',      muscles: ['Chest', 'Shoulders', 'Triceps'],     rest: 75 },
-	'one-arm-dumbbell-row':                   { name: 'DB Row',                muscles: ['Back', 'Upper Back', 'Arms'],        rest: 60 },
-	'dumbbell-biceps-curl':                   { name: 'Biceps Curl',           muscles: ['Arms', 'Biceps'],                    rest: 45 },
-	'hammer-curl':                            { name: 'Hammer Curl',           muscles: ['Arms', 'Forearms'],                  rest: 45 },
-	'dumbbell-triceps-kickback':              { name: 'Triceps Kickback',       muscles: ['Arms', 'Triceps'],                   rest: 45 },
-	'incline-bench-rear-delt-fly':            { name: 'Rear Delt Fly',         muscles: ['Posture', 'Rear Shoulders'],         rest: 45 },
-	'dead-bug':                               { name: 'Dead Bug',              muscles: ['Core', 'Lower Abs'],                 rest: 45, isBodyweight: true },
-	'heel-taps':                              { name: 'Heel Taps',             muscles: ['Core', 'Lower Abs'],                 rest: 45, isBodyweight: true },
-	'side-lying-inner-thigh-raise':           { name: 'Inner Thigh Raise',     muscles: ['Inner Thighs', 'Hips'],              rest: 45, isBodyweight: true },
-	'bridge-pillow-ball-squeeze':             { name: 'Bridge Squeeze',        muscles: ['Glutes', 'Inner Thighs'],            rest: 60, isBodyweight: true },
-	'light-sumo-dumbbell-squat':              { name: 'Sumo Squat',            muscles: ['Inner Thighs', 'Glutes', 'Legs'],    rest: 75 },
-	'dumbbell-hip-thrust-glute-bridge':       { name: 'Hip Thrust',            muscles: ['Glutes', 'Hamstrings'],              rest: 60 },
-	'standing-calf-raise':                    { name: 'Calf Raise',            muscles: ['Calves'],                            rest: 45 },
-	'side-plank-knees-bent':                  { name: 'Side Plank',            muscles: ['Core', 'Side Waist'],                rest: 45, isBodyweight: true },
-	'reverse-crunch':                         { name: 'Reverse Crunch',        muscles: ['Core', 'Lower Abs'],                 rest: 45, isBodyweight: true },
-	'light-dumbbell-lateral-raise':           { name: 'Lateral Raise',         muscles: ['Shoulders'],                         rest: 45 },
-	'lying-dumbbell-triceps-extension':       { name: 'Triceps Extension',     muscles: ['Arms', 'Triceps'],                   rest: 45 },
-	'side-lying-dumbbell-external-rotation':  { name: 'External Rotation',     muscles: ['Shoulders', 'Rotator Cuff'],        rest: 45 },
-	'goblet-squat':                           { name: 'Goblet Squat',          muscles: ['Legs', 'Glutes', 'Core'],            rest: 75 },
-	'dumbbell-romanian-deadlift':             { name: 'Romanian Deadlift',     muscles: ['Hamstrings', 'Glutes', 'Back'],      rest: 75 },
-	'incline-push-up':                        { name: 'Incline Push-Up',       muscles: ['Chest', 'Shoulders', 'Triceps'],     rest: 60, isBodyweight: true },
-	'boxing-light-technique':                 { name: 'Boxing Rounds',         muscles: ['Cardio', 'Arms', 'Core'],            rest: 60, isBodyweight: true },
-	'russian-twist':                          { name: 'Russian Twist',         muscles: ['Core', 'Obliques'],                  rest: 45, isBodyweight: true },
-	'short-lever-copenhagen-plank':           { name: 'Copenhagen Plank',      muscles: ['Inner Thighs', 'Core'],              rest: 60, isBodyweight: true },
-	'neutral-grip-dumbbell-shoulder-press':   { name: 'Shoulder Press',        muscles: ['Shoulders', 'Triceps'],              rest: 60 },
+const EX_META: Record<string, { name: string; muscles: string[]; rest: number; isBodyweight?: boolean; cues?: string[] }> = {
+	'incline-dumbbell-chest-press':           { name: 'Incline DB Press',      muscles: ['Chest', 'Shoulders', 'Triceps'],     rest: 75,  cues: ['Elbows at 45° — not flared out', 'Lower until forearms are vertical', 'Press through the whole palm'] },
+	'one-arm-dumbbell-row':                   { name: 'DB Row',                muscles: ['Back', 'Upper Back', 'Arms'],        rest: 60,  cues: ['Pull elbow to hip — not ceiling', 'Chest stays square to the bench', 'Full stretch at the bottom'] },
+	'dumbbell-biceps-curl':                   { name: 'Biceps Curl',           muscles: ['Arms', 'Biceps'],                    rest: 45,  cues: ['Elbows pinned to your sides', 'Squeeze hard at the top', '3-count lowering phase'] },
+	'hammer-curl':                            { name: 'Hammer Curl',           muscles: ['Arms', 'Forearms'],                  rest: 45,  cues: ['Neutral grip — thumbs up', 'Keep wrist straight throughout', 'Control the descent'] },
+	'dumbbell-triceps-kickback':              { name: 'Triceps Kickback',      muscles: ['Arms', 'Triceps'],                   rest: 45,  cues: ['Upper arm parallel to floor', 'Extend fully — lock out at top', "Don't swing the weight"] },
+	'incline-bench-rear-delt-fly':            { name: 'Rear Delt Fly',         muscles: ['Posture', 'Rear Shoulders'],         rest: 45,  cues: ['Chest down on the pad', 'Arc back and up — elbows soft', 'Squeeze between the shoulder blades'] },
+	'dead-bug':                               { name: 'Dead Bug',              muscles: ['Core', 'Lower Abs'],                 rest: 45,  isBodyweight: true, cues: ['Lower back pressed flat to floor', 'Opposite arm and leg extend slowly', 'Breathe out as you extend'] },
+	'heel-taps':                              { name: 'Heel Taps',             muscles: ['Core', 'Lower Abs'],                 rest: 45,  isBodyweight: true, cues: ['Lower back stays flat', 'Reach side to side — no rushing', 'Brace your core throughout'] },
+	'side-lying-inner-thigh-raise':           { name: 'Inner Thigh Raise',     muscles: ['Inner Thighs', 'Hips'],              rest: 45,  isBodyweight: true, cues: ['Top leg rests forward — not stacked', 'Lift and lower with control', 'Keep hips stacked vertically'] },
+	'bridge-pillow-ball-squeeze':             { name: 'Bridge Squeeze',        muscles: ['Glutes', 'Inner Thighs'],            rest: 60,  isBodyweight: true, cues: ['Squeeze the object as you bridge up', 'Hold glute squeeze 2 sec at top', 'Feet hip-width, toes forward'] },
+	'light-sumo-dumbbell-squat':              { name: 'Sumo Squat',            muscles: ['Inner Thighs', 'Glutes', 'Legs'],    rest: 75,  cues: ['Toes out 45°, knees track over toes', 'Chest up, sit deep between heels', 'Drive through heels to stand'] },
+	'dumbbell-hip-thrust-glute-bridge':       { name: 'Hip Thrust',            muscles: ['Glutes', 'Hamstrings'],              rest: 60,  cues: ['Shoulders on bench edge — not neck', 'Drive through heels, not toes', 'Squeeze glutes hard at lockout'] },
+	'standing-calf-raise':                    { name: 'Calf Raise',            muscles: ['Calves'],                            rest: 45,  cues: ['Full range — heel drops below step', 'Pause 1 second at the top', 'Slow lowering phase'] },
+	'side-plank-knees-bent':                  { name: 'Side Plank',            muscles: ['Core', 'Side Waist'],                rest: 45,  isBodyweight: true, cues: ['Hips high — no sagging', 'Stack shoulders, hips, and knees', 'Breathe steadily'] },
+	'reverse-crunch':                         { name: 'Reverse Crunch',        muscles: ['Core', 'Lower Abs'],                 rest: 45,  isBodyweight: true, cues: ['Curl hips off floor — no swinging', 'Lower back stays in contact with floor', 'Exhale as hips lift'] },
+	'light-dumbbell-lateral-raise':           { name: 'Lateral Raise',         muscles: ['Shoulders'],                         rest: 45,  cues: ['Slight bend at elbow throughout', 'Lead with your elbow — not your hand', 'Stop at shoulder height'] },
+	'lying-dumbbell-triceps-extension':       { name: 'Triceps Extension',     muscles: ['Arms', 'Triceps'],                   rest: 45,  cues: ['Elbows point at ceiling — not outward', 'Only forearms move, hinge at elbow', 'Control the lowering phase'] },
+	'side-lying-dumbbell-external-rotation':  { name: 'External Rotation',     muscles: ['Shoulders', 'Rotator Cuff'],         rest: 45,  cues: ['Elbow pinned to your side', 'Rotate forearm toward the ceiling', 'Small range — squeeze at top'] },
+	'goblet-squat':                           { name: 'Goblet Squat',          muscles: ['Legs', 'Glutes', 'Core'],            rest: 75,  cues: ['Chest up, elbows inside knees', 'Sit deep — hips below knees', 'Drive through heels to stand'] },
+	'dumbbell-romanian-deadlift':             { name: 'Romanian Deadlift',     muscles: ['Hamstrings', 'Glutes', 'Back'],      rest: 75,  cues: ['Soft knee, push hips back', 'Keep the weight close to your legs', 'Stop when you feel the hamstring stretch'] },
+	'incline-push-up':                        { name: 'Incline Push-Up',       muscles: ['Chest', 'Shoulders', 'Triceps'],     rest: 60,  isBodyweight: true, cues: ['Body in one straight line', 'Lower chest to the surface', 'Elbows at 45° to your torso'] },
+	'boxing-light-technique':                 { name: 'Boxing Rounds',         muscles: ['Cardio', 'Arms', 'Core'],            rest: 60,  isBodyweight: true, cues: ['Light fists — power comes from hips', 'Stay on the balls of your feet', 'Keep guard up between punches'] },
+	'russian-twist':                          { name: 'Russian Twist',         muscles: ['Core', 'Obliques'],                  rest: 45,  isBodyweight: true, cues: ['Lean back 45°, chest tall', 'Rotate with your torso — not just arms', 'Control the twist each way'] },
+	'short-lever-copenhagen-plank':           { name: 'Copenhagen Plank',      muscles: ['Inner Thighs', 'Core'],              rest: 60,  isBodyweight: true, cues: ["Hips square — don't rotate", 'Top leg presses down into surface', 'Breathe steady'] },
+	'neutral-grip-dumbbell-shoulder-press':   { name: 'Shoulder Press',        muscles: ['Shoulders', 'Triceps'],              rest: 60,  cues: ['Core braced, ribs down', 'Press up and slightly in', 'Lower until elbows at 90°'] },
 	// compound / preset-only exercises
-	'squat':                                  { name: 'Squat',                 muscles: ['Quads', 'Glutes', 'Core'],           rest: 120 },
-	'bench-press':                            { name: 'Bench Press',           muscles: ['Chest', 'Shoulders', 'Triceps'],     rest: 90 },
-	'deadlift':                               { name: 'Deadlift',              muscles: ['Back', 'Hamstrings', 'Glutes'],      rest: 120 },
-	'romanian-deadlift':                      { name: 'Romanian Deadlift',     muscles: ['Hamstrings', 'Glutes', 'Back'],      rest: 90 },
-	'lat-pulldown':                           { name: 'Lat Pulldown',          muscles: ['Back', 'Biceps'],                    rest: 75 },
-	'shoulder-press':                         { name: 'Overhead Press',        muscles: ['Shoulders', 'Triceps', 'Core'],      rest: 90 }
+	'squat':                                  { name: 'Squat',                 muscles: ['Quads', 'Glutes', 'Core'],           rest: 120, cues: ['Bar across traps — not neck', 'Knees track toes throughout', 'Hips below parallel for full depth'] },
+	'bench-press':                            { name: 'Bench Press',           muscles: ['Chest', 'Shoulders', 'Triceps'],     rest: 90,  cues: ['Arch upper back, retract scapula', "Lower to chest — don't bounce", 'Drive feet into the floor'] },
+	'deadlift':                               { name: 'Deadlift',              muscles: ['Back', 'Hamstrings', 'Glutes'],      rest: 120, cues: ['Hip hinge — not a squat', 'Bar over mid-foot, never forward', "Drive the floor away — don't pull"] },
+	'romanian-deadlift':                      { name: 'Romanian Deadlift',     muscles: ['Hamstrings', 'Glutes', 'Back'],      rest: 90,  cues: ['Hip hinge, soft knee', 'Bar stays close to legs', 'Stop at hamstring tension'] },
+	'lat-pulldown':                           { name: 'Lat Pulldown',          muscles: ['Back', 'Biceps'],                    rest: 75,  cues: ['Lean back slightly', 'Pull bar to upper chest, elbows to hips', 'Control the stretch back up'] },
+	'shoulder-press':                         { name: 'Overhead Press',        muscles: ['Shoulders', 'Triceps', 'Core'],      rest: 90,  cues: ['Core tight — no lumbar arch', 'Press through the crown of your head', 'Lower until upper arms are horizontal'] }
 };
 
 function _pe(id: string, sets: number, reps: string): Exercise {
 	const m = EX_META[id];
 	if (!m) return { id, name: id, sets, reps, rest: 60, muscles: [] };
-	return { id, name: m.name, sets, reps, rest: m.rest, muscles: m.muscles, ...(m.isBodyweight ? { isBodyweight: true } : {}) };
+	return {
+		id,
+		name: m.name,
+		sets,
+		reps,
+		rest: m.rest,
+		muscles: m.muscles,
+		...(m.isBodyweight ? { isBodyweight: true } : {}),
+		...(m.cues?.length      ? { cues: m.cues }   : {}),
+	};
 }
 
 const PROGRAM: Record<1 | 2 | 3, Record<1 | 2 | 3 | 4 | 5, RoutineDay>> = {
