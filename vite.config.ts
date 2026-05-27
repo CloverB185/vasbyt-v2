@@ -16,7 +16,14 @@ export default defineConfig({
 				display: 'standalone',
 				orientation: 'portrait',
 				start_url: '/',
-				icons: []
+				icons: [
+					{
+						src: '/icon.svg',
+						sizes: 'any',
+						type: 'image/svg+xml',
+						purpose: 'any maskable'
+					}
+				]
 			},
 			workbox: {
 				globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}']
