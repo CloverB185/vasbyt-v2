@@ -38,6 +38,13 @@
 	let prVisible     = $state(false);
 	let _prTimer: ReturnType<typeof setTimeout> | null = null;
 	const prShown     = new Set<string>(); // exerciseId keys — one PR banner per exercise per session
+	const prNames     = new Map<string, string>(); // exerciseId → name (for summary screen)
+
+	// ── Workout summary state ─────────────────────────────────────
+	let woStartTime   = $state(0);   // ms timestamp of first set logged
+	let woEndTime     = $state(0);   // ms timestamp of last set (approx finish)
+	let woVolume      = $state(0);   // total kg × reps across session
+	let woPRs         = $state<string[]>([]); // exercise names that hit PR this session
 
 	function showPR(w: string) {
 		prWeight = w;
@@ -275,7 +282,16 @@
 		saveLog(ex.id, ex.name, weight, String(r));
 		refreshSets();
 		saveResume();
-		if (pr) { prShown.add(key); showPR(weight); }
+		// Track session start time + volume
+		if (woStartTime === 0) woStartTime = Date.now();
+		woEndTime = Date.now();
+		const w = Number(weight);
+		if (w > 0) woVolume += Math.round(w * r);
+		if (pr) {
+			prShown.add(key);
+			prNames.set(key, ex.name);
+			showPR(weight);
+		}
 		if (setsToday.length < target) startTimer(ex.rest || 60);
 	}
 
@@ -304,7 +320,8 @@
 		clearResume();
 		finishWorkout();
 		refreshSets();
-		woDone = true;
+		woPRs    = [...prNames.values()];
+		woDone   = true;
 	}
 
 	// ── Voice mode ─────────────────────────────────────────────────
@@ -415,19 +432,48 @@
 
 <!-- ═══ DONE SCREEN ══════════════════════════════════════════════ -->
 {:else if woDone}
-	<div class="center-state">
-		<div class="state-icon">◎</div>
-		<h2 class="done-title">Workout done!</h2>
-		<div class="done-stats">
+	{@const woDurMin = woStartTime > 0 ? Math.round((woEndTime - woStartTime) / 60000) : 0}
+	<div class="summary-wrap">
+		<div class="summary-hero">
+			<div class="summary-icon">◎</div>
+			<h2 class="summary-title">Workout done!</h2>
+			<p class="summary-sub">{routineTitle}</p>
+		</div>
+
+		<div class="summary-stats">
 			<div class="stat-block">
 				<span class="stat-val">{exercises.length}</span>
 				<span class="stat-lbl">exercises</span>
 			</div>
 			<div class="stat-block">
 				<span class="stat-val">{totalDone}</span>
-				<span class="stat-lbl">sets logged</span>
+				<span class="stat-lbl">sets</span>
 			</div>
+			{#if woDurMin > 0}
+				<div class="stat-block">
+					<span class="stat-val">{woDurMin}</span>
+					<span class="stat-lbl">min</span>
+				</div>
+			{/if}
+			{#if woVolume > 0}
+				<div class="stat-block">
+					<span class="stat-val">{woVolume >= 1000 ? (woVolume / 1000).toFixed(1) + 'k' : woVolume}</span>
+					<span class="stat-lbl">kg vol</span>
+				</div>
+			{/if}
 		</div>
+
+		{#if woPRs.length > 0}
+			<div class="summary-prs">
+				<p class="summary-prs-title">★ New PRs</p>
+				<ul class="summary-prs-list">
+					{#each woPRs as name}
+						<li>{name}</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
+
 		<p class="done-note">Day advanced. See you next session.</p>
 		<button class="btn-primary" onclick={() => goto('/')}>Back to Today</button>
 	</div>
@@ -683,12 +729,33 @@
 .center-state h2 { font-size: 22px; font-weight: 900; }
 .center-state p  { font-size: 14px; color: var(--muted); max-width: 240px; line-height: 1.5; }
 
-.done-title { font-size: 28px !important; }
-.done-stats { display: flex; gap: 36px; margin: 8px 0; }
+/* ── Summary screen ──────────────────────────────────────────── */
+.summary-wrap {
+	display: flex; flex-direction: column; align-items: center;
+	gap: 20px; padding: 32px 20px 24px; max-width: 440px; margin: 0 auto; width: 100%;
+}
+.summary-hero { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.summary-icon { font-size: 52px; opacity: .6; }
+.summary-title { font-size: 28px; font-weight: 900; margin: 0; }
+.summary-sub { font-size: 14px; color: var(--muted); font-weight: 700; margin: 0; }
+.summary-stats { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; }
 .stat-block { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .stat-val   { font-size: 36px; font-weight: 900; color: var(--accent); line-height: 1; }
 .stat-lbl   { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-.done-note  { font-size: 13px; color: var(--muted); }
+.summary-prs {
+	width: 100%; background: rgba(255,183,0,.1); border: 1px solid rgba(255,183,0,.4);
+	border-radius: 14px; padding: 12px 16px;
+}
+.summary-prs-title {
+	font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em;
+	color: #ffb700; margin: 0 0 8px;
+}
+.summary-prs-list {
+	list-style: none; margin: 0; padding: 0;
+	display: flex; flex-direction: column; gap: 4px;
+}
+.summary-prs-list li { font-size: 14px; font-weight: 700; color: var(--text); }
+.done-note  { font-size: 13px; color: var(--muted); text-align: center; }
 
 /* ── Pre-workout ─────────────────────────────────────────────── */
 .pre-wrap  { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
