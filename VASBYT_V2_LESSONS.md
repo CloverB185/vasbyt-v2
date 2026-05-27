@@ -321,3 +321,33 @@
 **Fix:** Imported `getCheckins` + `CheckIn` type into `log/+page.svelte`. Built `checkinMap: Map<string, CheckIn>` in `onMount` alongside the log grouping. Added `{@const dci = checkinMap.get(selDay.date)}` in the detail card block and `{@const lci = checkinMap.get(day.date)}` in each list day block. Pills render only when `energy != null || sleep != null` — absent days show nothing. `detail-head` restructured to `detail-head-left` column (date + pills) + close button. List day label wrapped in `day-label-row` flex row. Same `.ci-pill` / `.ci-energy` / `.ci-sleep` token styles used on Stats tab.
 **Files changed:** `src/routes/log/+page.svelte`
 **Cross-project:** YES — pattern for joining a secondary data source (check-ins) to a primary list (logs) by date key: build a Map in onMount, look up inline with `{@const}` inside each block. Clean, zero extra state vars.
+
+---
+
+## [2026-05-27] — Input boundary: negative reps/weight and decimal reps loggable
+
+**Symptom:** Axe-core input boundary test revealed `reps=-5` enabled the Log Set button and wrote `{reps:-5,weight:9999}` to localStorage. Similarly `weight=-50` and `reps=5.5` passed through without any guard.
+**Root cause:** Guard was `disabled={!reps}` and `if (!reps) return`. In JS, `!(-5) === false` — any non-zero number (including negative) is truthy and passes the guard. No `min`/`max`/`step` HTML attributes existed on either number input.
+**Fix:** (1) Added `min="1" max="999" step="1"` to reps input; `min="0" max="500" step="0.5"` to weight input. (2) Rewrote `logSet()` guard: `const r = Math.round(Number(reps)); if (!ex || r < 1) return; if (!ex.isBodyweight && Number(weight) < 0) return;` — covers negative, zero, decimal, and empty. (3) Button disabled: `disabled={Math.round(Number(reps)) < 1}`. (4) Added `for`/`id` association on labels to fix a11y label warning.
+**Files changed:** `src/routes/gym/+page.svelte`
+**Cross-project:** YES — `!value` guard on a number-bound input passes for any truthy number including negatives. Always use `Number(val) < minimum` for numeric guards, not `!val`. Always add `min`/`max`/`step` HTML attributes for browser-level hinting and keyboard behaviour.
+
+---
+
+## [2026-05-27] — WCAG 2.1 AA color contrast: systemic muted/accent token failures
+
+**Symptom:** axe-core audit (WCAG 2.1 AA) flagged 61 nodes across 5 of 6 pages with `color-contrast: serious`. Calendar untrained days 3.17:1, tile labels 4.09:1, accent teal on card bg 4.17:1 — all below the 4.5:1 threshold.
+**Root cause:** `--muted: #8a9bb0` and `--accent: #0e9ab8` were too close to the 4.5:1 threshold and dipped below it on slightly lighter card surfaces (`#292d32`). Cal cells used hardcoded `rgba(255,255,255,.35)` which computed to 3.17:1.
+**Fix:** `--muted: #9cafc4` (+lightness), `--accent: #10a8cb` (+lightness), bloom `--muted: #e0bcd8`, `.cal-cell` untrained opacity `.35` → `.50`. All pass ≥4.5:1 post-fix. Added `.sr-only` utility class to `app.css`. Added `<h1 class="sr-only">` to active gym section to resolve `page-has-heading-one` violation.
+**Files changed:** `src/app.css`, `src/routes/log/+page.svelte`, `src/routes/gym/+page.svelte`
+**Cross-project:** YES — always run axe-core on every page before shipping. On dark UIs, `--muted` and even brand accent colors frequently fail WCAG AA on card surfaces. The fix is small (token tweak) but the detection requires an automated tool — visual inspection will miss near-misses like 4.09:1.
+
+---
+
+## [2026-05-27] — VitePWA plugin already installed but icons array was empty
+
+**Symptom:** Production test showed `serviceWorkerRegistered: false` and `iconCount: 0` in manifest. App appeared to have no SW or icons.
+**Root cause:** `vite-plugin-pwa` was already installed and generating `sw.js` via workbox generateSW mode. The SW was being generated but `icons: []` in `vite.config.ts` meant the manifest had no icons, preventing install prompts on Chrome/Android. The Playwright SW check used `getRegistrations()` immediately after navigation — timing issue, not a real absence.
+**Fix:** Created `static/icon.svg` (dark bg + teal V lettermark, maskable-safe). Updated `vite.config.ts` icons array with SVG entry (`purpose: 'any maskable'`). Added `rel=icon` and `rel=apple-touch-icon` links to `app.html`. PWA precache grew from 30 → 32 entries.
+**Files changed:** `static/icon.svg` (new), `vite.config.ts`, `src/app.html`
+**Cross-project:** NO — but note: always check `vite.config.ts` before concluding a PWA plugin isn't installed. The build output "PWA v1.3.0 mode generateSW" is the signal. SVG icons work for Chrome/Android modern browsers; for iOS full support, add 192px and 512px PNG icons as well.
