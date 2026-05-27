@@ -10,6 +10,7 @@
 		getLastRepsForExercise,
 		undoLastSetToday,
 		finishWorkout,
+		isPR,
 		type Exercise,
 		type LogEntry
 	} from '$lib/data/program';
@@ -31,6 +32,19 @@
 	let woDone         = $state(false);
 	let totalDone      = $state(0);
 	let targetOverride = $state<number | null>(null);
+
+	// ── PR banner ─────────────────────────────────────────────────
+	let prWeight      = $state('');
+	let prVisible     = $state(false);
+	let _prTimer: ReturnType<typeof setTimeout> | null = null;
+	const prShown     = new Set<string>(); // exerciseId keys — one PR banner per exercise per session
+
+	function showPR(w: string) {
+		prWeight = w;
+		prVisible = true;
+		if (_prTimer) clearTimeout(_prTimer);
+		_prTimer = setTimeout(() => (prVisible = false), 3000);
+	}
 
 	// ── Notes ─────────────────────────────────────────────────────
 	let noteVal   = $state('');
@@ -226,9 +240,12 @@
 		const r = Math.round(Number(reps));
 		if (!ex || r < 1) return;
 		if (!ex.isBodyweight && Number(weight) < 0) return;
+		const key = String(ex.id);
+		const pr = !prShown.has(key) && isPR(ex.id, weight);
 		saveLog(ex.id, ex.name, weight, String(r));
 		refreshSets();
 		saveResume();
+		if (pr) { prShown.add(key); showPR(weight); }
 		if (setsToday.length < target) startTimer(ex.rest || 60);
 	}
 
@@ -485,6 +502,14 @@
 		</span>
 	</div>
 
+	<!-- PR banner -->
+	{#if prVisible}
+		<div class="pr-banner">
+			<span class="pr-icon">★</span>
+			<span class="pr-text">New PR — {prWeight}kg!</span>
+		</div>
+	{/if}
+
 	<!-- Logged sets chips -->
 	{#if setsToday.length > 0}
 		<div class="sets-row">
@@ -654,6 +679,21 @@
 .set-count  { font-size: 16px; font-weight: 900; color: var(--muted); }
 .set-count.amber { color: var(--amber); }
 .set-count.green { color: var(--green); }
+
+/* ── PR banner ───────────────────────────────────────────────── */
+.pr-banner {
+	display: flex; align-items: center; gap: 10px;
+	background: linear-gradient(135deg, rgba(255,183,0,.18), rgba(255,140,0,.12));
+	border: 1px solid rgba(255,183,0,.5);
+	border-radius: 14px; padding: 12px 16px; margin: 6px 0;
+	animation: pr-slide 0.25s ease-out;
+}
+@keyframes pr-slide {
+	from { opacity: 0; transform: translateY(-6px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+.pr-icon { font-size: 20px; color: #ffb700; flex-shrink: 0; }
+.pr-text { font-size: 15px; font-weight: 900; color: #ffb700; }
 
 /* ── Set chips ───────────────────────────────────────────────── */
 .sets-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 10px 0; }

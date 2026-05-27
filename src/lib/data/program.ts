@@ -604,6 +604,23 @@ export function saveLog(
 	return entry;
 }
 
+/**
+ * Returns true if `weight` is a new personal record for this exercise.
+ * Compares against the best weight logged on any date BEFORE today.
+ * Returns false for bodyweight sets (weight = '' or '0').
+ */
+export function isPR(exerciseId: number | string, weight: string): boolean {
+	const w = Number(weight);
+	if (!w || w <= 0) return false;
+	const t = today();
+	const prev = getLogs().filter(
+		(l) => String(l.exerciseId) === String(exerciseId) && l.date !== t && Number(l.weight) > 0
+	);
+	if (prev.length === 0) return false; // no history → not a PR (first ever session)
+	const best = Math.max(...prev.map((l) => Number(l.weight)));
+	return w > best;
+}
+
 /** Most recent weight logged for an exercise (any date) */
 export function getLastWeightForExercise(exerciseId: number | string): string {
 	const all = getLogs().filter((l) => String(l.exerciseId) === String(exerciseId) && l.weight);
