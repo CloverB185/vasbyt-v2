@@ -351,3 +351,23 @@
 **Fix:** Created `static/icon.svg` (dark bg + teal V lettermark, maskable-safe). Updated `vite.config.ts` icons array with SVG entry (`purpose: 'any maskable'`). Added `rel=icon` and `rel=apple-touch-icon` links to `app.html`. PWA precache grew from 30 → 32 entries.
 **Files changed:** `static/icon.svg` (new), `vite.config.ts`, `src/app.html`
 **Cross-project:** NO — but note: always check `vite.config.ts` before concluding a PWA plugin isn't installed. The build output "PWA v1.3.0 mode generateSW" is the signal. SVG icons work for Chrome/Android modern browsers; for iOS full support, add 192px and 512px PNG icons as well.
+
+---
+
+## [2026-05-27] — PWA iOS icons: SVG apple-touch-icon ignored by Safari
+
+**Symptom:** App installs correctly on Chrome/Android but iOS Safari "Add to Home Screen" shows a generic blank icon.
+**Root cause:** Safari ignores `rel=apple-touch-icon` when pointing at an SVG. iOS requires rasterized PNG at specific sizes (192×192 minimum, 512×512 for Retina). The PWA manifest also only had the SVG entry, so Chrome install prompt worked but iOS did not.
+**Fix:** Installed `sharp` as devDep. Wrote `scripts/gen-icons.mjs` to rasterize `static/icon.svg` at 192 and 512px via `sharp(svgBuffer).resize(size).png().toFile(outPath)`. Updated `vite.config.ts` icons array: added PNG 192 (`purpose: 'any'`), PNG 512 (`purpose: 'maskable'`), kept SVG (`purpose: 'any'`). Updated `app.html`: `rel=apple-touch-icon` now points to `/icon-192.png` (not SVG). PWA precache grew to 36 entries.
+**Files changed:** `static/icon-192.png` (new), `static/icon-512.png` (new), `scripts/gen-icons.mjs` (new), `vite.config.ts`, `src/app.html`
+**Cross-project:** YES — sharp rasterizes SVG reliably on Windows (prebuilt binaries, no native compile needed). Pattern: gen-icons script + static PNG output is the right approach for any SvelteKit PWA targeting iOS.
+
+---
+
+## [2026-05-27] — Visual regression CI: Playwright toHaveScreenshot wiring
+
+**Symptom:** No automated screenshot comparison — UI regressions were only caught visually by eye.
+**Root cause:** `@playwright/test` not installed, no playwright.config.ts, no tests/ directory.
+**Fix:** Installed `@playwright/test` as devDep. Created `playwright.config.ts` with `snapshotPathTemplate: '{testDir}/snapshots/{arg}{ext}'`, `devices['iPhone 14 Pro']` viewport (390×844), `webServer.reuseExistingServer: true`. Created `tests/visual-regression.spec.ts` — 7 tab tests, each navigates → `waitForLoadState('networkidle')` → `page.waitForTimeout(300)` (Svelte tick) → `toHaveScreenshot(name, { fullPage: true, maxDiffPixelRatio: 0.03 })`. Ran `--update-snapshots` with dev server live to capture 7 PNG baselines in `tests/snapshots/`. Updated `.sitecheckx.json` playwright layer with one entry (project: chromium, testDir: tests/). Update baselines after any intentional UI change: `npx playwright test --update-snapshots`.
+**Files changed:** `playwright.config.ts` (new), `tests/visual-regression.spec.ts` (new), `tests/snapshots/*.png` (7 new baselines), `.sitecheckx.json`, `package.json`
+**Cross-project:** YES — `snapshotPathTemplate` override is needed to keep snapshot paths flat and readable. `reuseExistingServer: true` avoids double-starting dev server during development. The `waitForTimeout(300)` after networkidle catches Svelte reactive renders that settle after the load event.

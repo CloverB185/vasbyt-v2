@@ -17,7 +17,13 @@
       "enabled": false,
       "_comment": "No test suite yet"
     },
-    "playwright": [],
+    "playwright": [
+      {
+        "label": "Visual regression (7 screens)",
+        "project": "chromium",
+        "testDir": "tests/"
+      }
+    ],
     "custom": [
       {
         "label": "Svelte type check",
