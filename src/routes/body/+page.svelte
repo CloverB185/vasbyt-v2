@@ -48,6 +48,23 @@
 	let whrCat   = $state('');
 	let whrColor = $state('');
 
+	// ── Measurement trend chart ───────────────────────────────
+	type MeasMetric = Exclude<keyof Measurement, 'date'>;
+	interface MeasTrendPoint { date: string; value: number; day: string; month: string; height: number; }
+	const MEAS_METRICS: { key: MeasMetric; label: string }[] = [
+		{ key: 'waist',    label: 'Waist'     },
+		{ key: 'hips',     label: 'Hips'      },
+		{ key: 'chest',    label: 'Chest'     },
+		{ key: 'arms',     label: 'Arms'      },
+		{ key: 'shoulders',label: 'Shoulders' },
+		{ key: 'upperArm', label: 'Upper arm' },
+		{ key: 'thigh',    label: 'Thigh'     },
+		{ key: 'calf',     label: 'Calf'      },
+	];
+	let measTrendMetric = $state<MeasMetric>('waist');
+	let measTrendPoints = $state<MeasTrendPoint[]>([]);
+	let measMetricCounts = $state<Partial<Record<MeasMetric, number>>>({});
+
 	// ── Quick weight log ─────────────────────────────────────
 	let quickWeight  = $state('');
 	let weightSaved  = $state(false);
@@ -392,6 +409,43 @@
 			mCalf      = last.calf      != null ? String(last.calf)      : '';
 		}
 		calcWHR();
+		buildMeasTrend();
+	}
+
+	function buildMeasTrend(metric?: MeasMetric) {
+		if (metric) measTrendMetric = metric;
+		const m = measTrendMetric;
+		// Count how many entries have each metric
+		const counts: Partial<Record<MeasMetric, number>> = {};
+		for (const mk of MEAS_METRICS) {
+			counts[mk.key] = measurements.filter(e => e[mk.key] != null).length;
+		}
+		measMetricCounts = counts;
+
+		const pts = measurements
+			.filter(e => e[m] != null)
+			.slice(-8)
+			.map(e => {
+				const d = new Date(e.date + 'T00:00:00');
+				return {
+					date: e.date,
+					value: e[m] as number,
+					day:   String(d.getDate()),
+					month: d.toLocaleString('en', { month: 'short' })
+				};
+			});
+
+		if (pts.length < 2) { measTrendPoints = []; return; }
+
+		const vals  = pts.map(p => p.value);
+		const minV  = Math.min(...vals);
+		const maxV  = Math.max(...vals);
+		const range = maxV - minV || 1;
+
+		measTrendPoints = pts.map(p => ({
+			...p,
+			height: Math.max(8, Math.round(((p.value - minV) / range) * 52) + 8)
+		}));
 	}
 
 	function calcWHR() {
@@ -424,6 +478,7 @@
 		S(KEYS.measurements(), existing);
 		measurements = existing;
 		calcWHR();
+		buildMeasTrend();
 		mSaved = true; showMForm = false;
 		setTimeout(() => (mSaved = false), 2000);
 	}
@@ -650,6 +705,54 @@
 					<div class="bmi-range">Waist-to-hip ratio</div>
 				</div>
 			</div>
+		</div>
+	{/if}
+
+	<!-- ── Measurement trend chart ── -->
+	{#if measurements.length >= 2}
+		<div class="card trend-card">
+			<div class="trend-head">
+				<span class="trend-title">Measurements</span>
+				<span class="trend-sub">last {measTrendPoints.length || '—'} entries</span>
+			</div>
+
+			<!-- Metric chips -->
+			<div class="trend-chips">
+				{#each MEAS_METRICS as m}
+					{@const count = measMetricCounts[m.key] ?? 0}
+					{#if count >= 2}
+						<button
+							type="button"
+							class="trend-chip"
+							class:trend-chip-active={measTrendMetric === m.key}
+							onclick={() => buildMeasTrend(m.key)}
+						>{m.label}</button>
+					{/if}
+				{/each}
+			</div>
+
+			<!-- Bar chart -->
+			{#if measTrendPoints.length >= 2}
+				<div class="mt-bars">
+					{#each measTrendPoints as pt}
+						<div class="mt-col">
+							<span class="mt-val">{pt.value}</span>
+							<div class="mt-bar" style="height: {pt.height}px"></div>
+							<span class="mt-day">{pt.day}</span>
+							<span class="mt-month">{pt.month}</span>
+						</div>
+					{/each}
+				</div>
+				{@const first = measTrendPoints[0].value}
+				{@const last  = measTrendPoints[measTrendPoints.length - 1].value}
+				{@const delta = Math.round((last - first) * 10) / 10}
+				{@const sign  = delta > 0 ? '+' : ''}
+				<div class="trend-delta" style="color:{delta < 0 ? 'var(--green)' : delta > 0 ? 'var(--amber)' : 'var(--muted)'}">
+					{sign}{delta} cm since first entry
+				</div>
+			{:else}
+				<div class="trend-empty">Log 2+ entries to see trend</div>
+			{/if}
 		</div>
 	{/if}
 
@@ -1057,6 +1160,45 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2
 .wt-goal-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
 .wt-goal-lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
 .wt-goal-val { font-size: 14px; font-weight: 600; }
+
+/* ── Measurement trend chart ── */
+.trend-card { display: flex; flex-direction: column; gap: 12px; padding: 16px; }
+.trend-head { display: flex; align-items: baseline; justify-content: space-between; }
+.trend-title { font-size: 14px; font-weight: 700; }
+.trend-sub { font-size: 11px; color: var(--muted); }
+
+.trend-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.trend-chip {
+	background: rgba(255,255,255,.05);
+	border: 1px solid var(--line);
+	border-radius: 20px;
+	padding: 5px 12px;
+	font-size: 12px; font-weight: 600;
+	color: rgba(255,255,255,.55);
+	cursor: pointer;
+}
+.trend-chip-active {
+	background: rgba(14,154,184,.15);
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
+.mt-bars { display: flex; align-items: flex-end; gap: 6px; padding: 8px 0 4px; overflow-x: auto; }
+.mt-col  { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 32px; }
+.mt-val  { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.8); }
+.mt-bar  {
+	width: 18px;
+	background: var(--accent);
+	border-radius: 3px 3px 0 0;
+	opacity: .75;
+	min-height: 8px;
+	transition: height .2s ease;
+}
+.mt-day   { font-size: 9px;  color: rgba(255,255,255,.45); margin-top: 4px; }
+.mt-month { font-size: 8px;  color: rgba(255,255,255,.25); }
+
+.trend-delta { font-size: 12px; color: var(--muted); text-align: right; }
+.trend-empty { font-size: 13px; color: var(--muted); text-align: center; padding: 12px 0; }
 
 /* ── Measurements ── */
 .meas-card { display: flex; flex-direction: column; gap: 12px; }
