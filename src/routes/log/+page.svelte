@@ -204,6 +204,8 @@
 		<div class="list-label">All sessions</div>
 		{#each days as day}
 			{@const lci = checkinMap.get(day.date)}
+			{@const sessSets = day.exercises.reduce((n, ex) => n + ex.sets.length, 0)}
+			{@const sessVol = day.exercises.reduce((v, ex) => ex.sets.reduce((sv, s) => sv + (parseFloat(s.weight) || 0) * (parseInt(s.reps) || 0), v), 0)}
 			<div class="day-block">
 				<div class="day-label-row">
 					<span class="day-label">{day.label}</span>
@@ -212,6 +214,13 @@
 							{#if lci?.energy != null}<span class="ci-pill ci-energy">E {lci.energy}/10</span>{/if}
 							{#if lci?.sleep != null}<span class="ci-pill ci-sleep">Z {lci.sleep}/10</span>{/if}
 						</div>
+					{/if}
+				</div>
+				<div class="sess-summary">
+					<span class="sess-sets">{sessSets} set{sessSets !== 1 ? 's' : ''}</span>
+					{#if sessVol > 0}
+						<span class="sess-sep">·</span>
+						<span class="sess-vol">{sessVol >= 1000 ? (sessVol / 1000).toFixed(1) + 't' : Math.round(sessVol) + ' kg'}</span>
 					{/if}
 				</div>
 				<div class="day-card">
@@ -363,6 +372,14 @@
 	font-size: 12px; font-weight: 800; color: var(--muted);
 	text-transform: uppercase; letter-spacing: .04em;
 }
+.sess-summary {
+	display: flex; align-items: center; gap: 6px;
+	font-size: 12px; color: rgba(255,255,255,.4);
+	margin-top: -2px;
+}
+.sess-sets { font-weight: 600; }
+.sess-sep  { opacity: .4; }
+.sess-vol  { color: var(--accent); font-weight: 600; }
 .day-card {
 	background: var(--card); border: 1px solid var(--line);
 	border-radius: 16px; overflow: hidden;

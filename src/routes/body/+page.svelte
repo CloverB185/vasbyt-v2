@@ -26,19 +26,38 @@
 	let expanded     = $state<string | null>(null); // expanded photo dataUrl
 
 	// ── Measurements ─────────────────────────────────────────
-	interface Measurement { date: string; chest?: number; waist?: number; hips?: number; arms?: number; }
+	interface Measurement {
+		date: string;
+		chest?: number; waist?: number; hips?: number; arms?: number;
+		shoulders?: number; upperArm?: number; thigh?: number; calf?: number;
+	}
 	let measurements  = $state<Measurement[]>([]);
 	let mChest        = $state('');
 	let mWaist        = $state('');
 	let mHips         = $state('');
 	let mArms         = $state('');
+	let mShoulders    = $state('');
+	let mUpperArm     = $state('');
+	let mThigh        = $state('');
+	let mCalf         = $state('');
 	let mSaved        = $state(false);
 	let showMForm     = $state(false);
+
+	// ── WHR ───────────────────────────────────────────────────
+	let whr      = $state<number | null>(null);
+	let whrCat   = $state('');
+	let whrColor = $state('');
 
 	// ── Quick weight log ─────────────────────────────────────
 	let quickWeight  = $state('');
 	let weightSaved  = $state(false);
 	let targetWeight = $state<number | null>(null);
+
+	// ── BMI + target progress ─────────────────────────────────
+	let bmi       = $state<number | null>(null);
+	let bmiCat    = $state('');
+	let bmiColor  = $state('');
+	let curWeight = $state<number | null>(null);
 
 	// ── Weight chart ──────────────────────────────────────────
 	interface WeightPoint { date: string; weight: number; day: string; month: string; height: number; }
@@ -68,8 +87,9 @@
 		autoTriggerInsight();
 		buildWeightChart();
 		loadMeasurements();
-		const prof = J<{ targetWeight?: number }>(KEYS.profile(), {});
+		const prof = J<{ targetWeight?: number; height?: number }>(KEYS.profile(), {});
 		targetWeight = prof.targetWeight ?? null;
+		calcBMI(prof.height);
 	});
 
 	// ── Check-in ──────────────────────────────────────────────
@@ -327,6 +347,23 @@
 		});
 	}
 
+	// ── BMI + WHR ────────────────────────────────────────────────
+
+	function calcBMI(height: number | undefined) {
+		const allCI = J<CheckIn[]>(KEYS.checkins(), []);
+		const wPts = allCI.filter(c => c.weight && c.weight > 0);
+		if (!wPts.length || !height || height < 50) return;
+		const cw = wPts[wPts.length - 1].weight!;
+		curWeight = cw;
+		const hm  = height / 100;
+		const b   = Math.round((cw / (hm * hm)) * 10) / 10;
+		bmi = b;
+		if      (b < 18.5) { bmiCat = 'Below range';  bmiColor = 'var(--amber)'; }
+		else if (b < 25)   { bmiCat = 'Healthy range'; bmiColor = 'var(--green)'; }
+		else if (b < 30)   { bmiCat = 'Above range';   bmiColor = 'var(--amber)'; }
+		else               { bmiCat = 'High BMI';       bmiColor = 'var(--red)';   }
+	}
+
 	function logWeight() {
 		const kg = parseFloat(quickWeight);
 		if (!kg || kg < 20 || kg > 300) return;
@@ -345,27 +382,48 @@
 		measurements = J<Measurement[]>(KEYS.measurements(), []);
 		const last = measurements[measurements.length - 1];
 		if (last) {
-			mChest = last.chest != null ? String(last.chest) : '';
-			mWaist = last.waist != null ? String(last.waist) : '';
-			mHips  = last.hips  != null ? String(last.hips)  : '';
-			mArms  = last.arms  != null ? String(last.arms)  : '';
+			mChest     = last.chest     != null ? String(last.chest)     : '';
+			mWaist     = last.waist     != null ? String(last.waist)     : '';
+			mHips      = last.hips      != null ? String(last.hips)      : '';
+			mArms      = last.arms      != null ? String(last.arms)      : '';
+			mShoulders = last.shoulders != null ? String(last.shoulders) : '';
+			mUpperArm  = last.upperArm  != null ? String(last.upperArm)  : '';
+			mThigh     = last.thigh     != null ? String(last.thigh)     : '';
+			mCalf      = last.calf      != null ? String(last.calf)      : '';
 		}
+		calcWHR();
+	}
+
+	function calcWHR() {
+		const all  = J<Measurement[]>(KEYS.measurements(), []);
+		const last = all[all.length - 1];
+		if (!last?.waist || !last?.hips) { whr = null; return; }
+		const r = Math.round((last.waist / last.hips) * 100) / 100;
+		whr = r;
+		if      (r <= 0.80) { whrCat = 'Healthy';   whrColor = 'var(--green)'; }
+		else if (r <= 0.85) { whrCat = 'Moderate';  whrColor = 'var(--amber)'; }
+		else                { whrCat = 'High risk';  whrColor = 'var(--red)';   }
 	}
 
 	function saveMeasurement() {
-		if (!mChest && !mWaist && !mHips && !mArms) return;
+		if (!mChest && !mWaist && !mHips && !mArms && !mShoulders && !mUpperArm && !mThigh && !mCalf) return;
 		const entry: Measurement = {
-			date:  todayStr(),
-			chest: mChest ? Number(mChest) : undefined,
-			waist: mWaist ? Number(mWaist) : undefined,
-			hips:  mHips  ? Number(mHips)  : undefined,
-			arms:  mArms  ? Number(mArms)  : undefined
+			date:       todayStr(),
+			chest:      mChest     ? Number(mChest)     : undefined,
+			waist:      mWaist     ? Number(mWaist)     : undefined,
+			hips:       mHips      ? Number(mHips)      : undefined,
+			arms:       mArms      ? Number(mArms)      : undefined,
+			shoulders:  mShoulders ? Number(mShoulders) : undefined,
+			upperArm:   mUpperArm  ? Number(mUpperArm)  : undefined,
+			thigh:      mThigh     ? Number(mThigh)     : undefined,
+			calf:       mCalf      ? Number(mCalf)      : undefined,
 		};
 		const existing = J<Measurement[]>(KEYS.measurements(), []);
 		const idx = existing.findIndex(m => m.date === entry.date);
 		if (idx >= 0) existing[idx] = entry; else existing.push(entry);
 		S(KEYS.measurements(), existing);
 		measurements = existing;
+		calcWHR();
 		mSaved = true; showMForm = false;
 		setTimeout(() => (mSaved = false), 2000);
 	}
@@ -550,6 +608,51 @@
 		</div>
 	{/if}
 
+	<!-- ── BMI + Target progress ── -->
+	{#if bmi}
+		<div class="card bmi-card">
+			<div class="bmi-row">
+				<div class="bmi-val-block">
+					<span class="bmi-num" style="color:{bmiColor}">{bmi}</span>
+					<span class="bmi-sub">BMI</span>
+				</div>
+				<div class="bmi-info">
+					<div class="bmi-cat" style="color:{bmiColor}">{bmiCat}</div>
+					<div class="bmi-range">Healthy range: 18.5 – 24.9</div>
+				</div>
+			</div>
+			{#if targetWeight && curWeight}
+				{@const gap = Math.abs(curWeight - targetWeight).toFixed(1)}
+				{@const atTarget = parseFloat(gap) < 0.2}
+				{@const arrow = curWeight > targetWeight ? '↓' : '↑'}
+				<div class="wt-goal-row">
+					<span class="wt-goal-lbl">Target</span>
+					{#if atTarget}
+						<span class="wt-goal-val" style="color:var(--green)">✓ Target reached!</span>
+					{:else}
+						<span class="wt-goal-val">{curWeight} → {targetWeight} kg · {gap} kg {arrow}</span>
+					{/if}
+				</div>
+			{/if}
+		</div>
+	{/if}
+
+	<!-- ── WHR ── -->
+	{#if whr}
+		<div class="card bmi-card">
+			<div class="bmi-row">
+				<div class="bmi-val-block">
+					<span class="bmi-num" style="color:{whrColor}">{whr}</span>
+					<span class="bmi-sub">WHR</span>
+				</div>
+				<div class="bmi-info">
+					<div class="bmi-cat" style="color:{whrColor}">{whrCat}</div>
+					<div class="bmi-range">Waist-to-hip ratio</div>
+				</div>
+			</div>
+		</div>
+	{/if}
+
 	<!-- ── Measurements ── -->
 	<div class="section-label">Measurements</div>
 	<div class="card meas-card">
@@ -559,10 +662,14 @@
 			{@const last = measurements[measurements.length - 1]}
 			<div class="meas-latest">
 				<div class="meas-pills">
-					{#if last.chest != null}<span class="meas-pill">Chest <b>{last.chest}</b> cm</span>{/if}
-					{#if last.waist != null}<span class="meas-pill">Waist <b>{last.waist}</b> cm</span>{/if}
-					{#if last.hips  != null}<span class="meas-pill">Hips <b>{last.hips}</b> cm</span>{/if}
-					{#if last.arms  != null}<span class="meas-pill">Arms <b>{last.arms}</b> cm</span>{/if}
+					{#if last.chest     != null}<span class="meas-pill">Chest <b>{last.chest}</b> cm</span>{/if}
+					{#if last.waist     != null}<span class="meas-pill">Waist <b>{last.waist}</b> cm</span>{/if}
+					{#if last.hips      != null}<span class="meas-pill">Hips <b>{last.hips}</b> cm</span>{/if}
+					{#if last.arms      != null}<span class="meas-pill">Arms <b>{last.arms}</b> cm</span>{/if}
+					{#if last.shoulders != null}<span class="meas-pill">Shoulders <b>{last.shoulders}</b> cm</span>{/if}
+					{#if last.upperArm  != null}<span class="meas-pill">Upper arm <b>{last.upperArm}</b> cm</span>{/if}
+					{#if last.thigh     != null}<span class="meas-pill">Thigh <b>{last.thigh}</b> cm</span>{/if}
+					{#if last.calf      != null}<span class="meas-pill">Calf <b>{last.calf}</b> cm</span>{/if}
 				</div>
 				<div class="meas-meta">{formatDate(last.date)}</div>
 			</div>
@@ -589,21 +696,39 @@
 
 		{#if showMForm || measurements.length === 0}
 			<div class="meas-form">
-				<div class="meas-row">
-					<label class="field-label" for="m-chest">Chest (cm)</label>
-					<input id="m-chest" type="number" step="0.5" placeholder="e.g. 95" bind:value={mChest} />
-				</div>
-				<div class="meas-row">
-					<label class="field-label" for="m-waist">Waist (cm)</label>
-					<input id="m-waist" type="number" step="0.5" placeholder="e.g. 80" bind:value={mWaist} />
-				</div>
-				<div class="meas-row">
-					<label class="field-label" for="m-hips">Hips (cm)</label>
-					<input id="m-hips" type="number" step="0.5" placeholder="e.g. 98" bind:value={mHips} />
-				</div>
-				<div class="meas-row">
-					<label class="field-label" for="m-arms">Arms (cm)</label>
-					<input id="m-arms" type="number" step="0.5" placeholder="e.g. 35" bind:value={mArms} />
+				<div class="meas-2col">
+					<div class="meas-row">
+						<label class="field-label" for="m-chest">Chest (cm)</label>
+						<input id="m-chest" type="number" step="0.5" placeholder="e.g. 95" bind:value={mChest} />
+					</div>
+					<div class="meas-row">
+						<label class="field-label" for="m-waist">Waist (cm)</label>
+						<input id="m-waist" type="number" step="0.5" placeholder="e.g. 80" bind:value={mWaist} />
+					</div>
+					<div class="meas-row">
+						<label class="field-label" for="m-hips">Hips (cm)</label>
+						<input id="m-hips" type="number" step="0.5" placeholder="e.g. 98" bind:value={mHips} />
+					</div>
+					<div class="meas-row">
+						<label class="field-label" for="m-arms">Arms (cm)</label>
+						<input id="m-arms" type="number" step="0.5" placeholder="e.g. 35" bind:value={mArms} />
+					</div>
+					<div class="meas-row">
+						<label class="field-label" for="m-shoulders">Shoulders (cm)</label>
+						<input id="m-shoulders" type="number" step="0.5" placeholder="e.g. 110" bind:value={mShoulders} />
+					</div>
+					<div class="meas-row">
+						<label class="field-label" for="m-upperarm">Upper arm (cm)</label>
+						<input id="m-upperarm" type="number" step="0.5" placeholder="e.g. 32" bind:value={mUpperArm} />
+					</div>
+					<div class="meas-row">
+						<label class="field-label" for="m-thigh">Thigh (cm)</label>
+						<input id="m-thigh" type="number" step="0.5" placeholder="e.g. 55" bind:value={mThigh} />
+					</div>
+					<div class="meas-row">
+						<label class="field-label" for="m-calf">Calf (cm)</label>
+						<input id="m-calf" type="number" step="0.5" placeholder="e.g. 38" bind:value={mCalf} />
+					</div>
 				</div>
 				<div class="form-actions">
 					{#if showMForm}
@@ -920,6 +1045,19 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2
 .wt-day   { font-size: 9px; color: rgba(255,255,255,.45); margin-top: 4px; line-height: 1.2; }
 .wt-month { font-size: 8px; color: rgba(255,255,255,.25); line-height: 1.2; }
 
+/* ── BMI / WHR cards ── */
+.bmi-card { padding: 16px; }
+.bmi-row { display: flex; align-items: center; gap: 16px; }
+.bmi-val-block { display: flex; flex-direction: column; align-items: center; min-width: 64px; }
+.bmi-num { font-size: 32px; font-weight: 700; line-height: 1; }
+.bmi-sub { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
+.bmi-info { display: flex; flex-direction: column; gap: 4px; }
+.bmi-cat { font-size: 16px; font-weight: 600; }
+.bmi-range { font-size: 12px; color: var(--muted); }
+.wt-goal-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+.wt-goal-lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.wt-goal-val { font-size: 14px; font-weight: 600; }
+
 /* ── Measurements ── */
 .meas-card { display: flex; flex-direction: column; gap: 12px; }
 .meas-latest { display: flex; flex-direction: column; gap: 6px; }
@@ -958,6 +1096,7 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2
 .meas-td-date { color: var(--muted); }
 
 .meas-form { display: flex; flex-direction: column; gap: 10px; }
+.meas-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .meas-row { display: flex; flex-direction: column; gap: 4px; }
 .meas-row input {
 	width: 100%;

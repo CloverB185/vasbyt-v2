@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { J, KEYS, today } from '$lib/data/storage';
-	import { getWeek, getDay, getWeekBounds, getRecentCheckins, type CheckIn } from '$lib/data/program';
+	import { getWeek, getDay, getWeekBounds, getRecentCheckins, getExerciseMuscles, type CheckIn } from '$lib/data/program';
 
 	interface LogEntry { date: string; exerciseId: string; exerciseName: string; weight: string; reps: string; }
 	interface Finish   { date: string; }
@@ -10,6 +10,7 @@
 	interface ExHist {
 		id: string; name: string;
 		bestWeight: number; bestReps: string; totalVol: number; sessions: number;
+		startWeight: number; gainPct: number | null;
 		trend: { direction: 'up' | 'flat' | 'down'; delta: number } | null;
 		recentSets: LogEntry[];
 		miniBar: number[];
@@ -40,6 +41,7 @@
 	let streak       = $state(0);
 	let freqBars     = $state<FreqBar[]>([]);
 	let exHistory    = $state<ExHist[]>([]);
+	let weekMuscles  = $state<string[]>([]);
 	let aiThisWeek   = $state('');
 	let aiLastWeek   = $state('');
 
@@ -82,6 +84,13 @@
 
 		const wkLogs = allLogs.filter(l => l.date >= mon && l.date <= sun);
 		const wkDays = [...new Set(wkLogs.map(l => l.date))].sort();
+
+		// G6 — muscle groups trained this week
+		const muscleSet = new Set<string>();
+		[...new Set(wkLogs.map(l => l.exerciseId))].forEach(id => {
+			getExerciseMuscles(id).forEach(m => muscleSet.add(m));
+		});
+		weekMuscles = [...muscleSet].sort();
 
 		weekSets = wkLogs.length;
 		weekSess = [...new Set(
@@ -196,12 +205,17 @@
 			.map(([id, rows]) => {
 				const name = rows[rows.length - 1].exerciseName || id;
 				let bestWeight = 0, bestReps = '0', totalVol = 0;
+				const weighedRows = rows.filter(r => parseFloat(r.weight) > 0);
+				const startWeight = weighedRows.length > 0 ? (parseFloat(weighedRows[0].weight) || 0) : 0;
 				rows.forEach(r => {
 					const w = parseFloat(r.weight) || 0;
 					const rp = parseInt(r.reps) || 0;
 					totalVol += w * rp;
 					if (w > bestWeight) { bestWeight = w; bestReps = r.reps; }
 				});
+				const gainPct = startWeight > 0
+					? Math.round(((bestWeight - startWeight) / startWeight) * 100)
+					: null;
 				const byDate: Record<string, number> = {};
 				rows.forEach(r => {
 					const w = parseFloat(r.weight) || 0;
@@ -215,6 +229,7 @@
 					id, name, bestWeight, bestReps,
 					totalVol: Math.round(totalVol),
 					sessions: dates.length,
+					startWeight, gainPct,
 					trend: calcTrend(id, allLogs),
 					recentSets: rows.slice(-3).reverse(),
 					miniBar,
@@ -315,6 +330,15 @@
 				<div class="pr-title">PRs THIS WEEK</div>
 				{#each weekPRs as pr}
 					<div class="pr-row">{pr.name} — <b>{pr.weight} kg</b></div>
+				{/each}
+			</div>
+		{/if}
+
+		<!-- Muscle chips -->
+		{#if weekMuscles.length > 0}
+			<div class="muscle-chips">
+				{#each weekMuscles as m}
+					<span class="muscle-chip">{m}</span>
 				{/each}
 			</div>
 		{/if}
@@ -467,6 +491,18 @@
 							</div>
 						</div>
 
+						<!-- Started + gain % -->
+						{#if ex.startWeight > 0 && ex.gainPct !== null && ex.sessions >= 3}
+							<div class="gain-note">
+								Started {ex.startWeight} kg
+								{#if ex.gainPct > 0}
+									· <span style="color:var(--green)">+{ex.gainPct}% gain</span>
+								{:else if ex.gainPct < 0}
+									· <span style="color:var(--red)">{ex.gainPct}%</span>
+								{/if}
+							</div>
+						{/if}
+
 						<!-- Mini bar chart -->
 						{#if ex.miniBar.length > 1}
 							<div class="mini-chart">
@@ -603,6 +639,23 @@
 .pr-row { font-size: 13px; color: rgba(255,255,255,.85); }
 
 /* Motivational */
+.muscle-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 12px;
+}
+.muscle-chip {
+	background: rgba(255,255,255,.07);
+	border: 1px solid var(--line);
+	border-radius: 20px;
+	padding: 4px 10px;
+	font-size: 11px;
+	color: rgba(255,255,255,.75);
+	font-weight: 600;
+	text-transform: capitalize;
+}
+
 .motiv {
 	margin-top: 14px;
 	font-size: 13px;
@@ -795,6 +848,13 @@
 .mini-chart-lbl {
 	font-size: 10px; color: rgba(255,255,255,.3);
 	margin-top: 4px;
+}
+
+/* Gain note */
+.gain-note {
+	margin-top: 6px; margin-bottom: 2px;
+	font-size: 12px;
+	color: rgba(255,255,255,.5);
 }
 
 /* Trend note */

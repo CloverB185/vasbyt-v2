@@ -12,6 +12,8 @@
 		undoLastSetToday,
 		finishWorkout,
 		isPR,
+		getTodayCheckin,
+		saveCheckin,
 		type Exercise,
 		type LogEntry
 	} from '$lib/data/program';
@@ -156,6 +158,12 @@
 		} catch { /* silent fail */ }
 		woCoachLoading = false;
 	}
+
+	// ── Pre-workout check-in ─────────────────────────────────────
+	let preCI_open    = $state(false);
+	let preCI_feeling = $state<'good'|'ok'|'tired'|''>('');
+	let preCI_energy  = $state('');
+	let preCI_note    = $state('');
 
 	// ── Coaching cues ─────────────────────────────────────────────
 	let cuesOpen  = $state(false);
@@ -376,7 +384,30 @@
 	}
 
 	// ── Actions ───────────────────────────────────────────────────
-	function startGym() { started = true; exIdx = 0; }
+	function startGym() {
+		if (getTodayCheckin()) {
+			started = true; exIdx = 0;
+		} else {
+			preCI_feeling = ''; preCI_energy = ''; preCI_note = '';
+			preCI_open = true;
+		}
+	}
+
+	function _doStart() { preCI_open = false; started = true; exIdx = 0; }
+
+	function submitPreCI() {
+		if (preCI_feeling || preCI_energy) {
+			const feelMap: Record<string, number> = { good: 8, ok: 6, tired: 3 };
+			const e = preCI_energy
+				? Math.min(10, Math.max(1, Number(preCI_energy)))
+				: (preCI_feeling ? feelMap[preCI_feeling] : undefined);
+			saveCheckin({
+				energy:  e,
+				notes:   preCI_note.trim() || undefined
+			});
+		}
+		_doStart();
+	}
 
 	function logSet() {
 		const r = Math.round(Number(reps));
@@ -832,6 +863,64 @@
 	{/if}
 {/if}
 
+<!-- Pre-workout check-in overlay -->
+{#if preCI_open}
+	<div class="preci-backdrop">
+		<div class="preci-card">
+			<h2 class="preci-title">How are you feeling?</h2>
+			<p class="preci-sub">Quick check before you start</p>
+
+			<div class="preci-feelings">
+				<button
+					class="preci-feel"
+					class:preci-feel-active={preCI_feeling === 'good'}
+					class:preci-feel-good={preCI_feeling === 'good'}
+					onclick={() => { preCI_feeling = 'good'; preCI_energy = '8'; }}
+				>Good</button>
+				<button
+					class="preci-feel"
+					class:preci-feel-active={preCI_feeling === 'ok'}
+					class:preci-feel-ok={preCI_feeling === 'ok'}
+					onclick={() => { preCI_feeling = 'ok'; preCI_energy = '6'; }}
+				>OK</button>
+				<button
+					class="preci-feel"
+					class:preci-feel-active={preCI_feeling === 'tired'}
+					class:preci-feel-tired={preCI_feeling === 'tired'}
+					onclick={() => { preCI_feeling = 'tired'; preCI_energy = '3'; }}
+				>Tired</button>
+			</div>
+
+			<div class="preci-energy-row">
+				<label class="preci-lbl" for="preci-energy">Energy 1–10</label>
+				<input
+					id="preci-energy"
+					class="preci-energy-input"
+					type="number" min="1" max="10"
+					placeholder="optional"
+					bind:value={preCI_energy}
+				/>
+			</div>
+
+			<div class="preci-note-row">
+				<label class="preci-lbl" for="preci-note">Note (optional)</label>
+				<input
+					id="preci-note"
+					type="text"
+					class="preci-note-input"
+					placeholder="e.g. slept badly, knee tight..."
+					bind:value={preCI_note}
+				/>
+			</div>
+
+			<div class="preci-actions">
+				<button class="preci-skip" onclick={_doStart}>Skip</button>
+				<button class="btn-primary preci-save" onclick={submitPreCI}>Let's go →</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
 <!-- GIF lightbox overlay -->
 {#if gifOverlay}
 	<div class="gif-overlay" onclick={() => gifOverlay = false}>
@@ -1133,6 +1222,59 @@
 	background: rgba(0,0,0,0.45); color: #fff;
 	font-size: 11px; padding: 2px 7px; border-radius: 20px; pointer-events: none;
 }
+
+/* ── Pre-workout check-in overlay ───────────────────────────── */
+.preci-backdrop {
+	position: fixed; inset: 0; z-index: 200;
+	background: rgba(0,0,0,.72);
+	display: flex; align-items: flex-end; justify-content: center;
+}
+.preci-card {
+	width: 100%; max-width: 480px;
+	background: var(--card); border: 1px solid var(--line);
+	border-radius: 24px 24px 0 0;
+	padding: 28px 20px 36px;
+	display: flex; flex-direction: column; gap: 16px;
+	animation: slideUp 0.22s ease-out;
+}
+@keyframes slideUp {
+	from { transform: translateY(60px); opacity: 0; }
+	to   { transform: translateY(0);    opacity: 1; }
+}
+.preci-title { font-size: 20px; font-weight: 900; margin: 0; text-align: center; }
+.preci-sub   { font-size: 13px; color: var(--muted); text-align: center; margin: -8px 0 0; }
+
+.preci-feelings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.preci-feel {
+	min-height: 52px; border-radius: 12px;
+	border: 2px solid var(--line);
+	background: rgba(255,255,255,.06);
+	font-size: 15px; font-weight: 800;
+	color: var(--muted);
+	transition: all 0.15s;
+}
+.preci-feel-active  { background: rgba(14,154,184,.15); border-color: var(--accent); color: var(--text); }
+.preci-feel-good    { border-color: var(--green);  background: rgba(47,179,109,.12); color: var(--green); }
+.preci-feel-ok      { border-color: var(--amber);  background: rgba(250,183,43,.12); color: var(--amber); }
+.preci-feel-tired   { border-color: var(--muted);  background: rgba(255,255,255,.04); color: var(--muted); }
+
+.preci-energy-row,
+.preci-note-row { display: flex; flex-direction: column; gap: 6px; }
+.preci-lbl { font-size: 12px; font-weight: 700; color: var(--muted); }
+.preci-energy-input,
+.preci-note-input {
+	min-height: var(--touch); border-radius: 10px;
+	font-size: 16px; font-weight: 700;
+	padding: 0 14px; width: 100%; box-sizing: border-box;
+}
+
+.preci-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 4px; }
+.preci-skip {
+	min-height: var(--touch); border-radius: 12px;
+	background: rgba(255,255,255,.07); border: 1px solid var(--line);
+	font-weight: 700; font-size: 14px; color: var(--muted);
+}
+.preci-save { min-height: var(--touch-lg); font-size: 16px; }
 
 /* ── GIF overlay ─────────────────────────────────────────────── */
 .gif-overlay {

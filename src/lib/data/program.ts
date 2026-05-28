@@ -631,6 +631,11 @@ export function isPR(exerciseId: number | string, weight: string): boolean {
 	return w > best;
 }
 
+/** Muscle groups for an exercise (from EX_META; empty array if unknown) */
+export function getExerciseMuscles(id: string | number): string[] {
+	return EX_META[String(id)]?.muscles ?? [];
+}
+
 /** Most recent weight logged for an exercise (any date) */
 export function getLastWeightForExercise(exerciseId: number | string): string {
 	const all = getLogs().filter((l) => String(l.exerciseId) === String(exerciseId) && l.weight);
