@@ -433,3 +433,31 @@
 **Fix:** Added `woStartTime`, `woEndTime`, `woVolume`, `woPRs` state vars. `logSet()` sets `woStartTime` on first call (`=== 0` guard), updates `woEndTime` each call, accumulates `woVolume` for weighted sets (`w > 0`). `prNames` Map (parallel to `prShown` Set) stores exerciseId → name for PRs. `finishAll()` snapshots `woPRs = [...prNames.values()]`. Done screen uses `{@const woDurMin}` derived from timestamps. Stats grid: exercises / sets / duration (hidden if 0) / volume (hidden if 0, formatted as `1.2k` above 1000kg). PR list section: gold border card, only rendered if `woPRs.length > 0`. Layout changed from `.center-state` to `.summary-wrap` to accommodate variable-height content.
 **Files changed:** `src/routes/gym/+page.svelte`
 **Cross-project:** YES — `{@const derived}` inside `{:else if}` blocks works in Svelte 5 — useful for computing template-only values without adding state vars. `Map<id, name>` alongside a `Set<id>` is the pattern when you need both fast membership check AND the display name later.
+
+---
+
+## [2026-05-28] — V1→V2 Feature Parity: Gaps G1/G3/G4/G6/G7/G8
+
+**Symptom:** Tabs 1–5 audit identified 8 gaps vs V1. Gaps G1, G3, G4, G6, G7, G8 implemented in this session.
+**Root cause:** Features were deferred during the initial V2 port.
+**Fix:**
+- **G1 (Gym — pre-workout check-in):** Bottom sheet overlay slides up before gym starts if no check-in exists today. Good/OK/Tired buttons pre-fill the energy 1-10 input (8/6/3). Skip bypasses without saving. `getTodayCheckin()` / `saveCheckin()` used to check and persist. Overlay dismissed after submit or skip, then `_doStart()` launches gym.
+- **G3 (Body — BMI card):** `calcBMI()` reads latest `weight` from check-ins + `height` from profile, computes BMI, sets `bmiCat`/`bmiColor`. Target-weight row shows current→target gap with direction arrow. Only renders when both height and weight data are present.
+- **G4 (Body — WHR + extra measurement fields):** `calcWHR()` reads latest measurement's waist+hips. `whr`/`whrCat`/`whrColor` state. WHR card shares `.bmi-card` style (reuse). Measurement form and interface expanded from 4 → 8 fields (shoulders, upperArm, thigh, calf added). `.meas-2col` grid layout. Latest pills updated to show all 8 fields. Fixed double-div artifact from prior session's edit (extra `</div>` between meas-2col close and form-actions open).
+- **G6 (Stats — muscle chips this week):** `getExerciseMuscles(id)` helper added to `program.ts` (reads from `EX_META`). `buildThisWeek()` collects unique muscle groups from this week's exercise IDs → `weekMuscles`. Rendered as pill chips in the This Week card.
+- **G7 (Stats — started weight + gain %):** `ExHist` interface extended with `startWeight` and `gainPct`. `buildExHistory()` captures first logged weight per exercise and computes % gain vs best. Shown in expanded accordion as "Started Xkg · +Y% gain" (green for positive, red for negative, hidden for 0%).
+- **G8 (Log — session summary):** `{@const sessSets}` and `{@const sessVol}` computed inline in the `{#each days}` loop. Summary row rendered between date label and day-card: "N sets · Xkg". Volume formatted with 't' suffix above 1000kg.
+**Files changed:** `src/lib/data/program.ts`, `src/routes/gym/+page.svelte`, `src/routes/body/+page.svelte`, `src/routes/stats/+page.svelte`, `src/routes/log/+page.svelte`
+**Cross-project:** YES — `{@const}` inside `{#each}` is the correct pattern for inline derived values (set count, volume totals) — no extra state vars needed. For health metrics (BMI/WHR) that depend on two sources (profile + check-ins / measurements), gate the card render on both sources being present rather than showing 0 or NaN.
+
+**Double-div artifact lesson:** When a session compact interrupts a partial edit mid-template, the resumed session must verify div nesting before adding more template content. Pattern: the old closing div for the replaced container frequently survives the edit and creates an extra close at the wrong indentation level.
+
+---
+
+## [2026-05-28] — G5 Per-measurement trend chart (Body tab)
+
+**Symptom:** Body tab showed latest measurement pills and a history table but no visual trend over time per metric.
+**Root cause:** G5 was deferred during the parity audit.
+**Fix:** Added `buildMeasTrend(metric?)` function — filters measurements to the selected metric, takes last 8 entries, normalises bar heights to min/max range (not from zero, so small changes are visible). `MEAS_METRICS` const array drives both the chip list and the function. `measMetricCounts` tracks how many entries have each metric — chips only enable if count ≥ 2. Delta note computes first→last cm change (green=down, amber=up, for body composition context). Chart placed as a standalone card between WHR card and the Measurements section. `buildMeasTrend()` wired into both `loadMeasurements()` and `saveMeasurement()` so it auto-refreshes on save. Switching metric calls `buildMeasTrend(m.key)` which sets `measTrendMetric` then rebuilds — one function handles both switch and refresh.
+**Files changed:** `src/routes/body/+page.svelte`
+**Cross-project:** YES — pattern: `buildChart(metric?)` with optional metric argument handles both metric-switch and data-refresh in one function. `Partial<Record<MetricKey, number>>` for availability counts is reusable for any multi-metric selector where not all metrics have data.
