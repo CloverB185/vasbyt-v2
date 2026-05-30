@@ -631,7 +631,7 @@
 			<input
 				class="wt-input"
 				type="number" step="0.1" min="20" max="300"
-				placeholder="kg"
+				placeholder="e.g. 75 kg"
 				bind:value={quickWeight}
 				onkeydown={(e) => { if (e.key === 'Enter') logWeight(); }}
 			/>
@@ -943,7 +943,7 @@
 .btn-edit {
 	font-size: 13px; font-weight: 800; color: var(--accent);
 	background: rgba(14,154,184,.12); border: 1px solid var(--line);
-	border-radius: 8px; min-height: 34px; padding: 0 14px;
+	border-radius: 8px; min-height: var(--touch); padding: 0 14px;
 }
 .logged-stats { display: flex; flex-direction: column; gap: 8px; }
 .stat-pill {
@@ -988,7 +988,7 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2
 .loading-dots { font-size: 18px; color: var(--muted); letter-spacing: 3px; text-align: center; }
 .btn-refresh {
 	align-self: flex-end; font-size: 12px; font-weight: 800; color: var(--muted);
-	background: none; min-height: 30px; padding: 0 8px;
+	background: none; min-height: var(--touch); padding: 0 8px;
 }
 
 /* History */
@@ -1012,7 +1012,7 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2
 /* Pose chips */
 .pose-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .pose-chip {
-	font-size: 12px; font-weight: 800; min-height: 34px; padding: 0 14px;
+	font-size: 12px; font-weight: 800; min-height: var(--touch); padding: 0 14px;
 	border-radius: 999px; background: var(--card); border: 1px solid var(--line);
 	color: var(--muted); transition: border-color 0.15s, color 0.15s;
 }
@@ -1070,7 +1070,7 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2
 	display: flex; flex-direction: column; gap: 8px;
 }
 .compare-header { display: flex; justify-content: space-between; align-items: center; }
-.btn-reanalyse { font-size: 12px; font-weight: 800; color: var(--muted); background: none; min-height: 30px; padding: 0; }
+.btn-reanalyse { font-size: 12px; font-weight: 800; color: var(--muted); background: none; min-height: var(--touch); padding: 0 8px; }
 .compare-text { font-size: 13px; line-height: 1.6; color: rgba(255,255,255,.75); }
 .btn-compare {
 	width: 100%; min-height: var(--touch); border-radius: 12px;
@@ -1176,6 +1176,7 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2
 	font-size: 12px; font-weight: 600;
 	color: rgba(255,255,255,.55);
 	cursor: pointer;
+	min-height: var(--touch);
 }
 .trend-chip-active {
 	background: rgba(14,154,184,.15);
@@ -1192,7 +1193,6 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2
 	border-radius: 3px 3px 0 0;
 	opacity: .75;
 	min-height: 8px;
-	transition: height .2s ease;
 }
 .mt-day   { font-size: 9px;  color: rgba(255,255,255,.45); margin-top: 4px; }
 .mt-month { font-size: 8px;  color: rgba(255,255,255,.25); }

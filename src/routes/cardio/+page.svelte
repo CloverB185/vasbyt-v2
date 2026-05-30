@@ -272,7 +272,7 @@
 	border: 1px solid var(--line);
 	background: rgba(255,255,255,.06);
 	color: var(--text); font-size: 13px; font-weight: 700;
-	min-height: 38px; white-space: nowrap;
+	min-height: var(--touch); white-space: nowrap;
 	transition: background .15s, border-color .15s;
 }
 .chip-active {
@@ -298,7 +298,7 @@
 .bar-chart {
 	display: flex; align-items: flex-end; gap: 4px; height: 62px; margin-bottom: 4px;
 }
-.bar { flex: 1; border-radius: 3px 3px 0 0; transition: height .2s; }
+.bar { flex: 1; border-radius: 3px 3px 0 0; }
 .bar-labels {
 	display: flex; justify-content: space-between;
 	font-size: 11px; color: var(--muted);

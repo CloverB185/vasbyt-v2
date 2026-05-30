@@ -996,7 +996,7 @@
 
 /* ── Progress bar ────────────────────────────────────────────── */
 .gym-prog { height: 3px; background: rgba(255,255,255,.07); border-radius: 99px; overflow: hidden; margin-bottom: 16px; }
-.gym-prog-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width .3s ease; }
+.gym-prog-fill { height: 100%; background: var(--accent); border-radius: 99px; }
 
 /* ── Exercise header ─────────────────────────────────────────── */
 .gym-head   { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }

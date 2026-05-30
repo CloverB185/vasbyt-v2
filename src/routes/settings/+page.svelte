@@ -955,11 +955,11 @@ ${libSnippet}`;
 			<div class="profile-row-2">
 				<div class="field">
 					<label class="field-label" for="profile-height">Height (cm)</label>
-					<input id="profile-height" type="number" min="100" max="250" placeholder="165" bind:value={heightInput} />
+					<input id="profile-height" type="number" min="100" max="250" placeholder="e.g. 175" bind:value={heightInput} />
 				</div>
 				<div class="field">
 					<label class="field-label" for="profile-target">Target weight (kg)</label>
-					<input id="profile-target" type="number" min="30" max="200" step="0.1" placeholder="60.0" bind:value={targetWtInput} />
+					<input id="profile-target" type="number" min="30" max="200" step="0.1" placeholder="e.g. 65" bind:value={targetWtInput} />
 				</div>
 			</div>
 			<div class="field">
@@ -1219,7 +1219,7 @@ ${libSnippet}`;
 	border: 1px solid var(--line);
 	background: rgba(255,255,255,.06);
 	color: var(--text); font-size: 13px; font-weight: 700;
-	min-height: 38px; white-space: nowrap;
+	min-height: var(--touch); white-space: nowrap;
 	transition: background .15s, border-color .15s;
 }
 .chip-active {
@@ -1236,7 +1236,7 @@ ${libSnippet}`;
 	border-radius: 10px; overflow: hidden;
 }
 .step-btn {
-	min-height: 40px; width: 40px; font-size: 18px; font-weight: 700;
+	min-height: var(--touch); width: var(--touch); font-size: 18px; font-weight: 700;
 	color: var(--accent); background: none; border-radius: 0; padding: 0;
 	display: flex; align-items: center; justify-content: center;
 }
@@ -1272,7 +1272,7 @@ ${libSnippet}`;
 .btn-ghost-sm {
 	background: rgba(255,255,255,.07); border: 1px solid var(--line);
 	color: var(--muted); font-weight: 700; font-size: 12px;
-	min-height: 36px; border-radius: 8px; padding: 0 12px;
+	min-height: var(--touch); border-radius: 8px; padding: 0 12px;
 }
 .btn-new-routine {
 	width: 100%; min-height: var(--touch); border-radius: 12px;
@@ -1384,7 +1384,7 @@ ${libSnippet}`;
 /* Workout / Rest toggle */
 .rb-toggle-row { display: flex; gap: 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
 .rb-toggle {
-	flex: 1; min-height: 40px; font-weight: 800; font-size: 13px;
+	flex: 1; min-height: var(--touch); font-weight: 800; font-size: 13px;
 	color: var(--muted); background: rgba(255,255,255,.04);
 	border-radius: 0;
 }
@@ -1429,7 +1429,7 @@ ${libSnippet}`;
 .rb-chip {
 	padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line);
 	background: rgba(255,255,255,.06); color: var(--muted);
-	font-size: 12px; font-weight: 700; min-height: 34px;
+	font-size: 12px; font-weight: 700; min-height: var(--touch);
 	transition: background .15s, border-color .15s, color .15s;
 }
 .rb-chip-active { background: rgba(14,154,184,.15); border-color: var(--accent); color: var(--accent); }
