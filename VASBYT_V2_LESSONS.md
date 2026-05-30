@@ -461,3 +461,13 @@
 **Fix:** Added `buildMeasTrend(metric?)` function — filters measurements to the selected metric, takes last 8 entries, normalises bar heights to min/max range (not from zero, so small changes are visible). `MEAS_METRICS` const array drives both the chip list and the function. `measMetricCounts` tracks how many entries have each metric — chips only enable if count ≥ 2. Delta note computes first→last cm change (green=down, amber=up, for body composition context). Chart placed as a standalone card between WHR card and the Measurements section. `buildMeasTrend()` wired into both `loadMeasurements()` and `saveMeasurement()` so it auto-refreshes on save. Switching metric calls `buildMeasTrend(m.key)` which sets `measTrendMetric` then rebuilds — one function handles both switch and refresh.
 **Files changed:** `src/routes/body/+page.svelte`
 **Cross-project:** YES — pattern: `buildChart(metric?)` with optional metric argument handles both metric-switch and data-refresh in one function. `Partial<Record<MetricKey, number>>` for availability counts is reusable for any multi-metric selector where not all metrics have data.
+
+---
+
+## [2026-05-30] — G2 Supplement Tracker
+
+**Symptom:** No way to track daily supplements — taken/skipped status, streak, or manage supplement list.
+**Root cause:** G2 deferred during initial V1→V2 port.
+**Fix:** Two new KEYS in `storage.ts` (`vasbytSupplements.v1`, `vasbytSuppLog.v1`). Six functions in `program.ts`: `getSupplements`, `addSupplement`, `deleteSupplement`, `getSuppLog`, `markSupp` (toggle: calling with same status clears it), `getTodaySuppStatus`, `getSuppStreak` (consecutive days where all supplements = 'taken'). Settings tab UI: streak badge, per-supplement Taken/Skip toggles (green/red active states), add form (name + optional dose, Enter key), manage list with delete. All touch targets ≥44px. DesignX 63/63 clean.
+**Files changed:** `src/lib/data/storage.ts`, `src/lib/data/program.ts`, `src/routes/settings/+page.svelte`
+**Cross-project:** YES — `markSupp` toggle pattern (calling same status = unmark) avoids needing a separate unmark function. `getSuppStreak` date-loop pattern (iterate backward from today, break on first non-qualifying day) works for any habit streak computation. Keep streak logic in program.ts, not in component — components just call `loadSupps()` after any mutation.
