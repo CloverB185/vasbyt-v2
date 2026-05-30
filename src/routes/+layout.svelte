@@ -160,7 +160,7 @@
 
 	<!-- Chat drawer -->
 	{#if chatOpen}
-		<div class="chat-backdrop" onclick={() => (chatOpen = false)}></div>
+		<div class="chat-backdrop" onclick={() => (chatOpen = false)} onkeydown={(e) => e.key === 'Escape' && (chatOpen = false)} role="button" tabindex="0" aria-label="Close chat"></div>
 		<div class="chat-drawer">
 			<div class="chat-hdr">
 				<span class="chat-title">AI Coach</span>

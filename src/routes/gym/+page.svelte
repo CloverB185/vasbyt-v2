@@ -666,7 +666,7 @@
 	{#if ex && !gifFailed}
 		{@const gUrl = gifUrlFor(ex.id)}
 		{#if gUrl}
-			<div class="ex-gif" onclick={() => openGif(gUrl, ex!.name)}>
+			<div class="ex-gif" onclick={() => openGif(gUrl, ex!.name)} onkeydown={(e) => e.key === 'Enter' && openGif(gUrl, ex!.name)} role="button" tabindex="0" aria-label="View {ex!.name} GIF">
 				<img
 					src={gUrl}
 					alt={ex.name}
@@ -923,7 +923,7 @@
 
 <!-- GIF lightbox overlay -->
 {#if gifOverlay}
-	<div class="gif-overlay" onclick={() => gifOverlay = false}>
+	<div class="gif-overlay" onclick={() => gifOverlay = false} onkeydown={(e) => { if (e.key === 'Escape' || e.key === 'Enter') gifOverlay = false }} role="button" tabindex="0" aria-label="Close GIF">
 		<p class="gif-ov-name">{gifOvName}</p>
 		<img src={gifOvUrl} alt={gifOvName} class="gif-ov-img" />
 		<p class="gif-ov-close">Tap anywhere to close</p>

@@ -506,7 +506,7 @@
 <!-- Photo expand overlay -->
 {#if expanded}
 	<div class="photo-overlay" onclick={() => (expanded = null)} role="button" tabindex="0" onkeydown={e => e.key === 'Escape' && (expanded = null)}>
-		<img src={expanded} alt="Progress photo" />
+		<img src={expanded} alt="Progress" />
 		<button class="overlay-close" onclick={(e) => { e.stopPropagation(); expanded = null; }}>×</button>
 	</div>
 {/if}
@@ -876,11 +876,11 @@
 				<div class="photo-grid">
 					{#each session.photos as photo}
 						<div class="photo-thumb">
-							<img src={photo.dataUrl} alt={photo.pose ?? 'photo'}
-								onclick={() => (expanded = photo.dataUrl)}
-								loading="lazy" />
+							<button class="photo-img-btn" onclick={() => (expanded = photo.dataUrl)}>
+								<img src={photo.dataUrl} alt={photo.pose ? POSE_LABEL[photo.pose] : 'Progress'} loading="lazy" />
+							</button>
 							<div class="photo-label">{photo.pose ? POSE_LABEL[photo.pose] : photo.time}</div>
-							<button class="photo-del" onclick={() => handleDelete(photo.id)}>×</button>
+							<button class="photo-del" onclick={(e) => { e.stopPropagation(); handleDelete(photo.id); }}>×</button>
 						</div>
 					{/each}
 				</div>
@@ -1042,9 +1042,12 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2
 	position: relative; border-radius: 10px; overflow: hidden;
 	aspect-ratio: 3/4; background: var(--panel);
 }
-.photo-thumb img {
-	width: 100%; height: 100%; object-fit: cover;
-	cursor: pointer; display: block;
+.photo-img-btn {
+	display: block; width: 100%; height: 100%;
+	padding: 0; min-height: unset; background: none; border-radius: 0;
+}
+.photo-img-btn img {
+	width: 100%; height: 100%; object-fit: cover; display: block;
 }
 .photo-label {
 	position: absolute; bottom: 0; left: 0; right: 0;

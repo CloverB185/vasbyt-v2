@@ -633,9 +633,9 @@
 	padding: 10px 12px;
 	background: rgba(247,201,72,.10);
 	border-radius: 8px;
-	border-left: 3px solid #f7c948;
+	border-left: 3px solid var(--gold);
 }
-.pr-title { font-size: 12px; font-weight: 700; color: #f7c948; margin-bottom: 6px; }
+.pr-title { font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 6px; }
 .pr-row { font-size: 13px; color: rgba(255,255,255,.85); }
 
 /* Motivational */
@@ -703,7 +703,7 @@
 .stat-val { font-size: 38px; font-weight: 900; color: var(--accent); line-height: 1; }
 .stat-lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 .streak-card { border-color: rgba(247,201,72,.35); background: rgba(247,201,72,.06); }
-.streak-val { color: #f7c948; }
+.streak-val { color: var(--gold); }
 
 /* ── Frequency chart ── */
 .freq-card { }
@@ -814,8 +814,8 @@
 	color: rgba(255,255,255,.4);
 	width: 18px; text-align: center;
 }
-.trend-badge.trend-up { color: #4caf7d; }
-.trend-badge.trend-down { color: #e57373; }
+.trend-badge.trend-up { color: var(--green); }
+.trend-badge.trend-down { color: var(--red); }
 
 .ex-body {
 	padding: 0 16px 14px;
@@ -865,8 +865,8 @@
 	background: rgba(255,255,255,.04);
 	border-radius: 6px;
 }
-.trend-note.trend-note-up { color: #4caf7d; background: rgba(76,175,61,.08); }
-.trend-note.trend-note-down { color: #e57373; background: rgba(229,115,115,.08); }
+.trend-note.trend-note-up { color: var(--green); background: rgba(47,179,109,.08); }
+.trend-note.trend-note-down { color: var(--red); background: rgba(233,83,83,.08); }
 
 /* Recent sets */
 .recent-label {
