@@ -6,7 +6,10 @@
 		getPresetRoutines, activatePreset,
 		getSavedRoutines, saveCustomRoutine,
 		deleteCustomRoutine, activateCustomRoutine,
-		type PresetRoutine, type SavedRoutine, type RbDay
+		getSupplements, addSupplement, deleteSupplement,
+		getTodaySuppStatus, getSuppStreak, markSupp,
+		type PresetRoutine, type SavedRoutine, type RbDay,
+		type Supplement, type SuppStatus
 	} from '$lib/data/program';
 	import { J, S, KEYS, today } from '$lib/data/storage';
 
@@ -42,6 +45,13 @@
 		{ val: 'kettlebell',  label: 'Kettlebell'  },
 		{ val: 'band',        label: 'Band'        },
 	];
+
+	// ── Supplements ───────────────────────────────────────────
+	let supplements  = $state<Supplement[]>([]);
+	let suppStatus   = $state<Record<string, SuppStatus>>({});
+	let suppStreak   = $state(0);
+	let newSuppName  = $state('');
+	let newSuppDose  = $state('');
 
 	// ── Routine builder state ─────────────────────────────────
 	let rbActive   = $state(false);
@@ -83,7 +93,35 @@
 		const rawEquip = J<unknown>(KEYS.equip(), '');
 		if (typeof rawEquip === 'string') equipChip = rawEquip;
 		else equipChip = ''; // V1 format or unset → default to all
+
+		// Supplements
+		loadSupps();
 	});
+
+	// ── Supplement helpers ────────────────────────────────────
+	function loadSupps() {
+		supplements = getSupplements();
+		suppStatus  = getTodaySuppStatus();
+		suppStreak  = getSuppStreak();
+	}
+
+	function addSupp() {
+		if (!newSuppName.trim()) return;
+		addSupplement(newSuppName.trim(), newSuppDose.trim() || undefined);
+		newSuppName = ''; newSuppDose = '';
+		loadSupps();
+	}
+
+	function removeSupp(id: string) {
+		deleteSupplement(id);
+		loadSupps();
+	}
+
+	function toggleSupp(id: string, status: SuppStatus) {
+		markSupp(id, status);
+		suppStatus = getTodaySuppStatus();
+		suppStreak = getSuppStreak();
+	}
 
 	// ── Equipment ─────────────────────────────────────────────
 	function setEquip(chip: string) {
@@ -1073,6 +1111,71 @@ ${libSnippet}`;
 		</div>
 	</div>
 
+	<!-- Supplements -->
+	<div class="section">
+		<div class="section-label">Supplements</div>
+		<div class="card supp-card">
+
+			{#if supplements.length > 0}
+				{#if suppStreak > 0}
+					<div class="supp-streak">🔥 {suppStreak} day{suppStreak === 1 ? '' : 's'} streak</div>
+				{/if}
+
+				<div class="supp-today-label">Today</div>
+				{#each supplements as s}
+					<div class="supp-row">
+						<div class="supp-info">
+							<span class="supp-name">{s.name}</span>
+							{#if s.dose}<span class="supp-dose">{s.dose}</span>{/if}
+						</div>
+						<div class="supp-btns">
+							<button
+								class="supp-btn"
+								class:supp-taken={suppStatus[s.id] === 'taken'}
+								onclick={() => toggleSupp(s.id, 'taken')}>Taken</button>
+							<button
+								class="supp-btn"
+								class:supp-skipped={suppStatus[s.id] === 'skipped'}
+								onclick={() => toggleSupp(s.id, 'skipped')}>Skip</button>
+						</div>
+					</div>
+				{/each}
+
+				<div class="card-divider"></div>
+			{/if}
+
+			<!-- Add form -->
+			<div class="supp-add-row">
+				<input
+					class="supp-input"
+					type="text"
+					placeholder="e.g. Vitamin D"
+					bind:value={newSuppName}
+					onkeydown={(e) => e.key === 'Enter' && addSupp()}
+				/>
+				<input
+					class="supp-dose-input"
+					type="text"
+					placeholder="Dose (opt.)"
+					bind:value={newSuppDose}
+				/>
+				<button class="supp-add-btn" disabled={!newSuppName.trim()} onclick={addSupp}>+ Add</button>
+			</div>
+
+			{#if supplements.length > 0}
+				<div class="supp-list">
+					{#each supplements as s}
+						<div class="supp-item">
+							<span class="supp-item-name">{s.name}{s.dose ? ` · ${s.dose}` : ''}</span>
+							<button class="supp-del" onclick={() => removeSupp(s.id)} aria-label="Remove {s.name}">×</button>
+						</div>
+					{/each}
+				</div>
+			{/if}
+
+		</div>
+	</div>
+
 	<!-- Appearance -->
 	<div class="section">
 		<div class="section-label">Appearance</div>
@@ -1592,4 +1695,56 @@ ${libSnippet}`;
 	border-color: rgba(14,154,184,.3);
 	color: var(--accent);
 }
+
+/* ── Supplement tracker ─────────────────────────────────────── */
+.supp-card { display: flex; flex-direction: column; gap: 10px; }
+.supp-streak {
+	font-size: 14px; font-weight: 800; color: var(--amber);
+	text-align: center; padding: 2px 0;
+}
+.supp-today-label {
+	font-size: 11px; font-weight: 700; color: var(--muted);
+	text-transform: uppercase; letter-spacing: .06em;
+}
+.supp-row {
+	display: flex; align-items: center;
+	justify-content: space-between; gap: 10px;
+}
+.supp-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.supp-name { font-size: 14px; font-weight: 700; }
+.supp-dose { font-size: 12px; color: var(--muted); }
+.supp-btns { display: flex; gap: 6px; flex-shrink: 0; }
+.supp-btn {
+	padding: 0 16px; min-height: var(--touch);
+	border-radius: 999px; border: 1px solid var(--line);
+	background: rgba(255,255,255,.06);
+	font-size: 12px; font-weight: 700; color: var(--muted);
+	transition: background .15s, border-color .15s, color .15s;
+}
+.supp-btn.supp-taken  { background: rgba(47,179,109,.18); border-color: var(--green); color: var(--green); }
+.supp-btn.supp-skipped { background: rgba(233,83,83,.12); border-color: var(--red);   color: var(--red); }
+.supp-add-row { display: flex; gap: 8px; align-items: stretch; }
+.supp-input      { flex: 1; min-width: 0; }
+.supp-dose-input { width: 100px; flex-shrink: 0; }
+.supp-add-btn {
+	flex-shrink: 0; min-height: var(--touch); padding: 0 16px;
+	background: rgba(14,154,184,.15); border: 1px solid var(--accent);
+	color: var(--accent); font-weight: 800; font-size: 13px;
+	border-radius: 10px; white-space: nowrap;
+}
+.supp-add-btn:disabled { opacity: .4; cursor: not-allowed; }
+.supp-list { display: flex; flex-direction: column; }
+.supp-item {
+	display: flex; align-items: center; justify-content: space-between;
+	gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line);
+}
+.supp-item:last-child { border-bottom: none; }
+.supp-item-name { font-size: 13px; color: var(--muted); }
+.supp-del {
+	min-height: var(--touch); width: var(--touch); padding: 0;
+	background: none; color: var(--muted); font-size: 18px;
+	border-radius: 50%; flex-shrink: 0;
+	display: flex; align-items: center; justify-content: center;
+}
+.supp-del:hover { color: var(--red); }
 </style>

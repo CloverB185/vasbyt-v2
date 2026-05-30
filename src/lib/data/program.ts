@@ -965,6 +965,79 @@ export function getSessionBriefing(exercises: Exercise[]): SessionBriefingEntry[
 	});
 }
 
+// ── Supplement tracker ────────────────────────────────────────
+
+export interface Supplement {
+	id: string;
+	name: string;
+	dose?: string;
+}
+
+export type SuppStatus = 'taken' | 'skipped';
+
+function _suppId(): string {
+	return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+export function getSupplements(): Supplement[] {
+	return J<Supplement[]>(KEYS.supplements(), []);
+}
+
+export function addSupplement(name: string, dose?: string): void {
+	const list = getSupplements();
+	list.push({ id: _suppId(), name, ...(dose ? { dose } : {}) });
+	S(KEYS.supplements(), list);
+}
+
+export function deleteSupplement(id: string): void {
+	S(KEYS.supplements(), getSupplements().filter(s => s.id !== id));
+}
+
+export function getSuppLog(): Record<string, Record<string, SuppStatus>> {
+	return J<Record<string, Record<string, SuppStatus>>>(KEYS.suppLog(), {});
+}
+
+/** Mark a supplement taken/skipped for today. Calling with the same status toggles it off. */
+export function markSupp(id: string, status: SuppStatus): void {
+	const log = getSuppLog();
+	const t = today();
+	if (!log[t]) log[t] = {};
+	if (log[t][id] === status) {
+		delete log[t][id];
+		if (Object.keys(log[t]).length === 0) delete log[t];
+	} else {
+		log[t][id] = status;
+	}
+	S(KEYS.suppLog(), log);
+}
+
+/** Returns today's supplement statuses as { [id]: status }. */
+export function getTodaySuppStatus(): Record<string, SuppStatus> {
+	const log = getSuppLog();
+	return log[today()] ?? {};
+}
+
+/** Consecutive days (including today) where every supplement was 'taken'. */
+export function getSuppStreak(): number {
+	const list = getSupplements();
+	if (!list.length) return 0;
+	const log = getSuppLog();
+	let streak = 0;
+	const d = new Date();
+	for (let i = 0; i < 365; i++) {
+		const dateStr =
+			d.getFullYear() +
+			'-' + String(d.getMonth() + 1).padStart(2, '0') +
+			'-' + String(d.getDate()).padStart(2, '0');
+		const dayLog = log[dateStr] ?? {};
+		const allTaken = list.every(s => dayLog[s.id] === 'taken');
+		if (!allTaken) break;
+		streak++;
+		d.setDate(d.getDate() - 1);
+	}
+	return streak;
+}
+
 /** Save a finish record and advance the day/week counters */
 export function finishWorkout(): void {
 	const w = getWeek();
