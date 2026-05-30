@@ -101,6 +101,7 @@ button {
   padding: 0 16px;
 }
 
+button { transition: transform 100ms ease-out; }
 button:active { transform: scale(0.97); }
 
 input {

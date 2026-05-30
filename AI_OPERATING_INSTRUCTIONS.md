@@ -63,41 +63,31 @@ Phrases like:
 
 ---
 
-### 🚀 SIGNALS: Ready to commit / push
+### 🚀 SIGNALS: Ready to commit / push — or go live
 Phrases like:
   "commit this", "push this", "save this version",
   "let's commit", "push it up", "push to GitHub",
-  "I want to save this", "check everything before pushing"
-
-→ DO THIS AUTOMATICALLY:
-  1. Run Tier 1 (designx.spec.ts) — fast design gate
-  2. Run Tier 2 (/testx via TestX skill) — a11y, boundary, visual regression
-  3. Run npm run build — confirm exit 0
-  4. Show a combined report
-  5. Fix any FAIL findings yourself before confirming the push is clear
-  6. Then: git add [specific files] && git commit -m "[message]" && git push
-
----
-
-### 🌍 SIGNALS: Going live / deploying
-Phrases like:
+  "I want to save this", "check everything before pushing",
   "let's launch", "ship it", "go live", "deploy this",
-  "push to production", "ready to launch", "publish this",
-  "make it live", "this is ready", "release it",
-  "going live today", "can we launch?", "is it ready to ship?"
+  "push to production", "ready to launch", "make it live",
+  "this is ready", "release it", "can we launch?", "is it ready to ship?"
 
-⚠️ VASBYT DEPLOY WARNING — READ THIS CAREFULLY:
-  Vasbyt deploys to Cloudflare Pages via git push to master.
-  There is NO separate deploy step. The moment you push, it ships.
-  "git push" IS the deploy. The gate must happen BEFORE git push, not after.
+⚠️ VASBYT: push = deploy. git push origin master triggers Cloudflare
+  Pages and ships to production in ~30–60s. There is no separate deploy
+  step. The gate runs BEFORE the push — not after.
 
-→ DO THIS AUTOMATICALLY — IN THIS ORDER — BEFORE ANY PUSH:
+→ STANDARD PRE-PUSH GATE — runs before EVERY push:
   1. npm run build — must exit 0
-  2. Run Tier 1 (designx.spec.ts) — design gate
-  3. Run SitecheckX: .\scripts\sitecheckx.ps1 from project root
-  4. Show a full report with scores
-  5. ONLY run git push if all checks pass
-  6. If anything fails: fix it first, then re-run that check
+  2. npx playwright test tests/designx.spec.ts — 63 tests, all must pass
+  3. .\scripts\sitecheckx.ps1 — visual regression · svelte-check · build
+  4. Fix any failures before proceeding
+  5. git add [specific files] && git commit -m "[message]" && git push
+
+  For major feature pushes (new tab, new data layer, significant UI):
+  also run /testx before step 1 — covers WCAG 2.1 AA, input boundaries,
+  offline behaviour, and deeper visual regression.
+
+  After any push: verify https://vasbyt-v2.pages.dev loads correctly.
 
 ---
 
@@ -181,7 +171,7 @@ Phrases like:
 
 → DO THIS AUTOMATICALLY:
   Run SitecheckX: .\scripts\sitecheckx.ps1
-  Layers: TypeScript · lint · visual regression · full build
+  Layers: visual regression (Playwright) · svelte-check · full build
   Present findings by severity — Critical first
 
 ---
@@ -207,9 +197,9 @@ These apply in all sessions, regardless of what Clover says:
    before we push?"
 
 5. WHEN A PUSH COMMAND IS DETECTED:
-   ⚠️ Cloudflare auto-deploys on push. Never push without
-   Tier 1 (designx.spec.ts) + npm run build having passed.
-   If they haven't: run them first, then push.
+   ⚠️ Cloudflare auto-deploys on push. Run the standard gate first:
+   npm run build → designx.spec.ts → sitecheckx.ps1
+   All three must pass. Then push. Never push on a red gate.
 
 ---
 
@@ -272,20 +262,25 @@ Tier 1 — designx.spec.ts (~90s, 63 tests across 7 pages)
   When:   After any UI edit. Before any commit. Auto-run on "done".
   Run:    npx playwright test tests/designx.spec.ts
 
-Tier 2 — TestX skill (~manual)
+Tier 2 — TestX skill (~manual, ~35s)
   Checks: A11y WCAG 2.1 AA, input boundary/edge cases,
-          offline behaviour, visual regression
-  When:   Before push. Run /testx to trigger.
+          offline behaviour, deep visual regression
+  When:   Major feature additions (new tab, new data layer, significant UI),
+          or when explicitly requested with /testx.
+          Not required for every push — use the standard gate instead.
+  Run:    /testx (skill trigger)
 
 Visual regression — visual-regression.spec.ts
   Checks: 7-page pixel diff against baseline snapshots
   Run:    npx playwright test tests/visual-regression.spec.ts
-  Update: npx playwright test --update-snapshots (after intentional UI changes)
+  Update: npx playwright test --update-snapshots
+          ⚠️ Run --update-snapshots BEFORE SitecheckX when UI changes are
+          intentional — otherwise SitecheckX layer 1 will fail on stale baselines.
 
 SitecheckX — sitecheckx.ps1
-  Layers: TypeScript · svelte typecheck · full build
+  Layers: visual regression (Playwright snapshots) · svelte-check · npm run build
   Run:    .\scripts\sitecheckx.ps1 from project root
-  When:   Before any push to master (Cloudflare auto-deploys on push)
+  When:   Part of the standard pre-push gate — runs on every push
 
 Build gate — npm run build
   Must exit 0 before any commit. No exceptions.

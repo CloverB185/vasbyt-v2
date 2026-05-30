@@ -1344,7 +1344,7 @@ ${libSnippet}`;
 	display: flex; align-items: center; justify-content: center;
 }
 .step-btn:disabled { color: var(--muted); opacity: .4; }
-.step-val { min-width: 36px; text-align: center; font-size: 16px; font-weight: 900; }
+.step-val { min-width: 36px; text-align: center; font-size: 16px; font-weight: 900; font-variant-numeric: tabular-nums; }
 .hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
 
 /* Routine */
@@ -1700,7 +1700,7 @@ ${libSnippet}`;
 .supp-card { display: flex; flex-direction: column; gap: 10px; }
 .supp-streak {
 	font-size: 14px; font-weight: 800; color: var(--amber);
-	text-align: center; padding: 2px 0;
+	text-align: center; padding: 2px 0; font-variant-numeric: tabular-nums;
 }
 .supp-today-label {
 	font-size: 11px; font-weight: 700; color: var(--muted);

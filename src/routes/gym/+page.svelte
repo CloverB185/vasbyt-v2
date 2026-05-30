@@ -957,7 +957,7 @@
 .summary-sub { font-size: 14px; color: var(--muted); font-weight: 700; margin: 0; }
 .summary-stats { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; }
 .stat-block { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.stat-val   { font-size: 36px; font-weight: 900; color: var(--accent); line-height: 1; }
+.stat-val   { font-size: 36px; font-weight: 900; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums; }
 .stat-lbl   { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 .summary-prs {
 	width: 100%; background: rgba(255,183,0,.1); border: 1px solid rgba(255,183,0,.4);
@@ -1059,7 +1059,7 @@
 	color: var(--text); line-height: 1;
 }
 .step-btn:active { background: rgba(255,255,255,.12); }
-.set-input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px; font-size: 28px; font-weight: 900; text-align: center; color: var(--text); min-height: var(--touch-lg); }
+.set-input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px; font-size: 28px; font-weight: 900; text-align: center; color: var(--text); min-height: var(--touch-lg); font-variant-numeric: tabular-nums; }
 .set-input:focus { outline: none; border-color: var(--accent); }
 .bw-grp    { justify-content: center; align-items: center; }
 .bw-lbl    { font-size: 14px; font-weight: 700; color: var(--muted); }

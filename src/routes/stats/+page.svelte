@@ -700,10 +700,10 @@
 	gap: 2px; background: var(--card); border: 1px solid var(--line);
 	border-radius: 16px; padding: 18px 12px;
 }
-.stat-val { font-size: 38px; font-weight: 900; color: var(--accent); line-height: 1; }
+.stat-val { font-size: 38px; font-weight: 900; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums; }
 .stat-lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 .streak-card { border-color: rgba(247,201,72,.35); background: rgba(247,201,72,.06); }
-.streak-val { color: var(--gold); }
+.streak-val { color: var(--gold); font-variant-numeric: tabular-nums; }
 
 /* ── Frequency chart ── */
 .freq-card { }
