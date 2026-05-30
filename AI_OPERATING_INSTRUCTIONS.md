@@ -123,6 +123,34 @@ Phrases like:
 
 ---
 
+### ⚡ SIGNALS: Performance concern
+Phrases like:
+  "is it fast?", "it feels slow", "check performance",
+  "what's the Lighthouse score?", "how does it score?",
+  "is it optimised?", "load time check", "Core Web Vitals",
+  "check the PWA score"
+
+→ DO THIS AUTOMATICALLY:
+  1. Start dev server if not running: npm run dev (port 5173)
+  2. For a quick score: call mcp__lighthouse-mcp__get_performance_score
+       url: "http://localhost:5173", device: "mobile"
+  3. For a full audit: call mcp__lighthouse-mcp__run_audit
+       url: "http://localhost:5173"
+       categories: ["performance", "pwa", "accessibility"]
+       device: "mobile"
+       throttling: true  ← simulates real mobile network
+  4. For production check (post-push): use https://vasbyt-v2.pages.dev
+  5. Show scores + top failing audits with file:line if applicable
+  6. Fix the Critical findings. Re-audit. Show before/after scores.
+
+  Vasbyt-specific: always audit mobile (it's a mobile-first PWA).
+  Include 'pwa' category — it matters for installability and offline.
+  Skip 'seo' — Vasbyt is an app, not a content site.
+  throttling: false is fine for quick dev iteration; use true for
+  realistic scores before any push.
+
+---
+
 ### ♿ SIGNALS: Accessibility concern
 Phrases like:
   "is it accessible?", "check a11y", "accessibility check",
